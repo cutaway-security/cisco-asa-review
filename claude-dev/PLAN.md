@@ -9,10 +9,11 @@ with no network and no device access.
 
 ## Current Phase
 
-**Phase**: Phase 1 — Test environment + fixtures
-**Status**: Complete (2026-06-24) — gate passed: 15/15 Pester tests green,
-fixtures + real configs present locally
-**Focus**: Next is Phase 2 — build and gate the v0.1a-core parser.
+**Phase**: Phase 2 — v0.1a-core parser
+**Status**: Complete (2026-06-24) — gate passed: 36/36 Pester tests green (TR-03
+parser + TR-07 clean parse of both real configs)
+**Focus**: Next is Phase 3 — v0.1b-prep support models (minimal resolution,
+password classifier, defaults model, interface-role model).
 
 ## Phases
 
@@ -43,20 +44,23 @@ test code.
 
 ### Phase 2: v0.1a-core — Parser foundation (load-bearing)
 
-**Status**: Not Started
+**Status**: Complete (2026-06-24)
 
-- [ ] `Read-AsaConfig.ps1`: bounded, encoding-safe load with SR-07 thresholds
-      (~10 MB file, ~4 KB line, ~10 nesting).
-- [ ] `ConvertTo-AsaModel.ps1`: indentation tree (indent stack) + repeated-prefix
-      family index, line-number + raw-text retained per node.
-- [ ] `name` map extraction; verbose model dump (OR-04).
-- [ ] Parser unit tests (TR-03): nesting 2-3 deep, repeated-prefix grouping,
-      name resolution, multi-line banner reassembly, two-NAT / two-webvpn
-      disambiguation.
+- [x] `src/Read-AsaConfig.ps1`: bounded, encoding-safe load with SR-07 thresholds
+      (10 MB file, 4 KB line) + CRLF/LF normalization.
+- [x] `src/ConvertTo-AsaModel.ps1`: indentation tree (indent stack, MaxDepth guard)
+      + repeated-prefix family index (access-list, crypto map, name, banner,
+      tunnel-group, http/ssh/telnet, twice-NAT) + object/object-group/interface
+      symbol tables; line-number + raw text retained per node.
+- [x] `name` IP/symbol map; verbose model dump `src/Show-AsaModel.ps1` (OR-04).
+- [x] Parser unit tests (TR-03): bounded-reader failure modes, 3-deep nesting,
+      repeated-prefix grouping, name map, B6 legacy object-group capture,
+      multi-line banner reassembly, object-NAT vs twice-NAT, global vs nested
+      webvpn, and a preorder-line-number integrity invariant.
 
-**Acceptance gate (staged guard, parser tier)**: 100% TR-03 parser tests pass AND
-the parser cleanly parses both real sanitized configs (TR-07 operational
-definition) with no misassigned lines.
+**Acceptance gate (staged guard, parser tier)**: PASSED — 36/36 Pester tests
+green; both real sanitized configs parse with zero integrity problems (TR-07);
+dump cross-validates expected construct counts.
 
 ### Phase 3: v0.1b-prep — Support models
 

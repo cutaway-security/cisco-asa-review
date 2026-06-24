@@ -7,6 +7,38 @@ project's lifetime.
 
 ---
 
+## 2026-06-24 -- Phase 2: v0.1a-core parser (gate passed)
+
+**What landed**
+
+- `src/Read-AsaConfig.ps1` -- bounded, encoding-safe reader (SR-07: 10 MB file / 4 KB line guards, CRLF/LF normalization, graceful throws). Read-only.
+- `src/ConvertTo-AsaModel.ps1` -- the load-bearing parser. Single pass builds (1) an indentation tree of line nodes (indent stack, MaxDepth guard) and (2) a repeated-prefix family index (access-list by name, crypto map by name, name IP/symbol map, banner multi-line reassembly per type, tunnel-group, http/ssh/telnet, twice-NAT), plus object/object-group/interface symbol tables. Line number + raw text retained per node. No resolution, no checks, no network, no dynamic eval (SR-06).
+- `src/Show-AsaModel.ps1` -- verbose model dump (OR-04): tree + index summary.
+- `tests/unit/Parser.Tests.ps1` -- 21 TR-03 tests + the TR-07 real-config gate.
+
+**Durable decisions**
+
+- Node shape: `{ LineNo, Raw, Indent, Text, Kind, Parent, Children, Depth }`. Kind in {line, blank, separator, metadata}. Only 'line' nodes participate in the indent stack; blank/`!`/`:`-metadata attach at top level and never parent (so `!` separators don't corrupt nesting, and every line is still placed).
+- "Clean parse" / "no misassigned lines" (TR-07) is operationalized as an invariant: a preorder DFS of the tree yields exactly the file line order 1..N, and every child's indent is strictly greater than its parent's. This is machine-checked (`Get-IntegrityProblems`) on both fixtures and both real configs.
+- NAT disambiguation falls out of the tree for free: object-NAT is an indented child of an `object network` block; twice-NAT is a top-level `nat (...) source ...` line. Same for the two webvpn contexts (global indent-0 vs nested under `group-policy attributes`). No special-casing needed -- the parent/child model handles it.
+
+**Lessons**
+
+- Pester 5's Detailed output renderer chokes on a `<->` arrow in an It title with a cryptic `CommandNotFoundException: The term '$-' is not recognized` at DISCOVERY/render time. It is NOT a code bug -- the parser was correct. Keep test titles free of `<->` (and likely other operator-like punctuation). Cost me one debugging cycle; isolated by reproducing with a 2-line throwaway test.
+- The verbose dump (Show-AsaModel) doubles as a cross-validator: its index counts on the insecure fixture matched the Phase-1 expected-findings construct expectations exactly (5 ACLs with outside_in=3/inside_in=2, 5 objects, 6 object-groups, 5 interfaces, maxdepth 2, twice-nat 1), and on the real ASABuzzNick config it correctly reassembled 4 multi-line banner types and indexed 14 interfaces. Good cheap confidence that the parser handles real device output.
+- Dev host is Linux/pwsh 7.6.2; the tool must still be verified on Windows PowerShell 5.1 (NFR-01) before any "shipped" claim -- carried as a Next Step.
+
+**Project context**
+
+- Phase 2 gate PASSED: 36/36 tests green (15 corpus + 21 parser), exit 0. The load-bearing parser is proven in isolation against real device output before any check consumes it -- exactly the v0.1a/v0.1b discipline the multi-AI passes insisted on.
+- Next: Phase 3 builds the v0.1b-prep support models (minimal resolution, password classifier, defaults model, interface-role model), then Phase 4 the checks.
+
+**Next session**
+
+- Build the password-hash classifier first (smallest, highest-consequence -- a misclassified hash is the worst miss), using the insecure fixture's `Secrets` block as the oracle; then the defaults + interface-role models.
+
+---
+
 ## 2026-06-24 -- Phase 1: test environment + fixtures (gate passed)
 
 **What landed**

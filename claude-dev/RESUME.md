@@ -3,8 +3,8 @@
 ## Current State
 
 **Last Session**: 2026-06-24
-**Branch**: claude-dev (git initialized; commit 6ae8d26 = planning set)
-**Status**: Clean — Phase 1 complete and gated
+**Branch**: claude-dev (git initialized; 6ae8d26 planning, b2ef872 Phase 1)
+**Status**: Clean — Phase 2 (v0.1a-core parser) complete and gated
 
 ## What Was Accomplished
 
@@ -22,9 +22,18 @@
   - Pester 5.7.1 installed (dev dependency); harness `tests/Invoke-Tests.ps1` +
     `tests/unit/Corpus.Tests.ps1`. Result: 15/15 green, exit 0, no network.
 
+- **Phase 2 (v0.1a-core parser), gate PASSED:**
+  - `src/Read-AsaConfig.ps1` (bounded reader, SR-07), `src/ConvertTo-AsaModel.ps1`
+    (indentation tree + repeated-prefix index + symbol tables + name map),
+    `src/Show-AsaModel.ps1` (verbose dump, OR-04).
+  - `tests/unit/Parser.Tests.ps1` — 21 parser tests incl. the TR-07 real-config
+    gate and a preorder-line-number integrity invariant.
+  - Full suite: 36/36 green, exit 0. Both real configs parse with zero integrity
+    problems; dump cross-validates expected construct counts.
+
 ## In Progress
 
-Nothing in progress. Phase 1 is complete and gated.
+Nothing in progress. Phase 2 is complete and gated.
 
 ## Blockers
 
@@ -34,13 +43,20 @@ Nothing in progress. Phase 1 is complete and gated.
 
 ## Next Steps
 
-1. Commit the Phase 1 corpus + harness (real configs stay gitignored).
-2. Phase 2 (v0.1a-core parser): `Read-AsaConfig.ps1` (bounded read, SR-07
-   thresholds), `ConvertTo-AsaModel.ps1` (indentation tree + repeated-prefix
-   index, line/raw retained), `name` map, verbose dump. Parser unit tests (TR-03)
-   against the insecure fixture's ConstructsPresent list.
-3. Gate Phase 2: 100% TR-03 + clean parse of both real configs (TR-07).
-4. Optional process items (PLAN "Open process items"): ADRs, traceability matrix.
+1. Phase 3 (v0.1b-prep support models):
+   - Minimal object/object-group resolution (FR-05a) with a stated nesting depth
+     and OR-03 "not assessed" beyond it.
+   - Password-hash classifier (FR-09): pbkdf2/encrypted/nt-encrypted/cleartext;
+     gate `nt-encrypted` as "not-cleartext" (TSC-05). Use the insecure fixture's
+     `Secrets` block as the oracle.
+   - `data/asa-defaults.psd1` (FR-08b, DR-06): MVP-15 absence defaults, each with
+     a Cisco doc citation.
+   - `src/Get-AsaInterfaceRoles.ps1` (FR-08a): nameif + security-level per
+     interface; uRPF rule = security-level 0 OR nameif outside.
+2. Phase 4: check engine + the 15 MVP checks + Markdown/CSV + masking; gate on
+   the expected-findings oracle (exact TP / zero FP) and TSC-12 no-leak.
+3. Optional process items (PLAN "Open process items"): ADRs, traceability matrix.
+4. Run on Windows PowerShell 5.1 to confirm NFR-01 (dev host is pwsh 7.6.2).
 
 ## Open Questions
 
