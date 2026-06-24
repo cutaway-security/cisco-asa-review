@@ -71,8 +71,8 @@
 
 ## In Progress
 
-Nothing being coded. Phase 5 complete and gated on `claude-dev`. **Not yet
-released to `main`** (per the curated release procedure). Awaiting instructions.
+Nothing being coded. **Released v0.1c to `main`** (2026-06-24, orphan rebuild per
+RELEASE_TO_MAIN.md; no Claude files on main; tag v0.1c). Awaiting instructions.
 
 ## Blockers
 
@@ -82,8 +82,7 @@ released to `main`** (per the curated release procedure). Awaiting instructions.
 
 ## Next Steps
 
-1. **Decide on releasing Phase 5 to `main`** (re-cut per `RELEASE_TO_MAIN.md`, bump
-   tag) — held pending instructions.
+1. (DONE) Released Phase 5/5b/5c to `main` as v0.1c.
 2. Still pending for a full "shipped" claim: run on **Windows PowerShell 5.1**
    (TSC-09/NFR-01; PSv7 is now validated), a runtime egress-monitor check (TSC-11),
    and a findings-accuracy review against a real engagement config.

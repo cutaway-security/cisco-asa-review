@@ -7,6 +7,18 @@ project's lifetime.
 
 ---
 
+## 2026-06-24 -- Released v0.1c to main
+
+Re-cut `main` per RELEASE_TO_MAIN.md (orphan rebuild from claude-dev 7406e6d):
+release files only, no Claude files (CLAUDE.md/claude-dev/.ai-reviews/background
+excluded), release-variant README (no claude-dev links, Status updated to v0.1c),
+103/103 tests green on the release tree, force-pushed `main`, tagged **v0.1c**
+(previous tag v0.1b retained). v0.1c = MVP checks + segmentation visualization +
+self-contained HTML deliverable + any-to-all-zones collapse. `v0.2` deliberately
+reserved for the planned coverage milestone, so this additive release is v0.1c.
+
+---
+
 ## 2026-06-24 -- Phase 5c: any-to-all-zones collapse (default), -ExpandAnyAny opt-in
 
 A `permit ip any any` fans out to every zone, producing a red-arrow hairball in the topology. At the maintainer's request, collapse is now the DEFAULT and expansion is opt-in.

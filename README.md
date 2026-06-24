@@ -122,16 +122,19 @@ stream so the stdout report stays clean. Secret values are masked by default.
 
 ## Status
 
-**Version:** v0.1b (MVP checks) complete.
+**Version:** v0.1c (released to `main`).
 **Last updated:** 2026-06-24.
 
-Implemented and gated (73/73 Pester tests green): the hierarchical parser
-(v0.1a-core), the v0.1b-prep support models (secret classifier, interface-role
-model, minimal object-group resolution, doc-cited defaults), and the v0.1b check
-engine running the 15 high-signal MVP checks with Markdown + CSV output and
-default secret masking. The parser is proven against two real sanitized configs
+Implemented and gated (103/103 Pester tests green): the hierarchical parser, the
+support models (secret classifier, interface-role model, minimal object-group
+resolution, doc-cited defaults), the check engine running the 15 high-signal MVP
+checks with Markdown + CSV output and default secret masking, and the
+segmentation + data-flow visualization — a Mermaid topology, a zone-to-zone
+matrix, and a single self-contained HTML deliverable (findings + inline-SVG
+topology), with `permit ip any any` exposures highlighted and any-to-all-zones
+collapsed by default. The parser is proven against two real sanitized configs
 (TR-07); the checks produce exact true positives and zero false positives on the
-synthesized fixtures.
+synthesized fixtures, and the HTML rendering is visually verified.
 
 **Validation bound:** no production ASA 5515 device or client config is available
 for development. Validation relies on a synthesized, syntactically faithful ASA
