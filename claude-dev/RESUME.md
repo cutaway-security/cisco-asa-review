@@ -51,13 +51,17 @@
   the tool under **PowerShell 7** — executed end to end and generated both the
   Markdown and CSV reports correctly. Reports look good.
 
-- **Phase 5 (segmentation + data-flow visualization), gate PASSED (2026-06-24):**
-  - `src/Get-AsaZoneModel.ps1` (zones + address→zone mapping + inter-zone edges),
-    `src/Write-AsaSegmentation.ps1` (Mermaid topology + zone matrix + risk-flow
-    list), wired into the entry point as a separate always-on output.
-  - `tests/unit/Segmentation.Tests.ps1` (14 tests); Guard write-boundary extended.
-    Full suite 89/89 green. End-to-end verified — both literal and
-    object-group-expressed ANY/ANY highlighted and attributed to the right ACL line.
+- **Phase 5 (segmentation visualization), gate PASSED (2026-06-24):**
+  `Get-AsaZoneModel.ps1` + `Write-AsaSegmentation.ps1` (Mermaid topology + zone
+  matrix + risk-flow list); `Segmentation.Tests.ps1` (14 tests).
+- **Phase 5b (consolidated HTML deliverable), gate PASSED (2026-06-24):**
+  - `src/Write-AsaHtmlReport.ps1`: single self-contained HTML = findings +
+    inline-SVG topology + colored matrix; embedded CSS, no JS, no external refs;
+    masking; deterministic. Browser Print->Save-as-PDF for PDF.
+  - Wired into entry point (always produced). `HtmlReport.Tests.ps1` (9 tests).
+  - Suite 98/98 green. **Rendering visually verified** via wkhtmltoimage (WebKit)
+    and the PDF path via wkhtmltopdf — the inline SVG renders realistically
+    (addressed the "SVG may not display as coded" concern with evidence).
 
 ## In Progress
 

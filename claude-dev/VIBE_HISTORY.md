@@ -7,6 +7,22 @@ project's lifetime.
 
 ---
 
+## 2026-06-24 -- Phase 5b: consolidated self-contained HTML deliverable (gate passed)
+
+**Why**: the client has no GitHub/VS Code, so the Mermaid `.md` does not render for them. Needed a deliverable that displays with nothing installed.
+
+**Decision (with the maintainer)**: one self-contained HTML report consolidating findings + segmentation. Topology = hand-emitted **inline SVG** (NOT JS-rendered Mermaid, NOT an analyst-side renderer); matrix = colored HTML table; embedded CSS; **no JavaScript, no external references**. Rationale: renders identically in any browser and prints to PDF with nothing installed, and an HTML-with-only-SVG/CSS attachment survives strict client mail/secure-transfer gateways that strip HTML+JS. PDF = browser Print -> Save as PDF (no PDF binary in the tool).
+
+**What landed**: `src/Write-AsaHtmlReport.ps1` (findings table with severity colors, inline-SVG zone topology in trust-tier columns with red ANY/ANY arrows + untrusted styling, colored zone matrix, risk-flow list; masking applied; deterministic). Wired into `Invoke-AsaReview.ps1` (always produced; now four outputs: MD findings, CSV, segmentation.md (Mermaid, internal), and the HTML deliverable). Guard write-boundary extended. `tests/unit/HtmlReport.Tests.ps1` (9 tests). Suite 98/98.
+
+**Addressing the maintainer's SVG concern ("SVG often does not display as coded")**: verified by RENDERING, not asserting. Rendered the HTML to a PNG with wkhtmltoimage (WebKit, same engine family as browsers) and visually inspected it -- the SVG topology and matrix display realistically and usably; the SVG also validates as well-formed XML (xmllint / [xml] parse). Confirmed the PDF path with wkhtmltopdf (47KB PDF). Layout stays robust because zones aggregate to a few nodes (tier-column layout, directional arrows by column comparison).
+
+**Lessons**: for a client deliverable, "diagram-as-code" (Mermaid) is the wrong final form -- it needs a renderer the client lacks. Inline SVG + HTML table is the portable answer: zero deps both sides, print-stable, mail-gateway-safe (no JS). Keep Mermaid as the INTERNAL artifact (renders in GitLab/VS Code for our own use). Always visually verify rendered output for a deliverable, not just structure assertions.
+
+**Status**: on `claude-dev` only; NOT released to `main`.
+
+---
+
 ## 2026-06-24 -- Phase 5: segmentation + data-flow visualization (gate passed)
 
 **What landed**

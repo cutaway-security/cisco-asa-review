@@ -141,6 +141,26 @@ topology + zone matrix), separate output file, always produced.
   (SR-01 holds). Secret masking (SR-04) applies to any evidence shown in the
   visualization.
 
+### Consolidated HTML deliverable (Phase 5b; decided 2026-06-24)
+
+Origin: client has no GitHub/VS Code, so Mermaid does not render for them. A
+single self-contained HTML report is the client deliverable.
+
+- **FR-27 [Viz]** The tool MUST produce a single **self-contained HTML report**
+  that consolidates the findings and the segmentation map (topology + matrix),
+  written next to the config (timestamped, never overwriting it), produced on
+  every run. It MUST open in any browser with no install and no internet.
+- **FR-28 [Viz]** The HTML MUST be self-contained and portable: embedded CSS
+  only, the topology drawn as **inline SVG** (renders and prints identically with
+  no diagram-as-code renderer), **no JavaScript**, and **no external resource
+  references** (so it survives strict client mail/secure-transfer gateways).
+  Secret masking (SR-04) applies. The SVG MUST be well-formed and render
+  realistically (verified by rendering, not asserted).
+- **FR-29 [Viz]** PDF is produced by the analyst/client via the browser's
+  Print -> Save as PDF (documented in the report and README); the tool MUST NOT
+  require a PDF binary. The Markdown findings/segmentation and CSV remain as
+  working/machine-readable artifacts.
+
 ## §2 Non-functional requirements (NFR)
 
 - **NFR-01 [MVP]** The tool MUST run on Windows PowerShell 5.1 with no installed

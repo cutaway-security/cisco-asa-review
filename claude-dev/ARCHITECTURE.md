@@ -273,6 +273,21 @@ emitter, masking-aware). Both consume the existing parsed/resolved model and the
 finding severities; they slot into the render stage without touching checks
 (AR-01/AR-04).
 
+**Phase 5b — consolidated HTML deliverable (decided 2026-06-24).** Because the
+client has no Mermaid renderer (no GitHub/VS Code), Mermaid does not render for
+them. `src/Write-AsaHtmlReport.ps1` emits a single self-contained HTML report
+consolidating findings + segmentation: embedded CSS, the topology as **inline
+SVG** (hand-emitted, tier-column layout), the matrix as a colored HTML table,
+**no JavaScript, no external references**. *Why SVG over a JS/diagram-as-code
+render:* it renders identically in any browser and prints to PDF with nothing
+installed, and an HTML-with-only-SVG/CSS attachment survives strict mail gateways
+that strip HTML+JS. PDF = the browser's Print -> Save as PDF (no PDF binary in the
+tool). *Mitigation for the "SVG may not render as coded" risk:* the SVG is
+well-formed (validated) and the rendered output is visually verified (rendered to
+an image during build), not merely asserted; layout stays simple because zones
+aggregate to a few nodes. The Mermaid `.md` is retained as an internal artifact
+for renderer-equipped contexts.
+
 ## §8 Cross-cutting concerns
 
 **Security / trust boundary.** Exactly one untrusted input: the config text file
@@ -323,6 +338,7 @@ cisco-asa-review/
         Write-AsaReport.ps1     # Markdown + CSV renderers, secret masking
         Get-AsaZoneModel.ps1    # zones (interface-roles) + address->zone mapping (Phase 5)
         Write-AsaSegmentation.ps1 # Mermaid topology + zone matrix emitter (Phase 5)
+        Write-AsaHtmlReport.ps1 # self-contained HTML deliverable: findings + inline-SVG topology + matrix (Phase 5b)
     data/
         check-catalog.psd1      # declarative check catalog (DR-04 schema)
         asa-defaults.psd1       # defaults model, doc-cited, MVP-15 scope (v0.1b)

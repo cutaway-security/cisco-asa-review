@@ -70,6 +70,16 @@ Business and technical criteria, each measurable. Tied to evidence in §3.
   deterministic across runs; no online renderer is invoked (static guard extends).
   *Status:* **MET (2026-06-24)** — `tests/unit/Segmentation.Tests.ps1`, 14 tests;
   catches both literal and object-group-expressed ANY/ANY; suite 89/89 green.
+- **TSC-14 (HTML deliverable, Phase 5b)** A single self-contained HTML report
+  consolidates findings + topology + matrix; it opens in any browser with no
+  install/internet, contains no JavaScript and no external references, the inline
+  SVG is well-formed and renders realistically, ANY/ANY is highlighted, no secret
+  leaks, and output is deterministic. *Threshold:* automated tests assert
+  structure/no-JS/no-external-ref/no-leak/determinism; the SVG rendering is
+  visually verified by rendering to an image (not asserted blind). *Status:*
+  **MET (2026-06-24)** — `tests/unit/HtmlReport.Tests.ps1`, 9 tests; rendered via
+  WebKit (wkhtmltoimage) and inspected; PDF path confirmed (wkhtmltopdf); 98/98
+  green.
 - **TSC-07 (Authority traceability)** Every finding carries a CIS/STIG reference
   or "tool heuristic," with revision label, and remains valid on evidence alone.
   *Threshold:* manual audit confirms no finding depends solely on an `[unverified]`

@@ -9,12 +9,12 @@ with no network and no device access.
 
 ## Current Phase
 
-**Phase**: Phase 5 — Segmentation & data-flow visualization
-**Status**: Complete (2026-06-24) — gate passed: 89/89 Pester tests green;
-end-to-end verified. Mermaid topology + zone matrix + risk-flow list produced as
-a separate always-on output; literal and object-group-expressed ANY/ANY both
-highlighted and attributed to the correct ACL line.
-**Focus**: Phase 5 done (not yet released to main). Pending: Windows PowerShell
+**Phase**: Phase 5 + 5b — Segmentation visualization + HTML deliverable
+**Status**: Complete (2026-06-24) — gate passed: 98/98 Pester tests green;
+end-to-end + rendering verified. Mermaid topology + zone matrix (Phase 5) and a
+self-contained HTML deliverable consolidating findings + inline-SVG topology +
+matrix (Phase 5b). ANY/ANY (literal + object-group) highlighted.
+**Focus**: Phase 5/5b done (not yet released to main). Pending: Windows PowerShell
 5.1 verification (NFR-01), then Phase 6 (v0.2 coverage).
 
 ## Phases
@@ -142,6 +142,26 @@ guard covers it); no secret leak (TSC-12 extended). End-to-end verified.
 [bool] — hid an object-group-expressed any/any; fixed with a type test. (2)
 Aggregated any/any edges initially cited the first line, not the any/any line;
 fixed to select the any/any contributing line. Both now covered by tests.
+
+#### Phase 5b: Consolidated HTML deliverable (Complete 2026-06-24)
+
+Client has no Mermaid renderer, so Mermaid does not render for them. Added a
+single self-contained HTML report.
+
+- [x] `src/Write-AsaHtmlReport.ps1`: findings + inline-SVG topology + colored
+      matrix in one HTML; embedded CSS, no JavaScript, no external references;
+      masking applied; deterministic.
+- [x] Wired into `Invoke-AsaReview.ps1` (always produced). Guard write-boundary
+      extended.
+- [x] `tests/unit/HtmlReport.Tests.ps1` (9 tests). Suite 98/98 green.
+- [x] Rendering verified visually: rendered the HTML to an image (wkhtmltoimage/
+      WebKit) and confirmed the SVG topology + matrix display realistically; PDF
+      path confirmed (wkhtmltopdf). PDF for the analyst/client = browser Print ->
+      Save as PDF.
+
+**Acceptance gate**: PASSED — HTML is self-contained (no JS, no external refs),
+SVG well-formed and visually verified to render, findings + matrix + topology
+consolidated, ANY/ANY highlighted, no secret leak, deterministic.
 
 ### Phase 6: v0.2 — Coverage
 

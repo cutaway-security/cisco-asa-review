@@ -56,6 +56,7 @@ $src = Join-Path $PSScriptRoot 'src'
 . (Join-Path $src 'Write-AsaReport.ps1')
 . (Join-Path $src 'Get-AsaZoneModel.ps1')
 . (Join-Path $src 'Write-AsaSegmentation.ps1')
+. (Join-Path $src 'Write-AsaHtmlReport.ps1')
 
 try {
     $model = ConvertTo-AsaModel -Path $ConfigPath
@@ -81,6 +82,12 @@ $zoneModel = Get-AsaZoneModel -Model $model
 $seg = Write-AsaSegmentation -ZoneModel $zoneModel -ConfigPath $ConfigPath `
     -OutputDirectory $OutputDirectory -RevealSecrets:$RevealSecrets -Timestamp $ts
 
+# Consolidated self-contained HTML deliverable (findings + segmentation; opens in
+# any browser, no install, no internet; Print -> Save as PDF for a PDF).
+$html = Write-AsaHtmlReport -Findings @($findings) -ZoneModel $zoneModel -Model $model `
+    -ConfigPath $ConfigPath -OutputDirectory $OutputDirectory -Profile $Profile `
+    -RevealSecrets:$RevealSecrets -Timestamp $ts -ChecksEvaluated $checksEvaluated
+
 # Status/diagnostics to stderr (information stream); the report to stdout (NFR-06).
 $real = @($findings | Where-Object { $_.Status -eq 'finding' })
 $na   = @($findings | Where-Object { $_.Status -eq 'not-assessed' })
@@ -90,6 +97,7 @@ $na   = @($findings | Where-Object { $_.Status -eq 'not-assessed' })
 [Console]::Error.WriteLine("[$([char]36)] Report: $($report.MarkdownPath)")
 [Console]::Error.WriteLine("[$([char]36)] CSV:    $($report.CsvPath)")
 [Console]::Error.WriteLine("[$([char]36)] Segmentation map: $($seg.MarkdownPath) (risk flows: $($seg.RiskEdgeCount))")
+[Console]::Error.WriteLine("[$([char]36)] HTML deliverable: $($html.HtmlPath)")
 if ($RevealSecrets) { [Console]::Error.WriteLine('[x] -RevealSecrets set: report contains cleartext secrets. Handle the output files as credential-bearing.') }
 
 # Markdown report to stdout.

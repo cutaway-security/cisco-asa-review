@@ -53,8 +53,19 @@ ASA running-config (text)
         +--> Markdown report (stdout)         [secrets masked by default]
         +--> CSV findings (timestamped file)
         +--> Segmentation + data-flow map     [Mermaid topology + zone matrix]
+        +--> HTML report (client deliverable) [findings + inline-SVG topology + matrix]
         +--> run summary (status stream)
 ```
+
+For a **client deliverable**, the tool also writes a single self-contained
+**HTML report** (`*_asa-report_*.html`) that consolidates the findings and the
+segmentation map. It opens in any web browser with nothing installed and no
+internet: embedded CSS, the topology as inline SVG, the matrix as a colored
+table, and **no JavaScript or external references** (so it survives strict mail/
+secure-transfer gateways). For a PDF, open it in a browser and choose
+**Print -> Save as PDF** — no tools required. The Markdown and CSV remain as
+working/machine-readable artifacts; the Mermaid `.md` is for renderer-equipped
+contexts (VS Code / GitLab / GitHub).
 
 Alongside the findings, the tool also writes a **segmentation + data-flow map**
 (a separate timestamped Markdown file): a zone-level Mermaid topology plus a
