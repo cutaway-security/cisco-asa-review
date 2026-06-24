@@ -3,43 +3,43 @@
 ## Current State
 
 **Last Session**: 2026-06-24
-**Branch**: claude-dev (not yet initialized as a git repo)
-**Status**: Clean — project initialization complete, no code yet
+**Branch**: claude-dev (git initialized; commit 6ae8d26 = planning set)
+**Status**: Clean — Phase 1 complete and gated
 
 ## What Was Accomplished
 
-- Ran the full cutsec-init pipeline: discovery, deep research, vision,
-  requirements, success criteria, two multi-AI validation passes, architecture.
-- Produced the complete planning artifact set under `claude-dev/`, plus
-  `CLAUDE.md`, `README.md`, `LICENSE` (GPLv3), `.gitignore`.
-- Locked the key decisions (see VIBE_HISTORY 2026-06-24): pure-PowerShell offline
-  read-only tool; hierarchical parser core; CIS+STIG with evidence-first findings;
-  Markdown+CSV with default secret masking; v0.1a/v0.1b milestone split.
-- Two multi-AI passes applied and annotated in the docs; consolidated syntheses
-  in `.ai-reviews/20260624-094932/` and `.ai-reviews/20260624-101250/`.
-- Diagnosed and (with the user) fixed the invalid OpenAI review key.
+- **Phase 0 (init):** full cutsec-init pipeline — discovery, research, vision,
+  requirements, success criteria, two multi-AI passes, architecture, orientation
+  files. Committed as 6ae8d26.
+- **Phase 1 (test environment + fixtures), gate PASSED:**
+  - Two synthesized fixtures: `tests/fixtures/asa-5515-insecure.txt`
+    (construct-complete, triggers all 15 MVP findings) and `asa-5515-hardened.txt`
+    (true-negative oracle, multi-line banner).
+  - `tests/fixtures/expected-findings.psd1` — the oracle fixing the 15 MVP check
+    IDs and per-fixture MustFire/MustNotFire/Secrets/ConstructsPresent.
+  - Two real sanitized configs (HQ-FW2 9.18, ASABuzzNick) in
+    `tests/fixtures/real/` (gitignored, one-time local fetch).
+  - Pester 5.7.1 installed (dev dependency); harness `tests/Invoke-Tests.ps1` +
+    `tests/unit/Corpus.Tests.ps1`. Result: 15/15 green, exit 0, no network.
 
 ## In Progress
 
-Nothing in progress. Initialization is complete and validated.
+Nothing in progress. Phase 1 is complete and gated.
 
 ## Blockers
 
-- **Real sanitized ASA configs not yet obtained.** TR-07 (the v0.1a-core parser
-  gate) needs two real sanitized configs stored locally. Until obtained, the
-  parser cannot be gated against real device output. First Phase-1 task.
 - **No real ASA device or client config** for end-to-end validation. Inherent
   constraint (OQ4); mitigated by the fixture + real-config strategy, stated as a
-  release-note bound.
+  release-note bound. (Real sanitized configs now obtained — TR-07 corpus ready.)
 
 ## Next Steps
 
-1. Initialize git (`git init`), create the `claude-dev` branch, commit the
-   planning set (verify no `*.key.txt` and no client config is staged).
-2. Phase 1: author the synthesized ASA 5515 fixture (all CHECK_CATALOG Part B
-   constructs + seeded MVP-15 good/bad instances); obtain the two real sanitized
-   configs into `tests/fixtures/real/` (gitignored).
-3. Phase 2: build and gate the v0.1a-core parser (TR-03 + TR-07).
+1. Commit the Phase 1 corpus + harness (real configs stay gitignored).
+2. Phase 2 (v0.1a-core parser): `Read-AsaConfig.ps1` (bounded read, SR-07
+   thresholds), `ConvertTo-AsaModel.ps1` (indentation tree + repeated-prefix
+   index, line/raw retained), `name` map, verbose dump. Parser unit tests (TR-03)
+   against the insecure fixture's ConstructsPresent list.
+3. Gate Phase 2: 100% TR-03 + clean parse of both real configs (TR-07).
 4. Optional process items (PLAN "Open process items"): ADRs, traceability matrix.
 
 ## Open Questions

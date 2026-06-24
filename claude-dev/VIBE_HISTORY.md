@@ -7,6 +7,39 @@ project's lifetime.
 
 ---
 
+## 2026-06-24 -- Phase 1: test environment + fixtures (gate passed)
+
+**What landed**
+
+- `tests/fixtures/asa-5515-insecure.txt` -- known-bad fixture, construct-complete (every CHECK_CATALOG Part B construct incl. B6 legacy `object-group service tcp` + `port-object`, `object-group protocol`, `nt-encrypted`/cleartext/encrypted/pbkdf2 secrets, 3-deep `group-policy attributes` -> `webvpn` -> `anyconnect`, object-NAT + twice-NAT, global webvpn). Triggers all 15 MVP findings.
+- `tests/fixtures/asa-5515-hardened.txt` -- true-negative fixture; triggers none of the 15; multi-line `banner login` for the parser reassembly test; strong ikev2 crypto, SNMPv3, authenticated NTP, uRPF.
+- `tests/fixtures/expected-findings.psd1` -- the validation oracle. Fixes the canonical MVP-15 check IDs and, per fixture, MustFire / MustNotFire / Secrets / ConstructsPresent.
+- `tests/fixtures/real/` (gitignored) -- two real sanitized configs fetched once: HQ-FW2 (ASA 9.18, 299 lines) and ASABuzzNick (592 lines, crypto-rich).
+- `tests/Invoke-Tests.ps1` + `tests/unit/Corpus.Tests.ps1` -- Pester 5 harness.
+
+**Durable decisions**
+
+- The MVP-15 check IDs are now fixed (in `expected-findings.psd1`): MGMT-TELNET, MGMT-SSH-VERSION, MGMT-ANY-SOURCE, MGMT-CONSOLE-TIMEOUT, LOG-ENABLE, LOG-HOST, SNMP-COMMUNITY, CRYPTO-WEAK-VPN, CRYPTO-SSL-TLS, AUTH-PWRECOVERY, AUTH-PWPOLICY, NTP-AUTH, ACL-ANY-ANY, AUTH-AAA-SSH, AUTH-BANNER. These become the catalog IDs in Phase 4. SSH/HTTP any-source is one check (MGMT-ANY-SOURCE), keeping the shortlist at 15.
+- Two-fixture true-positive/true-negative design: absence checks can't be both present and absent in one file, so the insecure fixture is the "everything fires" oracle and the hardened fixture is the "nothing fires" oracle. The manifest asserts symmetry (every MustFire id is also a MustNotFire id).
+- Real configs are stored locally and gitignored, fetched once by hand -- the test harness never reaches the network (verified: no network cmdlets in test code). This is the TR-07 corpus and the structural break of fixture circularity.
+
+**Lessons**
+
+- Pester 5 evaluates `It -Skip:(expr)` during DISCOVERY, before `BeforeAll` runs. A `-Skip` condition that referenced a `$script:` path set in `BeforeAll` threw `ArgumentNullException` at discovery. Fix: compute discovery-time conditions inline from `$PSScriptRoot` (which IS available at discovery), not from BeforeAll-scoped vars.
+- `New-PesterConfiguration` needs `Run.PassThru = $true` for `Invoke-Pester` to return the result object; without it the summary counts are null (the run still works, exit logic still correct).
+- The dev host is Linux with pwsh 7.6.2; Pester 5.7.1 installed from PSGallery (dev-only dependency, not a tool dependency). The tool must still be verified on Windows PowerShell 5.1 later (NFR-01).
+
+**Project context**
+
+- Phase 1 gate PASSED: 15/15 Pester tests green, exit 0. Fixtures + manifest validate; both real configs present and ASA-shaped.
+- Next: Phase 2 builds the v0.1a-core parser, tested (TR-03) against the insecure fixture's `ConstructsPresent` list and gated (TR-07) on a clean parse of both real configs.
+
+**Next session**
+
+- Build `Read-AsaConfig.ps1` and `ConvertTo-AsaModel.ps1` (indentation tree + repeated-prefix index), then the parser unit tests. Gate before any checks.
+
+---
+
 ## 2026-06-24 -- Project initialization (cutsec-init pipeline)
 
 **What landed**

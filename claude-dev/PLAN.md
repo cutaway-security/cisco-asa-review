@@ -9,11 +9,10 @@ with no network and no device access.
 
 ## Current Phase
 
-**Phase**: Phase 0 — Project initialization
-**Status**: Complete (planning + research + architecture validated by two
-multi-AI passes)
-**Focus**: Next is Phase 1 — provision the test environment and build the v0.1a-core
-parser.
+**Phase**: Phase 1 — Test environment + fixtures
+**Status**: Complete (2026-06-24) — gate passed: 15/15 Pester tests green,
+fixtures + real configs present locally
+**Focus**: Next is Phase 2 — build and gate the v0.1a-core parser.
 
 ## Phases
 
@@ -22,18 +21,25 @@ The v0.1a / v0.1b split derisks the load-bearing parser before checks consume it
 
 ### Phase 1: Test environment + fixtures
 
-**Status**: Not Started
+**Status**: Complete (2026-06-24)
 
-- [ ] Author the synthesized, syntactically faithful ASA 5515 fixture covering
-      every CHECK_CATALOG Part B construct, including the B6 lower-confidence
-      branches, with seeded known-good and known-bad instances per MVP-15 check.
-- [ ] Obtain two real sanitized ASA configs (RESEARCH refs: HQ-FW2.txt,
-      ASABuzzNick) and store them locally under `tests/fixtures/real/` (gitignored)
-      as a one-time manual step. NO dev-time network fetch.
-- [ ] Stand up the Pester test harness (runs offline, no device, no network).
+- [x] Author the synthesized ASA 5515 fixtures: `asa-5515-insecure.txt`
+      (construct-complete incl. B6 legacy object-group forms, nt-encrypted,
+      3-deep group-policy nesting, both NAT shapes; triggers all 15 MVP findings)
+      and `asa-5515-hardened.txt` (true-negative oracle; multi-line banner for
+      parser reassembly).
+- [x] `tests/fixtures/expected-findings.psd1` — the validation oracle; fixes the
+      15 MVP check IDs and the MustFire / MustNotFire / Secrets / ConstructsPresent
+      assertions.
+- [x] Obtain two real sanitized ASA configs (HQ-FW2 9.18, ASABuzzNick) into
+      `tests/fixtures/real/` (gitignored), one-time local fetch — not fetched by
+      the test harness.
+- [x] Pester 5.7.1 harness (`tests/Invoke-Tests.ps1` + `tests/unit/Corpus.Tests.ps1`),
+      runs offline, no device, no network.
 
-**Acceptance gate**: fixtures exist; `Invoke-Pester` runs green on an empty
-suite; real configs are present locally.
+**Acceptance gate**: PASSED — 15/15 Pester tests green; both synthesized fixtures
+and the manifest validate; both real configs present locally; no network calls in
+test code.
 
 ### Phase 2: v0.1a-core — Parser foundation (load-bearing)
 

@@ -1,0 +1,147 @@
+: Saved
+: Serial Number: FCW1234ABCD
+: Hardware:   ASA5515, 8192 MB RAM, CPU Clarkdale 3060 MHz
+: Written by enable_15 at 14:02:11.000 UTC Wed Jun 24 2026
+!
+ASA Version 9.8(4)
+!
+hostname lab-asa-insecure
+domain-name example.com
+enable password 8Ry2YjIyt7RRXU24 encrypted
+passwd 2KFQnbNIdI.2KYOU encrypted
+names
+name 10.10.20.10 inside-web-server
+name 10.10.30.25 dmz-mail description legacy mail relay
+!
+interface GigabitEthernet0/0
+ description Link to ISP
+ nameif outside
+ security-level 0
+ ip address 203.0.113.2 255.255.255.0
+!
+interface GigabitEthernet0/1
+ nameif inside
+ security-level 100
+ ip address 10.10.20.1 255.255.255.0
+!
+interface GigabitEthernet0/2
+ nameif dmz
+ security-level 50
+ ip address 10.10.30.1 255.255.255.0
+!
+interface GigabitEthernet0/3
+ shutdown
+ no nameif
+ no security-level
+ no ip address
+!
+interface Management0/0
+ nameif mgmt
+ security-level 100
+ ip address 192.168.1.1 255.255.255.0
+!
+boot system disk0:/asa984-smp-k8.bin
+ftp mode passive
+clock timezone UTC 0
+dns server-group DefaultDNS
+ domain-name example.com
+object network inside-net
+ subnet 10.10.20.0 255.255.255.0
+object network dmz-host
+ host 10.10.30.25
+object network nat-pool
+ range 203.0.113.100 203.0.113.150
+object network partner-fqdn
+ fqdn v4 partner.example.net
+object service web-https
+ service tcp source range 1 1024 destination eq https
+object-group network internal-nets
+ description all internal networks
+ network-object 10.10.20.0 255.255.255.0
+ network-object host 10.10.30.25
+ network-object object inside-net
+object-group network any-net
+ network-object 0.0.0.0 0.0.0.0
+object-group network nested-admins
+ group-object internal-nets
+ network-object host 192.168.1.50
+object-group service web-services
+ service-object tcp destination eq www
+ service-object tcp destination eq https
+ service-object object web-https
+object-group service legacy-ports tcp
+ port-object eq 8080
+ port-object range 9000 9100
+object-group protocol routing-protos
+ protocol-object eigrp
+ protocol-object ospf
+access-list outside_in remark permit inbound web to dmz
+access-list outside_in extended permit tcp any object dmz-host eq www
+access-list outside_in extended permit ip any any
+access-list inside_in extended permit ip object-group any-net object-group any-net
+access-list inside_in extended permit tcp object-group internal-nets any object-group web-services
+access-list dmz_in extended deny ip any any
+access-list unused_acl extended permit udp any any eq domain
+access-list split_tunnel standard permit 10.10.20.0 255.255.255.0
+access-group outside_in in interface outside
+access-group inside_in in interface inside
+access-group dmz_in in interface dmz
+object network inside-net
+ nat (inside,outside) dynamic interface
+nat (inside,outside) source dynamic inside-net nat-pool destination static dmz-host dmz-host
+aaa-server RADIUS protocol radius
+aaa-server RADIUS (inside) host 10.10.20.40
+ key cleartextradiuskey123
+aaa authentication enable console LOCAL
+aaa authentication http console LOCAL
+username admin password $sha512$5000$vwpFMF7n51iDb1Lto8Ck8Q==$xDd7N+mQZGG6V798ToFV5A== pbkdf2 privilege 15
+username operator password 4tw7S/p2BcKR0o33 encrypted privilege 5
+username legacy password 0123456789abcdef nt-encrypted privilege 3
+username backdoor password SuperSecret123 privilege 15
+http server enable
+http 0.0.0.0 0.0.0.0 outside
+telnet 10.10.20.0 255.255.255.0 inside
+telnet timeout 30
+ssh 0.0.0.0 0.0.0.0 outside
+ssh timeout 30
+console timeout 0
+snmp-server host inside 10.10.20.50 community publicstring version 2c
+snmp-server community publicstring
+snmp-server location lab
+snmp-server enable traps snmp authentication
+ntp server 10.10.20.7
+ntp server 203.0.113.53
+logging buffered debugging
+logging asdm informational
+crypto ipsec ikev1 transform-set legacy-ts esp-3des esp-md5-hmac
+crypto ikev1 policy 10
+ authentication pre-share
+ encryption 3des
+ hash md5
+ group 2
+ lifetime 86400
+crypto map outside_map 10 match address split_tunnel
+crypto map outside_map 10 set peer 198.51.100.10
+crypto map outside_map 10 set ikev1 transform-set legacy-ts
+crypto map outside_map interface outside
+crypto ikev1 enable outside
+ssl server-version tlsv1
+ssl encryption rc4-sha1 aes128-sha1
+webvpn
+ enable outside
+ anyconnect enable
+group-policy ra-vpn internal
+group-policy ra-vpn attributes
+ vpn-tunnel-protocol ikev1 ssl-client
+ split-tunnel-policy tunnelspecified
+ split-tunnel-network-list value split_tunnel
+ webvpn
+  anyconnect ssl dtls enable
+tunnel-group 198.51.100.10 type ipsec-l2l
+tunnel-group 198.51.100.10 ipsec-attributes
+ ikev1 pre-shared-key cleartextpsk456
+tunnel-group ra-vpn type remote-access
+tunnel-group ra-vpn general-attributes
+ default-group-policy ra-vpn
+threat-detection basic-threat
+: end
