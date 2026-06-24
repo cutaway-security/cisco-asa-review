@@ -9,15 +9,13 @@ with no network and no device access.
 
 ## Current Phase
 
-**Phase**: Phase 4 — v0.1b check engine + output
-**Status**: Complete (2026-06-24) — gate passed: 73/73 Pester tests green;
-end-to-end CLI verified. **v0.1b (MVP) milestone reached.** Published to private
-`cutaway-security/cisco-asa-review` (tag v0.1b); validated on a real host under
-PowerShell 7 (both reports generated correctly).
-**Focus**: Phase 5 (segmentation + data-flow visualization) is decided and
-planned (Package B: Mermaid topology + zone matrix, separate always-on output) —
-ready to build pending go-ahead. Also pending: Windows PowerShell 5.1 verification
-(NFR-01), then Phase 6 (v0.2 coverage).
+**Phase**: Phase 5 — Segmentation & data-flow visualization
+**Status**: Complete (2026-06-24) — gate passed: 89/89 Pester tests green;
+end-to-end verified. Mermaid topology + zone matrix + risk-flow list produced as
+a separate always-on output; literal and object-group-expressed ANY/ANY both
+highlighted and attributed to the correct ACL line.
+**Focus**: Phase 5 done (not yet released to main). Pending: Windows PowerShell
+5.1 verification (NFR-01), then Phase 6 (v0.2 coverage).
 
 ## Phases
 
@@ -118,27 +116,32 @@ code in the interim.
 
 ### Phase 5: Segmentation & data-flow visualization
 
-**Status**: Not Started (planned; decided 2026-06-24, research
-`20260624_segmentation-visualization_RESEARCH.md`). Package B (Mermaid topology +
-zone matrix), separate output file, always produced.
+**Status**: Complete (2026-06-24). Package B (Mermaid topology + zone matrix),
+separate output file, always produced. Research:
+`20260624_segmentation-visualization_RESEARCH.md`.
 
-- [ ] `src/Get-AsaZoneModel.ps1` (FR-20/21): zones from interface-roles; map ACE
-      src/dst addresses to zones (longest-prefix vs interface subnets; `any` = all;
-      unresolved = `external/unknown`; carry OR-03 not-assessed).
-- [ ] Inter-zone allowed-flow edges from access-group-bound permit ACEs (FR-22).
-- [ ] `src/Write-AsaSegmentation.ps1` (FR-23/24/25/26): zone-level Mermaid topology
-      + zone-to-zone matrix; ANY/ANY + high-severity flows highlighted (color +
-      label + ACL line, reusing finding severity/evidence; masking applies).
-- [ ] Wire into `Invoke-AsaReview.ps1`: separate timestamped file next to the
-      config, produced on every run; states the configured-flows-not-reachability
-      boundary.
-- [ ] Tests: zone derivation + address→zone mapping; insecure fixture shows the
-      outside→inside ANY/ANY as a red edge / darkest cell; hardened shows none;
-      no secret leaks in the visualization (TSC-12 extends); deterministic output.
+- [x] `src/Get-AsaZoneModel.ps1` (FR-20/21/22): zones from interface-roles; ACE
+      src/dst → zone via longest-prefix vs interface subnets (`any`/0.0.0.0/0 =
+      all; unmapped = `external`; OR-03 not-assessed carried); inter-zone
+      allowed-flow edges from access-group-bound permit ACEs.
+- [x] `src/Write-AsaSegmentation.ps1` (FR-23/24/25/26): zone-level Mermaid topology
+      (tiers, untrusted styling, red risk linkStyle) + zone-to-zone matrix +
+      risk-flow list; ANY/ANY (literal AND object-group-expressed) highlighted and
+      attributed to the offending ACL line; masking applied; boundary stated.
+- [x] Wired into `Invoke-AsaReview.ps1`: separate timestamped file next to the
+      config, produced on every run.
+- [x] `tests/unit/Segmentation.Tests.ps1` (14 tests) + Guard write-boundary
+      extended to the new writer.
 
-**Acceptance gate**: on the fixtures, zones/edges derive correctly and the ANY/ANY
-risk is highlighted on insecure and absent on hardened; Mermaid + matrix are
-well-formed and deterministic; no online renderer invoked (static guard extends).
+**Acceptance gate**: PASSED — 89/89 tests green. Zones/edges derive correctly;
+ANY/ANY highlighted on insecure (outside→inside red edge + matrix cell), absent on
+hardened; Mermaid + matrix well-formed and deterministic; no online renderer (static
+guard covers it); no secret leak (TSC-12 extended). End-to-end verified.
+
+**Lessons (fixed during build)**: (1) `$bool -eq 'string'` coerces the string to
+[bool] — hid an object-group-expressed any/any; fixed with a type test. (2)
+Aggregated any/any edges initially cited the first line, not the any/any line;
+fixed to select the any/any contributing line. Both now covered by tests.
 
 ### Phase 6: v0.2 — Coverage
 

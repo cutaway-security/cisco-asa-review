@@ -7,6 +7,38 @@ project's lifetime.
 
 ---
 
+## 2026-06-24 -- Phase 5: segmentation + data-flow visualization (gate passed)
+
+**What landed**
+
+- `src/Get-AsaZoneModel.ps1` -- zones from the interface-role model (nameif + security-level, tiered Untrusted/DMZ/Trusted); address→zone mapping by longest-prefix vs interface subnets (uint32 math, no network); `any`/0.0.0.0-0 = all zones, unmapped = explicit `external`, OR-03 not-assessed carried through; inter-zone allowed-flow edges from access-group-bound permit ACEs (in/out/global handled).
+- `src/Write-AsaSegmentation.ps1` -- a separate Markdown file: zone-level Mermaid flowchart (tier subgraphs, untrusted classDef, red `linkStyle` on risk edges), a zone-to-zone connectivity matrix, and a risk-flow list. ANY/ANY highlighted and attributed to the offending ACL line; masking applied; the configured-flows-not-reachability boundary + best-effort gaps stated in-file.
+- Wired into `Invoke-AsaReview.ps1` (always produced, third output alongside MD + CSV). Guard write-boundary extended to the new writer.
+- `tests/unit/Segmentation.Tests.ps1` (14 tests). Suite 89/89 green; end-to-end verified.
+
+**Durable decisions / scope**
+
+- Best-effort STOP-GAP, explicitly not a commercial segmentation tool -- the output says so. Shows CONFIGURED/ALLOWED flows per the ruleset, NOT reachability (NAT/routing/shadowing not modeled, OOS-02).
+- Pure offline TEXT emission (Mermaid + Markdown matrix); no renderer invoked. The analyst renders Mermaid locally (VS Code/GitLab/GitHub) -- no online tool, SR-01 holds; the static guard enforces it.
+- Detects BOTH literal `permit ip any any` and object-group-expressed any/any (`permit ip object-group ANY object-group ANY`) -- the latter is the one flat tools miss; reuses the existing resolver + Test-AsaNetworkGroupIsAny.
+
+**Lessons (bugs found via the real end-to-end run, then fixed + test-guarded)**
+
+- **PowerShell `-eq` coercion:** `$isAny -eq 'not-assessed'` with a [bool] `$true` on the LEFT coerces the RHS string to [bool] (non-empty = true), so a genuine object-group any/any was misread as "unknown" and dropped from the map. Fix: test type first (`$isAny -isnot [bool]`) before the boolean branch. Standing reminder for this codebase: when a value may be bool OR a sentinel string, never put the bool on the LHS of `-eq` against a string literal.
+- **Edge line attribution:** an aggregated zone→zone edge (which merges several ACEs) initially labeled itself with the first line, so a scoped `permit tcp` line got tagged "ANY-ANY". Fix: select the any/any contributing line for the label/evidence. Both bugs now have dedicated tests.
+- The real-output review was what surfaced both -- echoes the project's "verify against real output, not just green tests" discipline.
+
+**Project context**
+
+- Phase 5 gate PASSED: 89/89 tests + clean end-to-end run (insecure fixture: outside row + inside row all ANY-ANY in the matrix; risk flows correctly cite line 80 literal + line 81 object-group). On `claude-dev` only; NOT yet released to `main`.
+- Next (pending instructions): release Phase 5 to main (RELEASE_TO_MAIN.md), Windows PS 5.1 verification, Phase 6 (v0.2 coverage).
+
+**Next session**
+
+- Await instructions: release to main and/or proceed to Phase 6.
+
+---
+
 ## 2026-06-24 -- v0.1b published + validated on PowerShell 7; visualization under consideration
 
 - Repo cloned and run on a real host under PowerShell 7: the tool executed end to end and produced both the Markdown and CSV reports correctly (user-reported). PSv7 is now validated in practice. Still pending for a "shipped" claim: Windows PowerShell 5.1 run (TSC-09/NFR-01), a runtime egress monitor (TSC-11), and a findings-accuracy review against a real engagement config.

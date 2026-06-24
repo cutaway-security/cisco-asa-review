@@ -51,14 +51,18 @@
   the tool under **PowerShell 7** — executed end to end and generated both the
   Markdown and CSV reports correctly. Reports look good.
 
+- **Phase 5 (segmentation + data-flow visualization), gate PASSED (2026-06-24):**
+  - `src/Get-AsaZoneModel.ps1` (zones + address→zone mapping + inter-zone edges),
+    `src/Write-AsaSegmentation.ps1` (Mermaid topology + zone matrix + risk-flow
+    list), wired into the entry point as a separate always-on output.
+  - `tests/unit/Segmentation.Tests.ps1` (14 tests); Guard write-boundary extended.
+    Full suite 89/89 green. End-to-end verified — both literal and
+    object-group-expressed ANY/ANY highlighted and attributed to the right ACL line.
+
 ## In Progress
 
-Nothing being coded. Phase 4 complete/gated; v0.1b published and PSv7-validated.
-**Phase 5 (segmentation + data-flow visualization) is decided and now planned**
-(Package B: Mermaid topology + zone matrix, separate always-on output) — research
-in `20260624_segmentation-visualization_RESEARCH.md`; requirements (FR-20..FR-26),
-architecture (§7b), success criteria (TSC-13), and PLAN Phase 5 updated. **Not yet
-built — awaiting go-ahead.**
+Nothing being coded. Phase 5 complete and gated on `claude-dev`. **Not yet
+released to `main`** (per the curated release procedure). Awaiting instructions.
 
 ## Blockers
 
@@ -68,10 +72,8 @@ built — awaiting go-ahead.**
 
 ## Next Steps
 
-1. **Build Phase 5 (visualization)** once given the go-ahead: `Get-AsaZoneModel.ps1`
-   + `Write-AsaSegmentation.ps1` (Mermaid topology + zone matrix), wired into the
-   entry point as a separate always-on output, with tests (TSC-13) and the static
-   guard extended to cover the new emitter. Decision + options already settled.
+1. **Decide on releasing Phase 5 to `main`** (re-cut per `RELEASE_TO_MAIN.md`, bump
+   tag) — held pending instructions.
 2. Still pending for a full "shipped" claim: run on **Windows PowerShell 5.1**
    (TSC-09/NFR-01; PSv7 is now validated), a runtime egress-monitor check (TSC-11),
    and a findings-accuracy review against a real engagement config.

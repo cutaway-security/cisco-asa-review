@@ -68,6 +68,8 @@ Business and technical criteria, each measurable. Tied to evidence in §3.
   visualization contains the outside→inside ANY/ANY risk edge and matrix cell;
   the hardened one contains none; Mermaid + matrix are well-formed and
   deterministic across runs; no online renderer is invoked (static guard extends).
+  *Status:* **MET (2026-06-24)** — `tests/unit/Segmentation.Tests.ps1`, 14 tests;
+  catches both literal and object-group-expressed ANY/ANY; suite 89/89 green.
 - **TSC-07 (Authority traceability)** Every finding carries a CIS/STIG reference
   or "tool heuristic," with revision label, and remains valid on evidence alone.
   *Threshold:* manual audit confirms no finding depends solely on an `[unverified]`

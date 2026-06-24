@@ -52,8 +52,19 @@ ASA running-config (text)
         |
         +--> Markdown report (stdout)         [secrets masked by default]
         +--> CSV findings (timestamped file)
+        +--> Segmentation + data-flow map     [Mermaid topology + zone matrix]
         +--> run summary (status stream)
 ```
+
+Alongside the findings, the tool also writes a **segmentation + data-flow map**
+(a separate timestamped Markdown file): a zone-level Mermaid topology plus a
+zone-to-zone connectivity matrix, deriving zones from interface `nameif` +
+`security-level` and inter-zone flows from `access-group`-bound ACLs.
+`permit ip any any` exposures (literal or object-group-expressed) are highlighted
+and tied to the offending ACL line. This is a **best-effort, offline stop-gap**
+(not a commercial segmentation tool): it shows *configured/allowed* flows, not
+end-to-end reachability (NAT/routing/shadowing are not modeled). The Mermaid is
+plain text — it renders locally in VS Code / GitLab / GitHub with no online tool.
 
 The design insight is that most real ASA findings are either buried in nested,
 reference-laden structure (object-groups inside object-groups, ACLs referencing
