@@ -11,10 +11,12 @@ with no network and no device access.
 
 **Phase**: Phase 4 — v0.1b check engine + output
 **Status**: Complete (2026-06-24) — gate passed: 73/73 Pester tests green;
-end-to-end CLI verified. **v0.1b (MVP) milestone reached.**
-**Focus**: v0.1b complete. Next candidates: Windows PowerShell 5.1 verification
-(NFR-01), then Phase 5 (v0.2 coverage) — full CIS/STIG catalog, deep resolution,
-undefined-ref/unbound-ACL heuristics, version/EoL table, second fixture.
+end-to-end CLI verified. **v0.1b (MVP) milestone reached.** Published to private
+`cutaway-security/cisco-asa-review` (tag v0.1b); validated on a real host under
+PowerShell 7 (both reports generated correctly).
+**Focus**: Evaluating a new visualization output (network segmentation + data
+flow, ANY/ANY risk highlighted) — research/options stage. Then candidates:
+Windows PowerShell 5.1 verification (NFR-01), Phase 5 (v0.2 coverage).
 
 ## Phases
 

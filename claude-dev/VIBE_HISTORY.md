@@ -7,6 +7,13 @@ project's lifetime.
 
 ---
 
+## 2026-06-24 -- v0.1b published + validated on PowerShell 7; visualization under consideration
+
+- Repo cloned and run on a real host under PowerShell 7: the tool executed end to end and produced both the Markdown and CSV reports correctly (user-reported). PSv7 is now validated in practice. Still pending for a "shipped" claim: Windows PowerShell 5.1 run (TSC-09/NFR-01), a runtime egress monitor (TSC-11), and a findings-accuracy review against a real engagement config.
+- New direction under consideration (NOT started): a separate VISUALIZATION output rendering network segmentation and data flow from the parsed model, highlighting risk conditions (ANY/ANY rules), for use in conversations and embedded in reports. Researching representation approaches and offline-renderable diagram formats first; planning docs to be updated only after options are chosen. Per maintainer instruction: options first, then plan, then build.
+
+---
+
 ## 2026-06-24 -- Branch model: main = release-only, claude-dev = development
 
 Pushed to private repo cutaway-security/cisco-asa-review. Per the maintainer's

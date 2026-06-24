@@ -43,9 +43,19 @@
   - End-to-end CLI verified on a config copy: 15 findings, secrets masked
     (`community [REDACTED]`), no leaks, input unmodified, outputs next to config.
 
+- **Published + branch model (2026-06-24):** pushed to private repo
+  `cutaway-security/cisco-asa-review`. `main` = release-only (no Claude files,
+  orphan history); `claude-dev` = development. Tag `v0.1b` on the main release
+  commit. Procedure in `claude-dev/RELEASE_TO_MAIN.md`.
+- **Real-host validation (2026-06-24, user-reported):** cloned the repo and ran
+  the tool under **PowerShell 7** — executed end to end and generated both the
+  Markdown and CSV reports correctly. Reports look good.
+
 ## In Progress
 
-Nothing in progress. Phase 4 is complete and gated. Awaiting summary review.
+Nothing in progress. Phase 4 complete and gated; v0.1b published and validated on
+PSv7. Evaluating a new visualization output (segmentation + data flow) — options
+stage, not yet planned or built.
 
 ## Blockers
 
@@ -55,13 +65,16 @@ Nothing in progress. Phase 4 is complete and gated. Awaiting summary review.
 
 ## Next Steps
 
-1. Commit Phase 4 (no keys / real configs / scratch outputs staged).
-2. Verify on Windows PowerShell 5.1 — confirm identical finding set (TSC-09/NFR-01;
-   dev host is pwsh 7.6.2). Add a runtime egress-monitor check (TSC-11) to
-   complement the static guard.
-3. Phase 5 (v0.2 coverage): remaining CIS/STIG catalog across all categories;
-   deep recursive resolution (FR-05b); undefined-reference + unbound-ACL
-   heuristics (FR-13); version/EoL table (FR-15); second independent fixture (TR-05).
+1. (User-directed) Decide on a new **visualization output** — network
+   segmentation + data flow, with risk conditions (ANY/ANY) highlighted, for use
+   in conversations and reports. Options under research now; planning to be updated
+   after option selection, then build. Do NOT start until options are agreed.
+2. Still pending for a full "shipped" claim: run on **Windows PowerShell 5.1**
+   (TSC-09/NFR-01; PSv7 is now validated), a runtime egress-monitor check (TSC-11),
+   and a findings-accuracy review against a real engagement config.
+3. Phase 5 (v0.2 coverage): remaining CIS/STIG catalog; deep recursive resolution
+   (FR-05b); undefined-reference + unbound-ACL heuristics (FR-13); version/EoL
+   table (FR-15); second independent fixture (TR-05).
 4. Optional process items (PLAN "Open process items"): ADRs, traceability matrix.
 
 ## Open Questions
