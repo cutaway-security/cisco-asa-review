@@ -7,6 +7,20 @@ project's lifetime.
 
 ---
 
+## 2026-06-24 -- Branch model: main = release-only, claude-dev = development
+
+Pushed to private repo cutaway-security/cisco-asa-review. Per the maintainer's
+convention: `main` holds ONLY released project files and must contain NO Claude/
+dev artifacts (CLAUDE.md, claude-dev/, .ai-reviews/, background/); `claude-dev`
+holds everything. main was rebuilt as an ORPHAN branch (independent history)
+containing the release allowlist only, with a release-variant README (no
+claude-dev/ companion links). Release is a curated copy from claude-dev, never a
+merge (a merge would drag Claude files onto main). Procedure documented in
+claude-dev/RELEASE_TO_MAIN.md; convention added to CLAUDE.md "Branch Model".
+Tag v0.1b points at the main release commit.
+
+---
+
 ## 2026-06-24 -- Phase 4: v0.1b check engine + output (gate passed; v0.1b MVP reached)
 
 **What landed**

@@ -5,6 +5,7 @@
 **Project**: cisco-asa-review
 **Repository**: https://github.com/cutaway-security/cisco-asa-review
 **Development Branch**: claude-dev
+**Release Branch**: main
 **Description**: An offline, read-only, pure-PowerShell tool that parses a Cisco
 ASA 9.x `show running-config` text dump and reports security findings (insecure
 management access, weak crypto, permissive access rules, missing logging and
@@ -12,6 +13,20 @@ hardening, cleartext secrets) as a Markdown report plus a machine-readable CSV,
 mapped to the CIS Cisco ASA Benchmark and DISA Cisco ASA STIG. It never contacts
 a device and never makes a network call: the config is sensitive client data that
 must not leave the analyst's host. Built for Cutaway Security firewall reviews.
+
+---
+
+## Branch Model
+
+- **`claude-dev`** is the development branch. ALL work happens here, including
+  every Claude/AI development artifact: `CLAUDE.md`, the `claude-dev/` planning
+  set, `.ai-reviews/`, and `background/`.
+- **`main`** is the release branch. It contains ONLY the released project files
+  (the tool, tests, data, README, LICENSE, .gitignore). It MUST NOT contain any
+  Claude/development files. The two branches have independent histories.
+- **Releasing** = moving the project files for release from `claude-dev` onto
+  `main` (a curated copy), never a branch merge — a merge would drag the Claude
+  files onto `main`. Do not merge `claude-dev` into `main`.
 
 ---
 
