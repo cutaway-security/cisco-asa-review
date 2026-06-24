@@ -167,6 +167,48 @@ single self-contained HTML report is the client deliverable.
   matrix and risk list MUST remain exhaustive regardless. (Maintainer request,
   2026-06-24: collapse is the default, expansion is opt-in.)
 
+### Phase 6 / GitHub issue #1 (hygiene checks, CSV tracking, output changes)
+
+Origin: GitHub issue #1 "Feature Requests" (2026-06-24), folded into Phase 6
+alongside the v0.2 coverage work. Decisions confirmed 2026-06-24.
+
+**Severity tiers.** The model adds an **Informational** tier alongside High /
+Medium / Low. Informational findings are hygiene/cleanup items (unused/inactive/
+config-tidiness); they are tracked in the CSV and shown in the report but
+excluded from the High/Medium/Low risk counts.
+
+- **FR-31 [Scale]** The tool MUST build a **reference index** mapping each ACL,
+  object, object-group, and time-range to every site that references it
+  (access-group, crypto map `match address`, NAT, VPN filter, `group-object` /
+  `network-object object` / `service-object object`, etc.), so the unused-*
+  checks have low false positives. (Issue #1.1/#1.2; deepens FR-13.)
+- **FR-32 [Scale]** The tool MUST flag **unused ACLs** — an access-list defined
+  but referenced by NO site in the reference index (not merely missing an
+  access-group). Informational. (Issue #1.1)
+- **FR-33 [Scale]** The tool MUST flag **unused objects and object-groups** —
+  defined but never referenced at any site. Informational. (Issue #1.2)
+- **FR-34 [Scale]** The tool MUST flag **inactive rules for review** — ACEs with
+  the `inactive` keyword, and ACEs referencing an **expired `time-range`**.
+  Informational. (Issue #1.3)
+- **FR-35 [Scale]** The tool MUST flag an **interface with no IP address that is
+  not shut down** — an interface with no `ip address` (or explicit `no ip
+  address`) and no `shutdown`. Best-effort caveats: account for sub-interfaces,
+  `ip address dhcp`, and management-only interfaces to avoid false positives.
+  (Issue #1.6)
+- **FR-36 [Scale]** The tool MUST flag **BVI interface hygiene** — a `BVI`
+  interface is "used" only if some interface declares a matching `bridge-group
+  N`; a BVI with no matching member MUST be flagged as unused, recommending
+  `shutdown` or `no interface BVIn`. (Issue #1.7)
+- **FR-37 [Viz]** The HTML report MUST be the **complete report**: in addition to
+  the summary table and the segmentation visual, it MUST render the **full
+  findings detail** (every finding with ALL evidence lines — not just the first —
+  plus rationale and remediation), generated natively in HTML, placed after the
+  summaries/visuals. (Issue #1.4; updates FR-27/FR-28.)
+- **FR-38 [Viz]** The standalone segmentation Markdown (Mermaid) output MUST be
+  **removed**; the segmentation visual is delivered only inside the HTML (inline
+  SVG topology + matrix). `Write-AsaSegmentation.ps1` is retired. (Issue #1.5;
+  supersedes FR-25's "separate .md".)
+
 ## §2 Non-functional requirements (NFR)
 
 - **NFR-01 [MVP]** The tool MUST run on Windows PowerShell 5.1 with no installed
@@ -251,6 +293,13 @@ single self-contained HTML report is the client deliverable.
 - **DR-02 [MVP]** The findings CSV MUST have a stable column schema: check id,
   category, severity, authority ref, status, evidence line number(s), evidence
   text (optionally masked), remediation. (R2; FR-07)
+- **DR-02a [Scale]** The findings CSV MUST be extended for tracking (issue #1):
+  it MUST **include Informational findings** (so the team can choose to address
+  them), and MUST add two columns for the team to fill in later:
+  **`RemediationState`** (default `Open`; value set: Open / In Progress /
+  Accepted Risk / Fixed / N/A) and **`RemediationNotes`** (empty by default). The
+  CSV is the tracking artifact; the Markdown is for consolidation/AI review; the
+  HTML is the full human deliverable. (Issue #1; maintainer direction 2026-06-24.)
 - **DR-03 [MVP]** All output filenames MUST include a timestamp
   (`YYYYMMDD_HHMMSS`). (Cutaway Absolute Requirements)
 - **DR-04 [MVP]** The check catalog MUST be represented as structured data
@@ -356,6 +405,13 @@ single self-contained HTML report is the client deliverable.
   the fixture appears verbatim** in default-masked output (Markdown, CSV, or
   verbose). This is a hard release gate, not an aspiration. (AI review
   20260624-101250: anthropic HIGH — silent secret-leak failure mode.)
+- **TR-09 [Scale]** The fixtures MUST be extended for issue #1 with seeded
+  instances and expected-findings entries: an unbound/unused ACL **and** an ACL
+  referenced only by a crypto map (must NOT be flagged unused), an unused object
+  and unused object-group, an `inactive` ACE and an expired-`time-range` ACE, an
+  interface with no IP that is not shut down, and a BVI with no matching
+  bridge-group — plus their negative (referenced/active/shutdown) counterparts.
+  (Issue #1; TSC-15.)
 
 ## §11 Out of scope
 

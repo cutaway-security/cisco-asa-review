@@ -7,6 +7,24 @@ project's lifetime.
 
 ---
 
+## 2026-06-24 -- Phase 6 planning: GitHub issue #1 folded into v0.2 coverage
+
+GitHub issue #1 "Feature Requests" (Don C. Weber) bundled 7 items; reviewed and triaged with the maintainer, all six open decisions confirmed, folded into Phase 6 (worked alongside v0.2 coverage). NOT built yet -- planning only; awaiting review before code.
+
+Items -> disposition:
+- Unused ACLs / unused objects+object-groups / inactive rules -> three Informational hygiene checks driven by a new REFERENCE INDEX (FR-31) that maps ACL/object/object-group/time-range to ALL reference sites. "Unused" must mean unreferenced anywhere (access-group AND crypto map / NAT / nested groups) -- checking only access-group would false-positive on a crypto-only ACL (now an explicit zero-FP success criterion, TSC-15).
+- Interface `no ip address` not shut -> check (FR-35). BVI without a matching `bridge-group` -> unused check (FR-36).
+- New Informational severity tier (below Low; tracked in CSV, excluded from risk counts).
+- Artifact roles locked by the maintainer: HTML = full deliverable (report + visual review), Markdown = consolidation + future AI review, CSV = tracking. CSV extended (DR-02a) with Informational rows + RemediationState (default Open) + RemediationNotes (team fills later).
+- HTML becomes the COMPLETE report (FR-37): full findings detail with ALL evidence lines rendered natively after the summary/visuals (the current HTML only shows the first evidence line).
+- Segmentation Markdown (Mermaid) output removed (FR-38); `Write-AsaSegmentation.ps1` retired; the segmentation visual lives only in the HTML (inline SVG + matrix). The zone model is retained.
+
+Planning updated: REQUIREMENTS FR-31..FR-38 + DR-02a + Informational tier; ARCHITECTURE §7c (reference index, Informational, CSV, HTML full report, segmentation removal) + module layout (add Get-AsaReferenceIndex.ps1, remove Write-AsaSegmentation.ps1); SUCCESS_CRITERIA TSC-15..TSC-17; PLAN Phase 6 expanded + 4 decision-log rows. Fixtures to be extended at build time (unused/crypto-only ACL, unused object/group, inactive + expired-time-range ACE, no-ip interface, bridge-group-less BVI).
+
+Per the maintainer's gated process: plan updated -> await review -> then build.
+
+---
+
 ## 2026-06-24 -- Released v0.1c to main
 
 Re-cut `main` per RELEASE_TO_MAIN.md (orphan rebuild from claude-dev 7406e6d):

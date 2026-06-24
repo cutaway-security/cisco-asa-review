@@ -71,8 +71,10 @@
 
 ## In Progress
 
-Nothing being coded. **Released v0.1c to `main`** (2026-06-24, orphan rebuild per
-RELEASE_TO_MAIN.md; no Claude files on main; tag v0.1c). Awaiting instructions.
+Nothing being coded. **Released v0.1c to `main`** (2026-06-24). **Phase 6 planning
+updated** to fold GitHub issue #1 into v0.2 coverage (REQUIREMENTS FR-31..FR-38 +
+DR-02a, ARCHITECTURE §7c + module layout, SUCCESS_CRITERIA TSC-15..TSC-17, PLAN
+Phase 6 + decision log). **Awaiting maintainer review of the plan before build.**
 
 ## Blockers
 
@@ -82,7 +84,11 @@ RELEASE_TO_MAIN.md; no Claude files on main; tag v0.1c). Awaiting instructions.
 
 ## Next Steps
 
-1. (DONE) Released Phase 5/5b/5c to `main` as v0.1c.
+1. Maintainer reviews the Phase 6 plan updates (issue #1 + v0.2). On approval,
+   build: reference index -> hygiene checks -> Informational tier -> CSV columns
+   -> HTML full report -> remove segmentation .md -> extend fixtures, then re-cut
+   `main`. Do NOT start until the plan is approved.
+2. (DONE) Released Phase 5/5b/5c to `main` as v0.1c.
 2. Still pending for a full "shipped" claim: run on **Windows PowerShell 5.1**
    (TSC-09/NFR-01; PSv7 is now validated), a runtime egress-monitor check (TSC-11),
    and a findings-accuracy review against a real engagement config.

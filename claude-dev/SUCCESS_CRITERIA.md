@@ -70,6 +70,22 @@ Business and technical criteria, each measurable. Tied to evidence in §3.
   deterministic across runs; no online renderer is invoked (static guard extends).
   *Status:* **MET (2026-06-24)** — `tests/unit/Segmentation.Tests.ps1`, 14 tests;
   catches both literal and object-group-expressed ANY/ANY; suite 89/89 green.
+- **TSC-15 (Hygiene checks, Phase 6 / issue #1)** On the fixtures, the tool
+  correctly flags: an unused (unreferenced-anywhere) ACL; an unused object and an
+  unused object-group; an `inactive` ACE and an expired-`time-range` ACE; an
+  interface with no IP that is not shut down; and a BVI with no matching
+  bridge-group — all as Informational, with **zero false positives** on the
+  referenced/active/shutdown counterparts (in particular an ACL used only by a
+  crypto map MUST NOT be flagged unused). *Threshold:* exact seeded TP / zero FP
+  on the extended fixtures.
+- **TSC-16 (CSV tracking, issue #1)** The CSV includes Informational rows and the
+  `RemediationState` (default Open) and `RemediationNotes` columns; the schema is
+  stable and parses cleanly. *Threshold:* asserted by test.
+- **TSC-17 (HTML full report, issue #1)** The HTML contains the full findings
+  detail with ALL evidence lines per finding (not just the first), rendered
+  natively; the standalone segmentation Markdown is no longer produced.
+  *Threshold:* HTML contains a finding's additional evidence lines; no
+  `*_asa-segmentation_*.md` is written; rendering still visually verified.
 - **TSC-14 (HTML deliverable, Phase 5b)** A single self-contained HTML report
   consolidates findings + topology + matrix; it opens in any browser with no
   install/internet, contains no JavaScript and no external references, the inline

@@ -288,6 +288,57 @@ an image during build), not merely asserted; layout stays simple because zones
 aggregate to a few nodes. The Mermaid `.md` is retained as an internal artifact
 for renderer-equipped contexts.
 
+## §7c Decision: hygiene checks via a reference index; Informational tier; CSV tracking; HTML as the full report (Phase 6 / issue #1)
+
+**Decisions (confirmed 2026-06-24, GitHub issue #1, folded into Phase 6).**
+
+- **Reference index (the enabler).** A single builder (`Get-AsaReferenceIndex`)
+  maps each ACL, object, object-group, and time-range to every site that
+  references it (access-group, crypto map `match address`, NAT, VPN filter,
+  `group-object` / `network-object object` / `service-object object`, ...). The
+  unused-ACL (FR-32), unused-object/object-group (FR-33), and inactive-rule
+  (FR-34) checks consume it. *Why one shared index:* "unused" is only correct if
+  ALL reference sites are considered — checking just `access-group` would
+  false-positive on ACLs used by crypto/NAT. Building it once keeps the checks
+  consistent and cheap. *How it could be wrong:* a reference site we don't scan
+  yields a false "unused"; mitigation — enumerate sites explicitly and treat an
+  unrecognized construct conservatively (do not assert "unused" when a token
+  could be a reference). These are Informational, so a miss is low-harm and
+  analyst-reviewed.
+
+- **Informational severity tier.** Hygiene/cleanup findings (unused ACL/object,
+  inactive rules, no-ip-shutdown, BVI) are **Informational** — ranked below Low,
+  tracked in the CSV, shown in the report, but excluded from the High/Med/Low
+  risk counts so they don't inflate the risk posture. SeverityRank gains
+  Informational = 3.
+
+- **Interface checks** (FR-35 no-ip→shutdown, FR-36 BVI) reuse the parsed
+  interface blocks; BVI "used" = some interface declares a matching `bridge-group
+  N`. Best-effort caveats (sub-interfaces, `ip address dhcp`, management) are
+  documented so a cleanup hint is never mistaken for a hard finding.
+
+- **CSV becomes the tracking artifact** (DR-02a): includes Informational rows and
+  two team-filled columns, `RemediationState` (default Open) and
+  `RemediationNotes`. Markdown stays the consolidation/AI-review text; HTML is the
+  full human deliverable.
+
+- **HTML is the complete report** (FR-37): after the summary table + segmentation
+  visual, it renders the full findings detail (every finding, ALL evidence lines,
+  rationale, remediation) generated natively in HTML — no Markdown-to-HTML
+  conversion dependency.
+
+- **Segmentation Markdown retired** (FR-38): the Mermaid `.md` output and
+  `Write-AsaSegmentation.ps1` are removed; the segmentation visual lives only in
+  the HTML (inline SVG + matrix). The zone model (`Get-AsaZoneModel`) is retained
+  and now feeds only the HTML.
+
+**Module changes.** Add `src/Get-AsaReferenceIndex.ps1`; add the five issue-#1
+checks (interface/BVI in `checks/structural.ps1`; unused/inactive as
+resolution-aware structural checks consuming the reference index). Remove
+`src/Write-AsaSegmentation.ps1`. Extend `Write-AsaReport.ps1` (CSV columns +
+Informational) and `Write-AsaHtmlReport.ps1` (full findings detail + all evidence
+lines).
+
 ## §8 Cross-cutting concerns
 
 **Security / trust boundary.** Exactly one untrusted input: the config text file
@@ -336,9 +387,10 @@ cisco-asa-review/
         checks/
             structural.ps1      # resolution-aware/structural checks (code)
         Write-AsaReport.ps1     # Markdown + CSV renderers, secret masking
+        Get-AsaReferenceIndex.ps1 # ACL/object/object-group/time-range -> reference sites (Phase 6)
         Get-AsaZoneModel.ps1    # zones (interface-roles) + address->zone mapping (Phase 5)
-        Write-AsaSegmentation.ps1 # Mermaid topology + zone matrix emitter (Phase 5)
-        Write-AsaHtmlReport.ps1 # self-contained HTML deliverable: findings + inline-SVG topology + matrix (Phase 5b)
+        Write-AsaHtmlReport.ps1 # self-contained HTML deliverable: findings + inline-SVG topology + matrix (Phase 5b; full report Phase 6)
+        # Write-AsaSegmentation.ps1 -- REMOVED in Phase 6 (segmentation lives in the HTML only)
     data/
         check-catalog.psd1      # declarative check catalog (DR-04 schema)
         asa-defaults.psd1       # defaults model, doc-cited, MVP-15 scope (v0.1b)

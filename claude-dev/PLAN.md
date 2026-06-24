@@ -9,14 +9,14 @@ with no network and no device access.
 
 ## Current Phase
 
-**Phase**: Phase 5/5b/5c — Segmentation viz + HTML deliverable + any-any collapse
-**Status**: Complete (2026-06-24) — gate passed: 103/103 Pester tests green;
-end-to-end + rendering verified. Mermaid topology + zone matrix (5), self-contained
-HTML deliverable (5b), and any-to-all-zones collapse-by-default with -ExpandAnyAny
-(5c). ANY/ANY (literal + object-group) highlighted; collapsed render visually
-verified as de-cluttered.
-**Focus**: Phase 5/5b done (not yet released to main). Pending: Windows PowerShell
-5.1 verification (NFR-01), then Phase 6 (v0.2 coverage).
+**Phase**: Phase 6 — v0.2 coverage + GitHub issue #1 (planned)
+**Status**: Planning updated (2026-06-24); awaiting maintainer review before build.
+Phases 1–5c complete and released to `main` as v0.1c (103/103 tests).
+**Focus**: Phase 6 folds GitHub issue #1 (hygiene checks: unused ACL/object,
+inactive rules, no-ip-shutdown, BVI; Informational tier; CSV remediation
+tracking; HTML full report; drop segmentation .md) into the v0.2 coverage work.
+Requirements/architecture/success-criteria/plan updated; awaiting review.
+Also pending: Windows PowerShell 5.1 verification (NFR-01).
 
 ## Phases
 
@@ -175,18 +175,40 @@ consolidated, ANY/ANY highlighted, no secret leak, deterministic.
       Default (collapsed) render visually verified — de-cluttered.
 - [x] Robustness: entry point now creates a missing `-OutputDirectory`.
 
-### Phase 6: v0.2 — Coverage
+### Phase 6: v0.2 — Coverage + GitHub issue #1 (worked together)
 
-**Status**: Not Started
+**Status**: Not Started (planned 2026-06-24)
 
+v0.2 coverage:
 - [ ] Remaining CIS/STIG catalog across all seven categories.
-- [ ] Deep recursive resolution (FR-05b); undefined-reference + unbound-ACL
-      heuristics (FR-13).
+- [ ] Deep recursive resolution (FR-05b).
 - [ ] Version/EoL lookup table (FR-15, `asa-eol.psd1`, DR-05).
 - [ ] Second independently authored fixture (TR-05).
 - [ ] 20k-line non-blocking performance benchmark (NFR-04).
 
-**Acceptance gate**: expanded catalog TP/FP gates pass; full absence set gated.
+GitHub issue #1 (hygiene + tracking + output changes):
+- [ ] `src/Get-AsaReferenceIndex.ps1` (FR-31): ACL/object/object-group/time-range
+      -> all reference sites.
+- [ ] Hygiene checks (Informational): unused ACL (FR-32), unused object/
+      object-group (FR-33), inactive rules incl. expired time-range (FR-34),
+      interface no-ip -> shutdown (FR-35), BVI without bridge-group (FR-36).
+- [ ] Add the **Informational** severity tier (SeverityRank, report, counts).
+- [ ] CSV (DR-02a): include Informational rows + add `RemediationState` (default
+      Open) and `RemediationNotes` columns.
+- [ ] HTML (FR-37): render the full findings detail with ALL evidence lines after
+      the summary/visuals — the HTML is the complete report.
+- [ ] Remove the segmentation Markdown output and `Write-AsaSegmentation.ps1`
+      (FR-38); segmentation lives only in the HTML.
+- [ ] Extend fixtures: unused/unbound ACL (incl. one ACL used only by a crypto
+      map = must NOT be flagged), unused object + object-group, an `inactive`
+      ACE + an expired-time-range ACE, a no-ip non-shutdown interface, a BVI with
+      no bridge-group; add expected-findings entries.
+
+**Acceptance gate**: expanded catalog TP/FP gates pass; the five hygiene checks
+hit exact seeded TP / zero FP (esp. the crypto-only ACL not flagged unused, TSC-15);
+CSV has the new columns + Informational rows (TSC-16); HTML carries the full
+findings detail and no segmentation `.md` is produced (TSC-17); HTML rendering
+re-verified.
 
 ### Phase 7: v0.3 — Depth
 
@@ -212,6 +234,10 @@ consolidated, ANY/ANY highlighted, no secret leak, deterministic.
 | 2026-06-24 | Commercial profile default, DoD/STIG opt-in | Enterprise target; DoD-specific checks are noise on commercial ASA (multi-AI pass 1) |
 | 2026-06-24 | Add segmentation+data-flow visualization (Phase 5): Mermaid topology + zone matrix, separate always-on output | Conversation needs a topology, report needs a matrix; offline text emission, zero-install render; Nipper/CDO visualize nothing (research 20260624_segmentation-visualization) |
 | 2026-06-24 | Visualization shows configured/allowed flows, NOT reachability | Avoid overclaiming; reachability modeling stays OOS-02 (routing/NAT/shadowing not modeled) |
+| 2026-06-24 | GitHub issue #1 features folded into Phase 6 (worked with v0.2 coverage) | Maintainer direction; hygiene checks + deep resolution sequence together |
+| 2026-06-24 | Add Informational severity tier for hygiene/cleanup findings | Track unused/inactive/tidiness items in CSV without inflating risk counts |
+| 2026-06-24 | "Unused" = unreferenced at ANY site (reference index), not just access-group | Crypto map / NAT / nested-group references would otherwise cause false positives |
+| 2026-06-24 | Artifact roles: HTML = full deliverable, MD = consolidation/AI review, CSV = tracking | CSV gains RemediationState + RemediationNotes + Informational rows; segmentation .md removed |
 
 ## Open process items (from multi-AI pass 2, P2)
 
