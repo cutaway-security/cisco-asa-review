@@ -325,7 +325,7 @@ needed to run):
 | Parameter | Purpose |
 |-----------|---------|
 | `-ConfigPath` | Path to the ASA config file (required) |
-| `-OutputDirectory` | Where the timestamped CSV is written (default: cwd) |
+| `-OutputDirectory` | Where the timestamped report/CSV are written (default: the configuration file's own directory; the config is never overwritten) |
 | `-Profile` | `commercial` (default) or `dod` check profile (FR-19) |
 | `-RevealSecrets` | Opt-in to disable default secret masking (SR-04) |
 | `-Verbose` | Dump parser decisions for misparse troubleshooting (OR-04) |

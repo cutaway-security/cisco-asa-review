@@ -105,6 +105,6 @@ function Get-AsaSecrets {
             if ($m.Success) { & $emit $n 'tunnel-group-psk' $m.Groups[1].Value (Get-AsaPasswordClass -Value $m.Groups[1].Value -Tag $null); continue }
         }
 
-        return ,$found.ToArray()
+        Write-Output $found.ToArray()
     }
 }

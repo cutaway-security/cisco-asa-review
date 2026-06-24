@@ -7,6 +7,42 @@ project's lifetime.
 
 ---
 
+## 2026-06-24 -- Phase 4: v0.1b check engine + output (gate passed; v0.1b MVP reached)
+
+**What landed**
+
+- `data/check-catalog.psd1` -- the 15 MVP checks as data (DR-04 schema: id, category, severity, profile, authority+verified, confidence, dependency, rationale, remediation), with detector type present/absent/code.
+- `src/Invoke-AsaChecks.ps1` -- engine; dispatches present (pattern), absent (default-backed), code detectors; emits findings sorted deterministically (severity, ordinal id, line).
+- `src/checks/structural.ps1` -- the 4 code detectors: console-timeout (numeric + default-0), snmp-community (standalone + host-line v1/v2c), ntp-auth (conditional absence), acl-any-any (resolution-aware, returns not-assessed beyond depth).
+- `src/Protect-AsaSecret.ps1` -- default-on masking with conservative keyword fallback.
+- `src/Write-AsaReport.ps1` -- Markdown (stdout) + timestamped MD/CSV written next to the config, never overwriting it; status on a separate stream.
+- `Invoke-AsaReview.ps1` -- entry point (params, profile, exit codes, run summary).
+- `tests/unit/Checks.Tests.ps1` (engine oracle, masking, e2e) + `tests/unit/Guard.Tests.ps1` (static no-network / write-boundary). Suite 73/73.
+
+**Durable decisions**
+
+- Output location (user instruction this session): report + CSV write to the CONFIGURATION FILE's own directory by default (not cwd), with a guard that refuses any output path equal to the config file. Markdown also goes to stdout (R2). ARCHITECTURE section 10 updated.
+- Detector split honors AR-05: simple presence/absence checks are catalog data; the 4 genuinely structural checks (numeric/conditional/resolution) are code in checks/structural.ps1. 11 of 15 are pure data.
+- Passive-boundary enforced in CODE: `Guard.Tests.ps1` greps all tool scripts for network/active-collection/dynamic-exec primitives and for writes outside Write-AsaReport, failing the build on violation. This is the static complement to the runtime egress check (TSC-11), added at the user's emphasis on passive-only.
+- README now has a "Passive and offline by design" section spelling out no-device / no-network / read-only / inert-data, and that the analyst exports the config out-of-band.
+
+**Lessons**
+
+- The big time-sink: `return ,$array` (leading-comma wrap) inside functions made `@(func -param ...)` keep the result as a 1-element array-of-array, so Where-Object "matched everything" and counts were wrong. Two of the apparent failures (hardened FP, not-assessed multi-status) were this artifact, not real bugs. Fix: emit the collection NORMALLY (`$findings | Sort-Object ...` as the trailing expression) so the pipeline unrolls; let the CALLER's `@()` guarantee array-ness. Also: `Write-Output $sorted` when $sorted is $null (empty Sort-Object result) emits a literal $null -> a phantom 1-element finding; emit the pipeline directly instead so empty stays empty.
+- Pester 5 `It -Skip:(expr)` and `<->` in titles bit us in earlier phases; this phase's gotchas were all array-unrolling. Worth a standing note: prefer pipeline-style emission + caller @() over comma-wrap returns in this codebase.
+- The SNMP-COMMUNITY structural check catches BOTH the standalone `snmp-server community X` and the inline `snmp-server host ... community X version 2c` -- closing the v0.2 gap flagged in Phase 3. Verified in the real run (host-line community shown masked).
+
+**Project context**
+
+- Phase 4 gate PASSED: 73/73 tests + a clean end-to-end CLI run (15 findings on the insecure copy, `community [REDACTED]`, zero seeded-secret leaks, input file byte-identical after run, outputs beside the config). This is the v0.1b "real call returns data" milestone -- against the faithful fixtures + a real config copy, since no live device/client config exists.
+- Remaining before a "shipped" claim: run on Windows PowerShell 5.1 (TSC-09/NFR-01) and a runtime egress monitor (TSC-11). Dev host is Linux/pwsh 7.6.2.
+
+**Next session**
+
+- After summary review: Windows PowerShell 5.1 verification, then Phase 5 (v0.2 coverage) -- full CIS/STIG catalog, deep resolution, undefined-ref/unbound-ACL heuristics, version/EoL table, second independent fixture.
+
+---
+
 ## 2026-06-24 -- Phase 3: v0.1b-prep support models (gate passed)
 
 **What landed**

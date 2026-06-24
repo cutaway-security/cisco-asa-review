@@ -71,6 +71,6 @@ function Get-AsaInterfaceRoles {
             })
         }
 
-        return ,$roles.ToArray()
+        Write-Output $roles.ToArray()
     }
 }

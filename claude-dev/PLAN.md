@@ -9,10 +9,12 @@ with no network and no device access.
 
 ## Current Phase
 
-**Phase**: Phase 3 — v0.1b-prep support models
-**Status**: Complete (2026-06-24) — gate passed: 56/56 Pester tests green
-**Focus**: Next is Phase 4 — check engine + the 15 MVP checks + Markdown/CSV +
-secret masking.
+**Phase**: Phase 4 — v0.1b check engine + output
+**Status**: Complete (2026-06-24) — gate passed: 73/73 Pester tests green;
+end-to-end CLI verified. **v0.1b (MVP) milestone reached.**
+**Focus**: v0.1b complete. Next candidates: Windows PowerShell 5.1 verification
+(NFR-01), then Phase 5 (v0.2 coverage) — full CIS/STIG catalog, deep resolution,
+undefined-ref/unbound-ACL heuristics, version/EoL table, second fixture.
 
 ## Phases
 
@@ -87,22 +89,29 @@ one level.
 
 ### Phase 4: v0.1b — MVP checks + output
 
-**Status**: Not Started
+**Status**: Complete (2026-06-24)
 
-- [ ] Check engine (`Invoke-AsaChecks.ps1`) consuming `check-catalog.psd1`
-      (DR-04 schema: id, category, severity, profile, authority+verified,
-      pass/fail, default_if_absent, confidence, dependency, rationale, remediation).
-- [ ] The 15 MVP checks (presence + context-conditional absence), commercial
-      profile default, dod profile opt-in.
-- [ ] `Write-AsaReport.ps1`: Markdown (stdout) + timestamped CSV, secret masking
-      on by default with conservative keyword fallback; status stream separated.
-- [ ] Determinism (NFR-06): sorted findings, InvariantCulture, normalized EOL.
-- [ ] `Invoke-AsaReview.ps1` entry point: params, exit codes, run summary.
+- [x] `data/check-catalog.psd1` (DR-04 schema incl. profile, confidence,
+      dependency) for the 15 MVP checks; detector types present/absent/code.
+- [x] `src/Invoke-AsaChecks.ps1` engine + `src/checks/structural.ps1` (the 4 code
+      detectors: console-timeout, snmp-community, ntp-auth, acl-any-any).
+- [x] `src/Protect-AsaSecret.ps1` (masking, default-on, keyword fallback) +
+      `src/Write-AsaReport.ps1` (Markdown stdout + timestamped MD/CSV next to the
+      config, never overwriting it; status stream separated).
+- [x] Determinism (NFR-06): severity then ordinal check id then line number.
+- [x] `Invoke-AsaReview.ps1` entry point: params, profile, exit codes, run summary.
+- [x] `tests/unit/Guard.Tests.ps1`: static no-network / write-boundary guard.
 
-**Acceptance gate (staged guard, check tier)**: exact seeded true positives, zero
-false positives on good instances (TSC-02/03); no verbatim secret in masked
-output (TSC-12); identical finding set across PS 5.1 and 7+ (TSC-09); offline +
-read-only verified (TSC-11).
+**Acceptance gate (staged guard, check tier)**: PASSED — 73/73 Pester tests
+green. Exact 15 seeded true positives, zero false positives (TSC-02/03); no
+verbatim secret in masked output (TSC-12, verified in a real run); deterministic
+ordering (NFR-06); offline + read-only enforced by the static guard. End-to-end
+CLI verified: report + CSV written next to the config, input unmodified.
+
+**Outstanding for a full "shipped" claim**: TSC-09 (run on Windows PowerShell 5.1
+and confirm identical finding set; dev host is pwsh 7.6.2) and TSC-11 (runtime
+process-monitor egress check). The static guard covers the SR-01/SR-06 boundary in
+code in the interim.
 
 ### Phase 5: v0.2 — Coverage
 

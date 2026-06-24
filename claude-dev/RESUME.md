@@ -3,8 +3,8 @@
 ## Current State
 
 **Last Session**: 2026-06-24
-**Branch**: claude-dev (6ae8d26 planning, b2ef872 Phase 1, d2ff8a9 Phase 2)
-**Status**: Clean — Phase 3 (v0.1b-prep support models) complete and gated
+**Branch**: claude-dev (…, d2ff8a9 Phase 2, 9c3f3c8 Phase 3, Phase 4 pending commit)
+**Status**: Clean — Phase 4 (v0.1b check engine) complete and gated; **v0.1b MVP reached**
 
 ## What Was Accomplished
 
@@ -31,15 +31,21 @@
   - Full suite: 36/36 green, exit 0. Both real configs parse with zero integrity
     problems; dump cross-validates expected construct counts.
 - **Phase 3 (v0.1b-prep support models), gate PASSED:**
-  - `src/Get-AsaSecrets.ps1` (password classifier + secret scanner),
-    `src/Get-AsaInterfaceRoles.ps1` (interface-role model),
-    `src/Resolve-AsaReferences.ps1` (minimal name/object-group resolution),
-    `data/asa-defaults.psd1` (8 doc-cited MVP absence defaults).
-  - `tests/unit/SupportModels.Tests.ps1` — 20 tests. Full suite 56/56 green.
+  - `src/Get-AsaSecrets.ps1`, `src/Get-AsaInterfaceRoles.ps1`,
+    `src/Resolve-AsaReferences.ps1`, `data/asa-defaults.psd1` (8 doc-cited).
+  - `tests/unit/SupportModels.Tests.ps1` — 20 tests. Suite 56/56 green.
+- **Phase 4 (v0.1b check engine + output), gate PASSED — v0.1b MVP reached:**
+  - `data/check-catalog.psd1` (15 MVP checks), `src/Invoke-AsaChecks.ps1`,
+    `src/checks/structural.ps1` (4 code detectors), `src/Protect-AsaSecret.ps1`
+    (masking), `src/Write-AsaReport.ps1` (MD+CSV next to config), and the
+    `Invoke-AsaReview.ps1` entry point.
+  - `tests/unit/Checks.Tests.ps1` + `tests/unit/Guard.Tests.ps1`. Suite 73/73 green.
+  - End-to-end CLI verified on a config copy: 15 findings, secrets masked
+    (`community [REDACTED]`), no leaks, input unmodified, outputs next to config.
 
 ## In Progress
 
-Nothing in progress. Phase 3 is complete and gated.
+Nothing in progress. Phase 4 is complete and gated. Awaiting summary review.
 
 ## Blockers
 
@@ -49,18 +55,14 @@ Nothing in progress. Phase 3 is complete and gated.
 
 ## Next Steps
 
-1. Phase 4 (v0.1b check engine + output):
-   - `data/check-catalog.psd1` (DR-04 schema) for the 15 MVP checks.
-   - `src/Invoke-AsaChecks.ps1` — engine consuming catalog + model + defaults +
-     interface-roles + secrets; presence and context-conditional absence.
-   - `src/Write-AsaReport.ps1` — Markdown (stdout) + timestamped CSV; secret
-     masking ON by default with conservative keyword fallback; status stream
-     separated; deterministic ordering (NFR-06).
-   - `Invoke-AsaReview.ps1` entry point (params, profile, exit codes, run summary).
-   - Gate: exact seeded TP / zero FP on both fixtures (TSC-02/03); no verbatim
-     secret in masked output (TSC-12); offline + read-only (TSC-11).
-2. Optional process items (PLAN "Open process items"): ADRs, traceability matrix.
-3. Run on Windows PowerShell 5.1 to confirm NFR-01 (dev host is pwsh 7.6.2).
+1. Commit Phase 4 (no keys / real configs / scratch outputs staged).
+2. Verify on Windows PowerShell 5.1 — confirm identical finding set (TSC-09/NFR-01;
+   dev host is pwsh 7.6.2). Add a runtime egress-monitor check (TSC-11) to
+   complement the static guard.
+3. Phase 5 (v0.2 coverage): remaining CIS/STIG catalog across all categories;
+   deep recursive resolution (FR-05b); undefined-reference + unbound-ACL
+   heuristics (FR-13); version/EoL table (FR-15); second independent fixture (TR-05).
+4. Optional process items (PLAN "Open process items"): ADRs, traceability matrix.
 
 ## Open Questions
 

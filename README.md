@@ -10,6 +10,26 @@ to the CIS Cisco ASA Benchmark and DISA Cisco ASA STIG.
 It runs entirely on the analyst's machine. No internet, no device access, no data
 leaves the host. The config is sensitive, and the tool treats it that way.
 
+## Passive and offline by design
+
+This is a static text analyzer. It is the opposite of a scanner. Concretely, the
+tool:
+
+- **Never connects to an ASA** or any device. It performs no scanning, no SSH, no
+  SNMP, no probing of any kind.
+- **Makes no network calls at all** — no downloads, no DNS lookups, no telemetry,
+  no update checks. The reference URLs in its findings are inert text, never
+  fetched.
+- **Only reads** the configuration file you give it, and **never modifies** it.
+- Treats the config as inert data — it is parsed, never executed.
+
+The analyst exports the `show running-config` out-of-band through their own
+authorized means and hands the tool a text file; the tool does not perform that
+collection step. A static guard test (`tests/unit/Guard.Tests.ps1`) enforces this
+boundary in code — it fails the build if any tool script introduces a network or
+active-collection primitive. Secret values discovered in the config are masked in
+the output by default.
+
 ## How it works
 
 ```
@@ -52,32 +72,39 @@ missing.
 | Network | None — fully offline |
 | Input | One Cisco ASA 9.x `show running-config` text file |
 
-## Quick start (development)
+## Quick start
 
 ```powershell
 # one-time, per process
 Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 
 # run a review (commercial profile is default)
-.\Invoke-AsaReview.ps1 -ConfigPath .\asa-running-config.txt -OutputDirectory .\out > report.md
+.\Invoke-AsaReview.ps1 -ConfigPath .\asa-running-config.txt
 
-# DoD/STIG profile, reveal secrets on a trusted host
+# DoD/STIG profile; reveal secrets only on a trusted host
 .\Invoke-AsaReview.ps1 -ConfigPath .\cfg.txt -Profile dod -RevealSecrets
 
-# run the tests (Pester)
-Invoke-Pester .\tests
+# run the tests (Pester 5.x; development-only dependency)
+pwsh -File .\tests\Invoke-Tests.ps1
 ```
+
+The Markdown report is written to stdout. A timestamped Markdown report and CSV
+findings file are also written **into the same directory as the configuration
+file** (never overwriting the config). Status messages go to the error/information
+stream so the stdout report stays clean. Secret values are masked by default.
 
 ## Status
 
-**Version:** pre-implementation (planning complete; no code yet).
+**Version:** v0.1b (MVP checks) complete.
 **Last updated:** 2026-06-24.
 
-The discovery, research, requirements, success criteria, and architecture are
-complete and have passed two rounds of multi-AI review. Implementation has not
-started. The first milestone (v0.1a-core) is the hierarchical parser, proven in
-isolation against parser unit tests and two real sanitized configs before any
-check is built on it.
+Implemented and gated (73/73 Pester tests green): the hierarchical parser
+(v0.1a-core), the v0.1b-prep support models (secret classifier, interface-role
+model, minimal object-group resolution, doc-cited defaults), and the v0.1b check
+engine running the 15 high-signal MVP checks with Markdown + CSV output and
+default secret masking. The parser is proven against two real sanitized configs
+(TR-07); the checks produce exact true positives and zero false positives on the
+synthesized fixtures.
 
 **Validation bound:** no production ASA 5515 device or client config is available
 for development. Validation relies on a synthesized, syntactically faithful ASA
