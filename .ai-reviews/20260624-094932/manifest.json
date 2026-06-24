@@ -1,0 +1,50 @@
+{
+  "generated": "2026-06-24T09:51:46.715167",
+  "project_root": "/home/cutaway/Projects/cisco-asa-review",
+  "mode": "architecture",
+  "review_type": "independent",
+  "artifacts": [],
+  "has_code": false,
+  "code_files": [],
+  "context_chars": 71056,
+  "files_sent": [
+    "background/goal.md",
+    "claude-dev/20260624_asa-config-analysis_RESEARCH.md",
+    "claude-dev/CHECK_CATALOG.md",
+    "claude-dev/DISCOVERY_NOTES.md",
+    "claude-dev/REQUIREMENTS.md",
+    "claude-dev/SUCCESS_CRITERIA.md",
+    "claude-dev/VISION.md"
+  ],
+  "files_skipped": [],
+  "secrets_redacted": 0,
+  "truncated_files": [],
+  "redaction_enabled": true,
+  "operator_note": "",
+  "reviewers": [
+    {
+      "prefix": "anthropic",
+      "adapter": "anthropic",
+      "model": "claude-opus-4-8",
+      "ok": true,
+      "error": null,
+      "output": "2026-06-24_0949_anthropic_review.md"
+    },
+    {
+      "prefix": "mistral",
+      "adapter": "openai",
+      "model": "mistral-medium-latest",
+      "ok": true,
+      "error": null,
+      "output": "2026-06-24_0949_mistral_review.md"
+    },
+    {
+      "prefix": "openai",
+      "adapter": "openai",
+      "model": "gpt-5.4",
+      "ok": false,
+      "error": "HTTP 401 from https://api.openai.com/v1/chat/completions: {\n    \"error\": {\n        \"message\": \"Incorrect API key provided: _uFYG0y5************************************************************************************************************************************************AIAA. You can find your API key at https://platform.openai.com/account/api-keys.\",\n        \"type\": \"invalid_request_error\",\n        \"param\": null,\n        \"code\": \"invalid_api_key\"\n    }\n}\n",
+      "output": "2026-06-24_0949_openai_review.md"
+    }
+  ]
+}

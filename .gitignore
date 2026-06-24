@@ -1,0 +1,39 @@
+*.key.txt
+*.key.txt.bak
+*.key.txt.old
+*.key.txt~
+
+# Sensitive engagement data -- never commit client ASA configs or outputs
+*.running-config.txt
+asa-running-config*.txt
+client-config*.txt
+runs/
+out/
+results/
+claude-dev/results/
+claude-dev/*.local
+claude-dev/*.local.*
+claude-dev/*.local/
+
+# Real sanitized test configs are stored locally, not committed (TR-07, OQ-3)
+tests/fixtures/real/
+
+# Tool/report output artifacts
+*_report.md
+*_findings_*.csv
+
+# Python (tooling/scripts, if any)
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.mypy_cache/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
