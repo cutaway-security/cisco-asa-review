@@ -53,8 +53,9 @@ function Write-AsaReport {
     $mask = { param($t) if ($RevealSecrets) { $t } else { Protect-AsaLine -Line $t } }
 
     # ---- counts ----
-    $real = @($Findings | Where-Object { $_.Status -eq 'finding' })
+    $real = @($Findings | Where-Object { $_.Status -eq 'finding' -and $_.Severity -ne 'Informational' })
     $na   = @($Findings | Where-Object { $_.Status -eq 'not-assessed' })
+    $info = @($Findings | Where-Object { $_.Status -eq 'finding' -and $_.Severity -eq 'Informational' })
     $high = @($real | Where-Object { $_.Severity -eq 'High' }).Count
     $med  = @($real | Where-Object { $_.Severity -eq 'Medium' }).Count
     $low  = @($real | Where-Object { $_.Severity -eq 'Low' }).Count
@@ -72,6 +73,7 @@ function Write-AsaReport {
     $md.Add('## Summary')
     $md.Add('')
     $md.Add("- Findings: $($real.Count) (High: $high, Medium: $med, Low: $low)")
+    $md.Add("- Informational (hygiene/cleanup): $($info.Count)")
     $md.Add("- Not assessed: $($na.Count)")
     if ($PSBoundParameters.ContainsKey('ChecksEvaluated')) { $md.Add("- Checks evaluated: $ChecksEvaluated") }
     $md.Add("- Config lines parsed: $($Model.LineCount)")
@@ -107,22 +109,27 @@ function Write-AsaReport {
     Set-Content -LiteralPath $mdPath -Value $md -Encoding UTF8
 
     # ---- CSV (DR-02 schema) ----
+    # CSV is the tracking artifact (DR-02a): includes Informational rows and two
+    # team-filled columns (RemediationState defaults to Open; RemediationNotes empty).
     $rows = foreach ($f in $Findings) {
         [pscustomobject]@{
-            CheckId        = $f.CheckId
-            Category       = $f.Category
-            Severity       = $f.Severity
-            Status         = $f.Status
-            Authority      = $f.Authority
-            Verified       = $f.Verified
-            Confidence     = $f.Confidence
-            EvidenceLineNo = $f.EvidenceLineNo
-            Evidence       = if ($f.EvidenceLineNo -gt 0) { & $mask $f.Evidence } else { "absent ($($f.Kind))" }
-            Remediation    = $f.Remediation
+            CheckId          = $f.CheckId
+            Category         = $f.Category
+            Severity         = $f.Severity
+            Status           = $f.Status
+            Authority        = $f.Authority
+            Verified         = $f.Verified
+            Confidence       = $f.Confidence
+            EvidenceLineNo   = $f.EvidenceLineNo
+            Evidence         = if ($f.EvidenceLineNo -gt 0) { & $mask $f.Evidence } else { "absent ($($f.Kind))" }
+            Remediation      = $f.Remediation
+            RemediationState = 'Open'
+            RemediationNotes = ''
         }
     }
+    $csvHeader = 'CheckId,Category,Severity,Status,Authority,Verified,Confidence,EvidenceLineNo,Evidence,Remediation,RemediationState,RemediationNotes'
     if ($rows) { $rows | Export-Csv -LiteralPath $csvPath -NoTypeInformation -Encoding UTF8 }
-    else { Set-Content -LiteralPath $csvPath -Value 'CheckId,Category,Severity,Status,Authority,Verified,Confidence,EvidenceLineNo,Evidence,Remediation' -Encoding UTF8 }
+    else { Set-Content -LiteralPath $csvPath -Value $csvHeader -Encoding UTF8 }
 
     [pscustomobject]@{
         MarkdownPath = $mdPath

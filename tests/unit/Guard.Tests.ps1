@@ -52,7 +52,7 @@ Describe 'Write boundary (SR-02)' {
 
     It 'only Write-AsaReport performs file writes' {
         $writes = 'Set-Content|Add-Content|Out-File|Export-Csv|\bExport-Clixml\b|Remove-Item|New-Item'
-        $allowedWriters = @('Write-AsaReport.ps1', 'Write-AsaSegmentation.ps1', 'Write-AsaHtmlReport.ps1')
+        $allowedWriters = @('Write-AsaReport.ps1', 'Write-AsaHtmlReport.ps1')
         foreach ($f in $script:SrcFiles) {
             if ($f.Name -in $allowedWriters) { continue }
             $code = Get-CodeOnly -Path $f.FullName

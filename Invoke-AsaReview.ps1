@@ -56,12 +56,12 @@ $src = Join-Path $PSScriptRoot 'src'
 . (Join-Path $src 'Get-AsaSecrets.ps1')
 . (Join-Path $src 'Get-AsaInterfaceRoles.ps1')
 . (Join-Path $src 'Resolve-AsaReferences.ps1')
+. (Join-Path $src 'Get-AsaReferenceIndex.ps1')
 . (Join-Path $src 'checks\structural.ps1')
 . (Join-Path $src 'Invoke-AsaChecks.ps1')
 . (Join-Path $src 'Protect-AsaSecret.ps1')
 . (Join-Path $src 'Write-AsaReport.ps1')
 . (Join-Path $src 'Get-AsaZoneModel.ps1')
-. (Join-Path $src 'Write-AsaSegmentation.ps1')
 . (Join-Path $src 'Write-AsaHtmlReport.ps1')
 
 if ($OutputDirectory -and -not (Test-Path -LiteralPath $OutputDirectory)) {
@@ -86,14 +86,11 @@ $report = Write-AsaReport -Findings @($findings) -Model $model -ConfigPath $Conf
     -OutputDirectory $OutputDirectory -Profile $Profile -RevealSecrets:$RevealSecrets `
     -ChecksEvaluated $checksEvaluated
 
-# Segmentation + data-flow map (always produced; separate file). Best-effort.
+# Consolidated self-contained HTML deliverable (findings + segmentation; opens in
+# any browser, no install, no internet; Print -> Save as PDF for a PDF). The
+# segmentation visual lives in the HTML (inline SVG + matrix) -- no separate .md.
 $ts = (Get-Date).ToString('yyyyMMdd_HHmmss')
 $zoneModel = Get-AsaZoneModel -Model $model
-$seg = Write-AsaSegmentation -ZoneModel $zoneModel -ConfigPath $ConfigPath `
-    -OutputDirectory $OutputDirectory -RevealSecrets:$RevealSecrets -ExpandAnyAny:$ExpandAnyAny -Timestamp $ts
-
-# Consolidated self-contained HTML deliverable (findings + segmentation; opens in
-# any browser, no install, no internet; Print -> Save as PDF for a PDF).
 $html = Write-AsaHtmlReport -Findings @($findings) -ZoneModel $zoneModel -Model $model `
     -ConfigPath $ConfigPath -OutputDirectory $OutputDirectory -Profile $Profile `
     -RevealSecrets:$RevealSecrets -ExpandAnyAny:$ExpandAnyAny -Timestamp $ts -ChecksEvaluated $checksEvaluated
@@ -106,7 +103,6 @@ $na   = @($findings | Where-Object { $_.Status -eq 'not-assessed' })
 [Console]::Error.WriteLine("[$([char]36)] Findings: $($real.Count) (High/Med/Low) + Not-assessed: $($na.Count)")
 [Console]::Error.WriteLine("[$([char]36)] Report: $($report.MarkdownPath)")
 [Console]::Error.WriteLine("[$([char]36)] CSV:    $($report.CsvPath)")
-[Console]::Error.WriteLine("[$([char]36)] Segmentation map: $($seg.MarkdownPath) (risk flows: $($seg.RiskEdgeCount))")
 [Console]::Error.WriteLine("[$([char]36)] HTML deliverable: $($html.HtmlPath)")
 if ($RevealSecrets) { [Console]::Error.WriteLine('[x] -RevealSecrets set: report contains cleartext secrets. Handle the output files as credential-bearing.') }
 

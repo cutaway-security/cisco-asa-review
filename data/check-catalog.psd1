@@ -141,5 +141,47 @@
             Rationale = 'No login banner is presented; a legal/consent notice is commonly required.'
             Remediation = 'Configure a banner login with the organization-approved notice text.'
         }
+
+        # --- Phase 6 / issue #1 hygiene checks (Informational) ---
+        @{
+            Id = 'HYGIENE-UNUSED-ACL'; Category = 'hygiene'; Severity = 'Informational'
+            Profile = @('commercial','dod'); Authority = 'tool heuristic'; Verified = $false
+            Confidence = 'heuristic'; Dependency = @('reference-index'); Kind = 'presence'
+            Detector = @{ Type = 'code'; Function = 'Test-AsaUnusedAcl' }
+            Rationale = 'An access-list defined but not referenced anywhere (access-group, crypto map, NAT, VPN filter) is dead configuration.'
+            Remediation = 'Review and remove the unused access-list if it is genuinely not needed.'
+        }
+        @{
+            Id = 'HYGIENE-UNUSED-OBJECT'; Category = 'hygiene'; Severity = 'Informational'
+            Profile = @('commercial','dod'); Authority = 'tool heuristic'; Verified = $false
+            Confidence = 'heuristic'; Dependency = @('reference-index'); Kind = 'presence'
+            Detector = @{ Type = 'code'; Function = 'Test-AsaUnusedObject' }
+            Rationale = 'An object or object-group defined but never referenced is dead configuration.'
+            Remediation = 'Review and remove the unused object or object-group if it is genuinely not needed.'
+        }
+        @{
+            Id = 'HYGIENE-INACTIVE-RULE'; Category = 'hygiene'; Severity = 'Informational'
+            Profile = @('commercial','dod'); Authority = 'tool heuristic'; Verified = $false
+            Confidence = 'deterministic'; Dependency = @('raw'); Kind = 'presence'
+            Detector = @{ Type = 'code'; Function = 'Test-AsaInactiveRules' }
+            Rationale = 'An ACE marked inactive, or referencing an expired time-range, is not enforced; review whether it should be removed or re-enabled.'
+            Remediation = 'Review the inactive/expired rule and remove it or re-enable it as appropriate.'
+        }
+        @{
+            Id = 'HYGIENE-IF-NOIP'; Category = 'hygiene'; Severity = 'Informational'
+            Profile = @('commercial','dod'); Authority = 'tool heuristic'; Verified = $false
+            Confidence = 'heuristic'; Dependency = @('raw'); Kind = 'presence'
+            Detector = @{ Type = 'code'; Function = 'Test-AsaInterfaceNoIp' }
+            Rationale = 'An interface with no IP address that is not shut down may be unused; an unused interface should be shut down.'
+            Remediation = 'Review the interface; if unused, configure shutdown.'
+        }
+        @{
+            Id = 'HYGIENE-BVI-UNUSED'; Category = 'hygiene'; Severity = 'Informational'
+            Profile = @('commercial','dod'); Authority = 'tool heuristic'; Verified = $false
+            Confidence = 'heuristic'; Dependency = @('raw'); Kind = 'presence'
+            Detector = @{ Type = 'code'; Function = 'Test-AsaBvi' }
+            Rationale = 'A BVI interface with no member interface in its bridge-group is unused.'
+            Remediation = 'Configure shutdown on the unused BVI, or remove it (no interface BVIn).'
+        }
     )
 }

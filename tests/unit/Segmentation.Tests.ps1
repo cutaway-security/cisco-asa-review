@@ -1,13 +1,13 @@
 #Requires -Version 5.1
 #
-# Segmentation.Tests.ps1 -- Phase 5 zone model + segmentation visualization.
-# Offline, no device, no network. Pester 5.x.
+# Segmentation.Tests.ps1 -- zone model (Get-AsaZoneModel). The Mermaid .md output
+# was removed in Phase 6 (issue #1); the segmentation visual lives in the HTML
+# (see HtmlReport.Tests.ps1). Offline, no device, no network. Pester 5.x.
 
 BeforeAll {
     $src = Join-Path $PSScriptRoot '..\..\src'
     foreach ($f in 'Read-AsaConfig','ConvertTo-AsaModel','Get-AsaInterfaceRoles',
-                   'Resolve-AsaReferences','Get-AsaSecrets','Protect-AsaSecret',
-                   'Get-AsaZoneModel','Write-AsaSegmentation') {
+                   'Resolve-AsaReferences','Get-AsaZoneModel') {
         . (Join-Path $src "$f.ps1")
     }
     $script:FixtureDir = Join-Path $PSScriptRoot '..\fixtures'
@@ -65,94 +65,5 @@ Describe 'Zone model: inter-zone flow edges' {
 
     It 'hardened config has no ANY/ANY inter-zone edges' {
         @($script:HzZ.Edges | Where-Object { $_.AnyAny }).Count | Should -Be 0
-    }
-}
-
-Describe 'Segmentation output: Mermaid + matrix' {
-
-    BeforeAll {
-        $script:OutDir = Join-Path ([System.IO.Path]::GetTempPath()) ("asaseg_" + [System.IO.Path]::GetRandomFileName())
-        New-Item -ItemType Directory -Path $script:OutDir -Force | Out-Null
-        $script:R = Write-AsaSegmentation -ZoneModel $script:InZ -ConfigPath $script:Insecure `
-            -OutputDirectory $script:OutDir -Timestamp '20260624_130000'
-        $script:Text = Get-Content -Raw -LiteralPath $script:R.MarkdownPath
-    }
-    AfterAll { if (Test-Path $script:OutDir) { Remove-Item $script:OutDir -Recurse -Force } }
-
-    It 'writes a timestamped segmentation file next to the output dir' {
-        $script:R.MarkdownPath | Should -Exist
-        $script:R.MarkdownPath | Should -Match '_asa-segmentation_20260624_130000\.md$'
-        [System.IO.Path]::GetFullPath($script:R.MarkdownPath) | Should -Not -Be ([System.IO.Path]::GetFullPath($script:Insecure))
-    }
-
-    It 'emits a well-formed Mermaid flowchart with zones' {
-        $script:Text | Should -Match '(?m)^flowchart '
-        $script:Text | Should -Match 'subgraph TIER_Untrusted'
-        $script:Text | Should -Match 'Z_outside'
-    }
-
-    It 'collapses any-to-all-zones by default (badge, not one edge per dest)' {
-        # outside + inside both reach all zones -> collapsed by default
-        $script:Text | Should -Match 'ANY-ANY to ALL'
-    }
-
-    It 'draws every any-any edge with -ExpandAnyAny (and more linkStyles than default)' {
-        $exp = Write-AsaSegmentation -ZoneModel $script:InZ -ConfigPath $script:Insecure `
-            -OutputDirectory $script:OutDir -Timestamp '20260624_130300' -ExpandAnyAny
-        $expText = Get-Content -Raw -LiteralPath $exp.MarkdownPath
-        $expText | Should -Match 'ANY-ANY outside_in'
-        $expText | Should -Match 'linkStyle \d+ stroke:#b00000'
-        ([regex]::Matches($expText, 'linkStyle ')).Count |
-            Should -BeGreaterThan ([regex]::Matches($script:Text, 'linkStyle ')).Count
-    }
-
-    It 'matrix marks the outside->inside cell as ANY-ANY' {
-        # the outside row should contain the ANY-ANY marker
-        $row = ($script:Text -split "`n" | Where-Object { $_ -match '^\| \*\*outside\*\* \|' })
-        $row | Should -Match 'ANY-ANY \(!\)'
-    }
-
-    It 'states the configured-flows-not-reachability boundary' {
-        $script:Text | Should -Match 'not end-to-end reachability'
-    }
-
-    It 'lists highlighted risk flows with the ACL line' {
-        $script:Text | Should -Match 'ANY/ANY  outside -> inside  \(ACL outside_in'
-    }
-
-    It 'attributes every risk flow to an actual permit ip any any rule (not a scoped rule)' {
-        # guards the line-attribution bug where an aggregated edge cited the first line
-        # any-any may be literal (permit ip any any) or object-group-expressed
-        # (permit ip object-group ANY object-group ANY); both are proto ip. The
-        # bug cited a scoped "permit tcp" line, which this rejects.
-        $riskLines = @($script:Text -split "`n" | Where-Object { $_ -match '^- ANY/ANY' })
-        $riskLines.Count | Should -BeGreaterThan 0
-        foreach ($l in $riskLines) { $l | Should -Match 'permit ip ' }
-    }
-
-    It 'is deterministic across runs' {
-        $r2 = Write-AsaSegmentation -ZoneModel (Get-AsaZoneModel -Model $script:InsecureModel) `
-            -ConfigPath $script:Insecure -OutputDirectory $script:OutDir -Timestamp '20260624_130000'
-        (Get-Content -Raw -LiteralPath $r2.MarkdownPath) | Should -Be $script:Text
-    }
-
-    It 'leaks no seeded secret value into the segmentation output (TSC-12)' {
-        $secrets = @(Get-AsaSecrets -Model $script:InsecureModel)
-        foreach ($s in $secrets) {
-            if ($s.Value.Length -ge 6) { $script:Text.Contains($s.Value) | Should -BeFalse -Because "leaked: $($s.Value)" }
-        }
-    }
-}
-
-Describe 'Segmentation output: hardened fixture' {
-
-    It 'reports no ANY/ANY risk flows for the hardened config' {
-        $outDir = Join-Path ([System.IO.Path]::GetTempPath()) ("asaseg_h_" + [System.IO.Path]::GetRandomFileName())
-        New-Item -ItemType Directory -Path $outDir -Force | Out-Null
-        try {
-            $r = Write-AsaSegmentation -ZoneModel $script:HzZ -ConfigPath $script:Hardened -OutputDirectory $outDir -Timestamp '20260624_130100'
-            $r.RiskEdgeCount | Should -Be 0
-            (Get-Content -Raw -LiteralPath $r.MarkdownPath) | Should -Match 'No permit ip any any inter-zone flows'
-        } finally { Remove-Item $outDir -Recurse -Force }
     }
 }

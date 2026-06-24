@@ -77,7 +77,9 @@ Business and technical criteria, each measurable. Tied to evidence in §3.
   bridge-group — all as Informational, with **zero false positives** on the
   referenced/active/shutdown counterparts (in particular an ACL used only by a
   crypto map MUST NOT be flagged unused). *Threshold:* exact seeded TP / zero FP
-  on the extended fixtures.
+  on the extended fixtures. *Status:* **MET (2026-06-24)** —
+  `tests/unit/Hygiene.Tests.ps1` on `asa-5515-hygiene.txt`; crypto-only ACL not
+  flagged; 108/108 suite green.
 - **TSC-16 (CSV tracking, issue #1)** The CSV includes Informational rows and the
   `RemediationState` (default Open) and `RemediationNotes` columns; the schema is
   stable and parses cleanly. *Threshold:* asserted by test.
@@ -86,6 +88,9 @@ Business and technical criteria, each measurable. Tied to evidence in §3.
   natively; the standalone segmentation Markdown is no longer produced.
   *Threshold:* HTML contains a finding's additional evidence lines; no
   `*_asa-segmentation_*.md` is written; rendering still visually verified.
+  *Status:* **MET (2026-06-24)** — HTML "Findings detail" with all evidence lines;
+  CSV has RemediationState/RemediationNotes + Informational rows; entry point
+  produces md+csv+html only (no segmentation .md); rendering re-verified.
 - **TSC-14 (HTML deliverable, Phase 5b)** A single self-contained HTML report
   consolidates findings + topology + matrix; it opens in any browser with no
   install/internet, contains no JavaScript and no external references, the inline

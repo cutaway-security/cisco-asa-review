@@ -43,6 +43,26 @@ Describe 'HTML deliverable: structure' {
         $script:Html | Should -Match 'ACL-ANY-ANY'         # a finding
     }
 
+    It 'renders the full findings detail with ALL evidence lines (FR-37)' {
+        $script:Html | Should -Match '<h2>Findings detail</h2>'
+        # ACL-ANY-ANY has two evidence lines (literal + object-group); both shown in detail
+        # skip block 0 (everything before the first detail div, incl. the summary table)
+        $blocks = $script:Html -split "<div class='detail'>" | Select-Object -Skip 1
+        $aclBlock = $blocks | Where-Object { $_ -match 'ACL-ANY-ANY' } | Select-Object -First 1
+        $aclBlock | Should -Not -BeNullOrEmpty
+        ([regex]::Matches($aclBlock, '<li>line ')).Count | Should -BeGreaterOrEqual 2
+    }
+
+    It 'includes Informational hygiene findings in the report' {
+        $script:Html | Should -Match 'HYGIENE-'
+        $script:Html | Should -Match 'Informational'
+    }
+
+    It 'the segmentation Markdown writer is removed (FR-38)' {
+        Test-Path (Join-Path $src 'Write-AsaSegmentation.ps1') | Should -BeFalse
+        (Get-Content -Raw -LiteralPath (Join-Path $PSScriptRoot '..\..\Invoke-AsaReview.ps1')) | Should -Not -Match 'Write-AsaSegmentation'
+    }
+
     It 'contains a well-formed inline SVG topology' {
         $m = [regex]::Match($script:Html, '<svg.*?</svg>', 'Singleline')
         $m.Success | Should -BeTrue

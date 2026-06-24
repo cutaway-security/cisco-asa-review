@@ -69,12 +69,20 @@
     collapsed render visually verified as de-cluttered. Entry point now creates a
     missing `-OutputDirectory`.
 
+- **Phase 6 / GitHub issue #1 COMPLETE (2026-06-24), gate PASSED:**
+  - `src/Get-AsaReferenceIndex.ps1`; five hygiene detectors in `checks/structural.ps1`
+    (unused ACL/object/object-group, inactive/expired rules, no-ip interface, BVI);
+    engine emits one finding per detection; Informational severity tier.
+  - CSV: RemediationState/RemediationNotes + Informational rows. HTML: full
+    findings detail (all evidence). Removed `Write-AsaSegmentation.ps1` + the
+    segmentation `.md` output.
+  - `tests/fixtures/asa-5515-hygiene.txt` + `tests/unit/Hygiene.Tests.ps1`. Suite
+    108/108 green; end-to-end + HTML render re-verified; crypto-only ACL not flagged.
+
 ## In Progress
 
-Nothing being coded. **Released v0.1c to `main`** (2026-06-24). **Phase 6 planning
-updated** to fold GitHub issue #1 into v0.2 coverage (REQUIREMENTS FR-31..FR-38 +
-DR-02a, ARCHITECTURE §7c + module layout, SUCCESS_CRITERIA TSC-15..TSC-17, PLAN
-Phase 6 + decision log). **Awaiting maintainer review of the plan before build.**
+Nothing being coded. Issue #1 complete on `claude-dev` (not yet released). v0.2
+catalog coverage remains in Phase 6.
 
 ## Blockers
 
@@ -84,11 +92,11 @@ Phase 6 + decision log). **Awaiting maintainer review of the plan before build.*
 
 ## Next Steps
 
-1. Maintainer reviews the Phase 6 plan updates (issue #1 + v0.2). On approval,
-   build: reference index -> hygiene checks -> Informational tier -> CSV columns
-   -> HTML full report -> remove segmentation .md -> extend fixtures, then re-cut
-   `main`. Do NOT start until the plan is approved.
-2. (DONE) Released Phase 5/5b/5c to `main` as v0.1c.
+1. Decide whether to release issue #1 to `main` (would be v0.1d) per
+   RELEASE_TO_MAIN.md, or bundle it with the v0.2 catalog coverage first.
+2. Continue Phase 6 v0.2 catalog coverage (remaining CIS/STIG checks, deep
+   resolution, version/EoL, second fixture).
+3. Windows PowerShell 5.1 verification (NFR-01).
 2. Still pending for a full "shipped" claim: run on **Windows PowerShell 5.1**
    (TSC-09/NFR-01; PSv7 is now validated), a runtime egress-monitor check (TSC-11),
    and a findings-accuracy review against a real engagement config.

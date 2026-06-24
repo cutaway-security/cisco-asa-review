@@ -70,8 +70,9 @@ function Write-AsaHtmlReport {
     if ($ZoneModel.ExternalUsed) { $colNames += 'external' }
 
     # ---- counts ----
-    $real = @($Findings | Where-Object { $_.Status -eq 'finding' })
+    $real = @($Findings | Where-Object { $_.Status -eq 'finding' -and $_.Severity -ne 'Informational' })
     $na   = @($Findings | Where-Object { $_.Status -eq 'not-assessed' })
+    $info = @($Findings | Where-Object { $_.Status -eq 'finding' -and $_.Severity -eq 'Informational' })
     $high = @($real | Where-Object { $_.Severity -eq 'High' }).Count
     $med  = @($real | Where-Object { $_.Severity -eq 'Medium' }).Count
     $low  = @($real | Where-Object { $_.Severity -eq 'Low' }).Count
@@ -89,9 +90,10 @@ function Write-AsaHtmlReport {
   .meta{color:#555;font-size:13px} .note{background:#f4f6f8;border-left:4px solid #888;padding:8px 12px;font-size:13px;margin:10px 0}
   table{border-collapse:collapse;width:100%;font-size:13px;margin:8px 0} th,td{border:1px solid #bbb;padding:5px 8px;text-align:left;vertical-align:top}
   th{background:#eef1f4} code{font-family:Consolas,monospace;font-size:12px}
-  .sev-High{background:#f8d7da} .sev-Medium{background:#fff3cd} .sev-Low{background:#e2e3e5} .sev-na{background:#d1ecf1}
+  .sev-High{background:#f8d7da} .sev-Medium{background:#fff3cd} .sev-Low{background:#e2e3e5} .sev-na{background:#d1ecf1} .sev-Informational{background:#eef5ff}
   .pill{display:inline-block;padding:1px 7px;border-radius:9px;font-size:11px;font-weight:700}
-  .pill.High{background:#b00000;color:#fff} .pill.Medium{background:#9a6700;color:#fff} .pill.Low{background:#555;color:#fff}
+  .pill.High{background:#b00000;color:#fff} .pill.Medium{background:#9a6700;color:#fff} .pill.Low{background:#555;color:#fff} .pill.Informational{background:#3a6ea5;color:#fff}
+  .detail{border:1px solid #ddd;border-radius:6px;padding:8px 12px;margin:10px 0} .detail h4{margin:0 0 4px;font-size:14px} .detail ul{margin:4px 0 4px 18px;padding:0}
   .cell-risk{background:#f8d7da;font-weight:700} .cell-ok{background:#fff} .matrix td:first-child,.matrix th:first-child{background:#eef1f4;font-weight:700}
   .legend span{display:inline-block;margin-right:14px;font-size:12px}
   .sw{display:inline-block;width:12px;height:12px;vertical-align:middle;margin-right:4px;border:1px solid #999}
@@ -105,7 +107,7 @@ function Write-AsaHtmlReport {
     if ($RevealSecrets) { & $w "<div class='note'><b>Note:</b> secret values are SHOWN (-RevealSecrets); treat this report as credential-bearing.</div>" }
 
     & $w "<h2>Executive summary</h2>"
-    & $w "<p>Findings: <b>$($real.Count)</b> (High: $high, Medium: $med, Low: $low). Not assessed: $($na.Count). Checks evaluated: $ChecksEvaluated. Config lines parsed: $($Model.LineCount).</p>"
+    & $w "<p>Findings: <b>$($real.Count)</b> (High: $high, Medium: $med, Low: $low). Informational (hygiene): $($info.Count). Not assessed: $($na.Count). Checks evaluated: $ChecksEvaluated. Config lines parsed: $($Model.LineCount).</p>"
     & $w "<div class='note'>To save as PDF: open this file in any web browser and choose <b>Print &rarr; Save as PDF</b>. No software is required.</div>"
 
     # ---- findings ----
@@ -231,6 +233,31 @@ function Write-AsaHtmlReport {
             & $w "<li><b>ANY/ANY</b> $(& $esc $parts[0]) &rarr; $(& $esc $parts[1]) (ACL $(& $esc $line.Acl), line $($line.LineNo)): <code>$(& $esc (& $mask $line.Evidence))</code></li>"
         }
         & $w "</ul>"
+    }
+
+    # ---- full findings detail (the complete report; ALL evidence lines, FR-37) ----
+    & $w "<h2>Findings detail</h2>"
+    if ($Findings.Count -eq 0) {
+        & $w "<p>No findings.</p>"
+    }
+    foreach ($f in $Findings) {
+        $sevText = if ($f.Status -eq 'not-assessed') { 'NOT ASSESSED' } else { $f.Severity }
+        $pillSev = if ($f.Status -eq 'not-assessed') { 'Low' } else { $f.Severity }
+        & $w "<div class='detail'>"
+        & $w "<h4><span class='pill $pillSev'>$(& $esc $sevText)</span> $(& $esc $f.CheckId)</h4>"
+        & $w "<div style='font-size:12px;color:#555'>Category: $(& $esc $f.Category) | Authority: $(& $esc $f.Authority) (verified: $($f.Verified)) | Confidence: $(& $esc $f.Confidence)</div>"
+        if ($f.EvidenceLines.Count -gt 0) {
+            & $w "<div style='font-size:13px;margin-top:4px'>Evidence:</div><ul>"
+            foreach ($e in ($f.EvidenceLines | Sort-Object LineNo)) {
+                & $w "<li>line $($e.LineNo): <code>$(& $esc (& $mask $e.Text))</code></li>"
+            }
+            & $w "</ul>"
+        } else {
+            & $w "<div style='font-size:13px;margin-top:4px'>Evidence: <i>setting absent</i></div>"
+        }
+        & $w "<div style='font-size:13px'><b>Rationale:</b> $(& $esc $f.Rationale)</div>"
+        & $w "<div style='font-size:13px'><b>Remediation:</b> $(& $esc $f.Remediation)</div>"
+        & $w "</div>"
     }
 
     & $w "</body></html>"

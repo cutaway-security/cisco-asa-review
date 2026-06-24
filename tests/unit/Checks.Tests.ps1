@@ -27,9 +27,11 @@ BeforeAll {
 
 Describe 'Check engine: true positives on the insecure fixture' {
 
-    It 'fires exactly the 15 MVP checks (all status finding)' {
+    It 'fires all 15 MVP checks (exactly 15 risk checks; hygiene is Informational)' {
         $fired = @($script:InsecureFindings | Where-Object { $_.Status -eq 'finding' })
-        ($fired.CheckId | Sort-Object -Unique).Count | Should -Be 15
+        $firedIds = $fired.CheckId | Sort-Object -Unique
+        foreach ($id in $script:Expected.Checks.Id) { $firedIds | Should -Contain $id }
+        @($fired | Where-Object { $_.Severity -ne 'Informational' } | ForEach-Object CheckId | Sort-Object -Unique).Count | Should -Be 15
     }
 
     It 'every seeded MustFire check fires with the expected evidence' {
@@ -53,8 +55,8 @@ Describe 'Check engine: true positives on the insecure fixture' {
 
 Describe 'Check engine: zero false positives on the hardened fixture' {
 
-    It 'produces no findings for any of the 15 MVP checks' {
-        $script:HardenedFindings.Count | Should -Be 0
+    It 'produces no risk findings (High/Medium/Low) on the hardened fixture' {
+        @($script:HardenedFindings | Where-Object { $_.Severity -in 'High','Medium','Low' }).Count | Should -Be 0
     }
 }
 
@@ -122,6 +124,15 @@ Describe 'End-to-end report (FR-16, DR-03)' {
         $script:Report.MarkdownPath | Should -Exist
         $script:Report.CsvPath      | Should -Exist
         $script:Report.MarkdownPath | Should -Match '_asa-review_20260624_120000\.md$'
+    }
+
+    It 'CSV has the remediation-tracking columns and includes Informational rows (DR-02a)' {
+        $csv = Import-Csv -LiteralPath $script:Report.CsvPath
+        $cols = $csv[0].PSObject.Properties.Name
+        $cols | Should -Contain 'RemediationState'
+        $cols | Should -Contain 'RemediationNotes'
+        ($csv | Where-Object { $_.RemediationState -ne 'Open' }) | Should -BeNullOrEmpty   # default Open
+        @($csv | Where-Object { $_.Severity -eq 'Informational' }).Count | Should -BeGreaterThan 0
     }
 
     It 'output filenames never equal the configuration file' {

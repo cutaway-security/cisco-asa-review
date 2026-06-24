@@ -9,14 +9,13 @@ with no network and no device access.
 
 ## Current Phase
 
-**Phase**: Phase 6 — v0.2 coverage + GitHub issue #1 (planned)
-**Status**: Planning updated (2026-06-24); awaiting maintainer review before build.
-Phases 1–5c complete and released to `main` as v0.1c (103/103 tests).
-**Focus**: Phase 6 folds GitHub issue #1 (hygiene checks: unused ACL/object,
-inactive rules, no-ip-shutdown, BVI; Informational tier; CSV remediation
-tracking; HTML full report; drop segmentation .md) into the v0.2 coverage work.
-Requirements/architecture/success-criteria/plan updated; awaiting review.
-Also pending: Windows PowerShell 5.1 verification (NFR-01).
+**Phase**: Phase 6 — v0.2 coverage + GitHub issue #1
+**Status**: GitHub issue #1 COMPLETE (2026-06-24, 108/108 tests; on `claude-dev`,
+not yet released). v0.2 catalog coverage still open. Phases 1–5c released to
+`main` as v0.1c.
+**Focus**: issue #1 built and gated (hygiene checks + Informational tier + CSV
+remediation tracking + HTML full report + segmentation .md removed). Next: decide
+release to main; continue v0.2 catalog coverage; Windows PowerShell 5.1 (NFR-01).
 
 ## Phases
 
@@ -186,29 +185,33 @@ v0.2 coverage:
 - [ ] Second independently authored fixture (TR-05).
 - [ ] 20k-line non-blocking performance benchmark (NFR-04).
 
-GitHub issue #1 (hygiene + tracking + output changes):
-- [ ] `src/Get-AsaReferenceIndex.ps1` (FR-31): ACL/object/object-group/time-range
-      -> all reference sites.
-- [ ] Hygiene checks (Informational): unused ACL (FR-32), unused object/
+GitHub issue #1 (hygiene + tracking + output changes) -- **COMPLETE (2026-06-24)**:
+- [x] `src/Get-AsaReferenceIndex.ps1` (FR-31): ACL/object/object-group ->
+      referenced-anywhere (token scan, conservative). Crypto-only ACL not flagged.
+- [x] Hygiene checks (Informational): unused ACL (FR-32), unused object/
       object-group (FR-33), inactive rules incl. expired time-range (FR-34),
-      interface no-ip -> shutdown (FR-35), BVI without bridge-group (FR-36).
-- [ ] Add the **Informational** severity tier (SeverityRank, report, counts).
-- [ ] CSV (DR-02a): include Informational rows + add `RemediationState` (default
-      Open) and `RemediationNotes` columns.
-- [ ] HTML (FR-37): render the full findings detail with ALL evidence lines after
-      the summary/visuals — the HTML is the complete report.
-- [ ] Remove the segmentation Markdown output and `Write-AsaSegmentation.ps1`
+      interface no-ip -> shutdown (FR-35, skips bridge-group members), BVI without
+      bridge-group (FR-36). One finding per entity (engine now emits per detection).
+- [x] **Informational** severity tier (SeverityRank=3; excluded from risk counts).
+- [x] CSV (DR-02a): Informational rows + `RemediationState` (default Open) +
+      `RemediationNotes` columns.
+- [x] HTML (FR-37): full findings detail with ALL evidence lines after the
+      summary/visuals; Informational styled; the HTML is the complete report.
+- [x] Removed the segmentation Markdown output and `Write-AsaSegmentation.ps1`
       (FR-38); segmentation lives only in the HTML.
-- [ ] Extend fixtures: unused/unbound ACL (incl. one ACL used only by a crypto
-      map = must NOT be flagged), unused object + object-group, an `inactive`
-      ACE + an expired-time-range ACE, a no-ip non-shutdown interface, a BVI with
-      no bridge-group; add expected-findings entries.
+- [x] Added `tests/fixtures/asa-5515-hygiene.txt` (crypto-only ACL, unused ACL,
+      used/unused object+group, inactive + expired-/active-time-range ACEs, no-ip
+      / shutdown / bridge-member / IP-bearing interfaces, BVI with/without member)
+      + `tests/unit/Hygiene.Tests.ps1`.
 
-**Acceptance gate**: expanded catalog TP/FP gates pass; the five hygiene checks
-hit exact seeded TP / zero FP (esp. the crypto-only ACL not flagged unused, TSC-15);
-CSV has the new columns + Informational rows (TSC-16); HTML carries the full
-findings detail and no segmentation `.md` is produced (TSC-17); HTML rendering
-re-verified.
+**Acceptance gate**: PASSED for issue #1 — 108/108 tests green; the five hygiene
+checks hit exact seeded TP / zero FP (crypto-only ACL NOT flagged, TSC-15); CSV
+has the new columns + Informational rows (TSC-16); HTML carries the full findings
+detail and no segmentation `.md` is produced (TSC-17); HTML rendering re-verified.
+
+**Still open in Phase 6 (the v0.2 coverage tasks above):** remaining CIS/STIG
+catalog, deep recursive resolution, version/EoL table, second fixture, 20k
+benchmark. (Issue #1 is done; catalog coverage continues.)
 
 ### Phase 7: v0.3 — Depth
 

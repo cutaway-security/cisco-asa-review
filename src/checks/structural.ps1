@@ -92,3 +92,76 @@ function Test-AsaAclAnyAny {
     if ($notAssessed.Count -gt 0) { return New-AsaDetection -Fired $true -Status 'not-assessed' -Evidence $notAssessed }
     return New-AsaDetection -Fired $false
 }
+
+# --- Phase 6 / issue #1 hygiene detectors (Informational; may return MANY) ---
+
+function Test-AsaUnusedAcl {
+    [CmdletBinding()] param([Parameter(Mandatory)][pscustomobject]$Model)
+    if (-not (Get-Command -Name Get-AsaReferenceIndex -ErrorAction SilentlyContinue)) { . (Join-Path $PSScriptRoot '..\Get-AsaReferenceIndex.ps1') }
+    $ref = Get-AsaReferenceIndex -Model $Model
+    $out = foreach ($u in $ref.UnusedAcls) { New-AsaDetection -Fired $true -Evidence @($u.Node) }
+    return @($out)
+}
+
+function Test-AsaUnusedObject {
+    [CmdletBinding()] param([Parameter(Mandatory)][pscustomobject]$Model)
+    if (-not (Get-Command -Name Get-AsaReferenceIndex -ErrorAction SilentlyContinue)) { . (Join-Path $PSScriptRoot '..\Get-AsaReferenceIndex.ps1') }
+    $ref = Get-AsaReferenceIndex -Model $Model
+    $out = foreach ($u in (@($ref.UnusedObjects) + @($ref.UnusedObjectGroups))) { New-AsaDetection -Fired $true -Evidence @($u.Node) }
+    return @($out)
+}
+
+function Test-AsaInactiveRules {
+    [CmdletBinding()] param([Parameter(Mandatory)][pscustomobject]$Model)
+    # expired time-ranges
+    $expired = @{}
+    $now = Get-Date
+    foreach ($n in $Model.Lines) {
+        if ($n.Kind -ne 'line' -or $n.Text -notmatch '^time-range\s+(\S+)') { continue }
+        $trName = $Matches[1]
+        foreach ($c in $n.Children) {
+            if ($c.Text -match '^absolute end\s+(\d{1,2}):(\d{2})\s+(\d{1,2})\s+(\w+)\s+(\d{4})') {
+                try {
+                    $end = [datetime]::Parse("$($Matches[3]) $($Matches[4]) $($Matches[5]) $($Matches[1]):$($Matches[2])", [System.Globalization.CultureInfo]::InvariantCulture)
+                    if ($end -lt $now) { $expired[$trName] = $true }
+                } catch { }
+            }
+        }
+    }
+    $out = [System.Collections.Generic.List[object]]::new()
+    foreach ($name in $Model.AccessLists.Keys) {
+        foreach ($ace in $Model.AccessLists[$name]) {
+            if ($ace.Text -match '\binactive\b') { $out.Add((New-AsaDetection -Fired $true -Evidence @($ace))); continue }
+            if ($ace.Text -match '\btime-range\s+(\S+)' -and $expired.ContainsKey($Matches[1])) { $out.Add((New-AsaDetection -Fired $true -Evidence @($ace))) }
+        }
+    }
+    return @($out)
+}
+
+function Test-AsaInterfaceNoIp {
+    [CmdletBinding()] param([Parameter(Mandatory)][pscustomobject]$Model)
+    $out = [System.Collections.Generic.List[object]]::new()
+    foreach ($if in $Model.Interfaces) {
+        $hasIp   = [bool](@($if.Children | Where-Object { $_.Text -match '^ip address\s+\d' }).Count)
+        $isShut  = [bool](@($if.Children | Where-Object { $_.Text -eq 'shutdown' }).Count)
+        $isBridge = [bool](@($if.Children | Where-Object { $_.Text -match '^bridge-group\s+\d' }).Count)
+        # bridge-group members legitimately have no IP (the BVI holds it) -> skip
+        if (-not $hasIp -and -not $isShut -and -not $isBridge) { $out.Add((New-AsaDetection -Fired $true -Evidence @($if))) }
+    }
+    return @($out)
+}
+
+function Test-AsaBvi {
+    [CmdletBinding()] param([Parameter(Mandatory)][pscustomobject]$Model)
+    $usedGroups = [System.Collections.Generic.HashSet[string]]::new()
+    foreach ($n in $Model.Lines) {
+        if ($n.Kind -eq 'line' -and $n.Text -match '^bridge-group\s+(\d+)') { [void]$usedGroups.Add($Matches[1]) }
+    }
+    $out = [System.Collections.Generic.List[object]]::new()
+    foreach ($if in $Model.Interfaces) {
+        if ($if.Text -match '^interface\s+BVI(\d+)') {
+            if (-not $usedGroups.Contains($Matches[1])) { $out.Add((New-AsaDetection -Fired $true -Evidence @($if))) }
+        }
+    }
+    return @($out)
+}

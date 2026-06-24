@@ -7,6 +7,28 @@ project's lifetime.
 
 ---
 
+## 2026-06-24 -- Phase 6 / GitHub issue #1 BUILT (gate passed)
+
+All 7 issue-#1 items delivered (108/108 tests; on claude-dev, not yet released).
+
+- **Reference index** (`Get-AsaReferenceIndex.ps1`): an entity is "referenced" if its name appears as a whole token on any non-definition line -- conservative (prefers NOT flagging; under-flagging unused is the safe direction). Verified on the real insecure fixture: `unused_acl`/`partner-fqdn`/`routing-protos`/`nested-admins`/`legacy-ports` flagged; `split_tunnel` (crypto-map + group-policy referenced) NOT flagged -- the crypto-only-ACL guard works on real data.
+- **Five hygiene detectors** (Informational) in `checks/structural.ps1`: unused ACL, unused object/object-group, inactive (`inactive` keyword + expired `time-range` via `absolute end` date parse), interface no-ip-not-shutdown, BVI-without-bridge-group.
+- **Engine change**: code detectors may now return MANY detections -> one finding per entity (so each unused object is its own CSV row, for tracking). Existing single-detection code checks unchanged.
+- **Informational tier**: SeverityRank=3, excluded from High/Med/Low risk counts in MD + HTML; CSV includes them.
+- **CSV** (DR-02a): added `RemediationState` (default Open) + `RemediationNotes` (empty) for team tracking.
+- **HTML** (FR-37): added a full "Findings detail" section -- every finding with ALL evidence lines, rationale, remediation, rendered natively -> the HTML is now the complete report (the summary table showed only the first evidence line before).
+- **Removed** `Write-AsaSegmentation.ps1` and the segmentation `.md` output (FR-38); segmentation lives only in the HTML (inline SVG + matrix). Outputs are now md + csv + html.
+
+**Edges found while building**: (1) bridge-group MEMBER interfaces legitimately have no IP -> the no-ip check must skip them (added `bridge-group` exclusion) -- surfaced by authoring the hygiene fixture. (2) The "exactly 15 MVP" test had to become "all 15 MVP fire (15 non-Informational risk checks)" since hygiene checks now also fire; the hardened zero-FP test scoped to RISK severities (an unused object-group on hardened is a legitimate Informational finding).
+
+Fixtures: added `asa-5515-hygiene.txt` (precise TP/TN incl. crypto-only ACL, expired vs active time-range, shutdown/bridge-member/IP-bearing interfaces, BVI with/without member); existing insecure/hardened fixtures left unchanged (the hygiene checks run on them and their incidental unused items are correctly flagged).
+
+Verified end-to-end: 3 outputs (md/csv/html, no segmentation .md); CSV carries the tracking columns + Informational rows; HTML rendered via WebKit and visually inspected -- full detail + INFO-styled hygiene findings display well.
+
+Still open in Phase 6: the v0.2 catalog coverage (remaining CIS/STIG checks, deep resolution, version/EoL, second fixture).
+
+---
+
 ## 2026-06-24 -- Phase 6 planning: GitHub issue #1 folded into v0.2 coverage
 
 GitHub issue #1 "Feature Requests" (Don C. Weber) bundled 7 items; reviewed and triaged with the maintainer, all six open decisions confirmed, folded into Phase 6 (worked alongside v0.2 coverage). NOT built yet -- planning only; awaiting review before code.
