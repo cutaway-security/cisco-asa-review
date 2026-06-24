@@ -160,6 +160,12 @@ single self-contained HTML report is the client deliverable.
   Print -> Save as PDF (documented in the report and README); the tool MUST NOT
   require a PDF binary. The Markdown findings/segmentation and CSV remain as
   working/machine-readable artifacts.
+- **FR-30 [Viz]** In the topology diagrams (HTML SVG and Mermaid), a source zone
+  whose `permit ip any any` reaches every other zone MUST be **collapsed by
+  default** into a single "ANY/ANY to ALL ZONES" node badge rather than one edge
+  per destination. A `-ExpandAnyAny` switch MUST draw every individual flow. The
+  matrix and risk list MUST remain exhaustive regardless. (Maintainer request,
+  2026-06-24: collapse is the default, expansion is opt-in.)
 
 ## §2 Non-functional requirements (NFR)
 

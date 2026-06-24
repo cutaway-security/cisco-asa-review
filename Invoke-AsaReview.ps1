@@ -22,6 +22,10 @@
     Check profile: 'commercial' (default) or 'dod'.
 .PARAMETER RevealSecrets
     Disable default secret masking (use only on a trusted host).
+.PARAMETER ExpandAnyAny
+    In the topology diagrams, draw every individual any-any flow instead of
+    collapsing a zone's "permit ip any any to all zones" into a single badge.
+    The matrix and risk list are always exhaustive regardless of this switch.
 .EXAMPLE
     Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
     .\Invoke-AsaReview.ps1 -ConfigPath .\asa-running-config.txt
@@ -39,7 +43,9 @@ param(
     [ValidateSet('commercial','dod')]
     [string]$Profile = 'commercial',
 
-    [switch]$RevealSecrets
+    [switch]$RevealSecrets,
+
+    [switch]$ExpandAnyAny
 )
 
 $ErrorActionPreference = 'Stop'
@@ -57,6 +63,10 @@ $src = Join-Path $PSScriptRoot 'src'
 . (Join-Path $src 'Get-AsaZoneModel.ps1')
 . (Join-Path $src 'Write-AsaSegmentation.ps1')
 . (Join-Path $src 'Write-AsaHtmlReport.ps1')
+
+if ($OutputDirectory -and -not (Test-Path -LiteralPath $OutputDirectory)) {
+    New-Item -ItemType Directory -Path $OutputDirectory -Force | Out-Null
+}
 
 try {
     $model = ConvertTo-AsaModel -Path $ConfigPath
@@ -80,13 +90,13 @@ $report = Write-AsaReport -Findings @($findings) -Model $model -ConfigPath $Conf
 $ts = (Get-Date).ToString('yyyyMMdd_HHmmss')
 $zoneModel = Get-AsaZoneModel -Model $model
 $seg = Write-AsaSegmentation -ZoneModel $zoneModel -ConfigPath $ConfigPath `
-    -OutputDirectory $OutputDirectory -RevealSecrets:$RevealSecrets -Timestamp $ts
+    -OutputDirectory $OutputDirectory -RevealSecrets:$RevealSecrets -ExpandAnyAny:$ExpandAnyAny -Timestamp $ts
 
 # Consolidated self-contained HTML deliverable (findings + segmentation; opens in
 # any browser, no install, no internet; Print -> Save as PDF for a PDF).
 $html = Write-AsaHtmlReport -Findings @($findings) -ZoneModel $zoneModel -Model $model `
     -ConfigPath $ConfigPath -OutputDirectory $OutputDirectory -Profile $Profile `
-    -RevealSecrets:$RevealSecrets -Timestamp $ts -ChecksEvaluated $checksEvaluated
+    -RevealSecrets:$RevealSecrets -ExpandAnyAny:$ExpandAnyAny -Timestamp $ts -ChecksEvaluated $checksEvaluated
 
 # Status/diagnostics to stderr (information stream); the report to stdout (NFR-06).
 $real = @($findings | Where-Object { $_.Status -eq 'finding' })

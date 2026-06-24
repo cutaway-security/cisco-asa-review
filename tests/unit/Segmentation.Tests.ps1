@@ -58,6 +58,11 @@ Describe 'Zone model: inter-zone flow edges' {
         @($script:InZ.Edges | Where-Object { $_.From -eq 'inside' -and $_.AnyAny }).Count | Should -BeGreaterThan 0
     }
 
+    It 'marks sources whose any-any reaches every other zone as collapsed' {
+        $script:InZ.CollapsedSources | Should -Contain 'outside'
+        $script:InZ.CollapsedSources | Should -Contain 'inside'
+    }
+
     It 'hardened config has no ANY/ANY inter-zone edges' {
         @($script:HzZ.Edges | Where-Object { $_.AnyAny }).Count | Should -Be 0
     }
@@ -80,12 +85,25 @@ Describe 'Segmentation output: Mermaid + matrix' {
         [System.IO.Path]::GetFullPath($script:R.MarkdownPath) | Should -Not -Be ([System.IO.Path]::GetFullPath($script:Insecure))
     }
 
-    It 'emits a well-formed Mermaid flowchart with zones and a risk linkStyle' {
+    It 'emits a well-formed Mermaid flowchart with zones' {
         $script:Text | Should -Match '(?m)^flowchart '
         $script:Text | Should -Match 'subgraph TIER_Untrusted'
         $script:Text | Should -Match 'Z_outside'
-        $script:Text | Should -Match 'linkStyle \d+ stroke:#b00000'
-        $script:Text | Should -Match 'ANY-ANY outside_in'
+    }
+
+    It 'collapses any-to-all-zones by default (badge, not one edge per dest)' {
+        # outside + inside both reach all zones -> collapsed by default
+        $script:Text | Should -Match 'ANY-ANY to ALL'
+    }
+
+    It 'draws every any-any edge with -ExpandAnyAny (and more linkStyles than default)' {
+        $exp = Write-AsaSegmentation -ZoneModel $script:InZ -ConfigPath $script:Insecure `
+            -OutputDirectory $script:OutDir -Timestamp '20260624_130300' -ExpandAnyAny
+        $expText = Get-Content -Raw -LiteralPath $exp.MarkdownPath
+        $expText | Should -Match 'ANY-ANY outside_in'
+        $expText | Should -Match 'linkStyle \d+ stroke:#b00000'
+        ([regex]::Matches($expText, 'linkStyle ')).Count |
+            Should -BeGreaterThan ([regex]::Matches($script:Text, 'linkStyle ')).Count
     }
 
     It 'matrix marks the outside->inside cell as ANY-ANY' {

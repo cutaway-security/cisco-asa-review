@@ -209,6 +209,26 @@ function Get-AsaZoneModel {
             }
         }
 
+        # --- collapse: sources whose ANY/ANY fans out to ALL other zones ---
+        # (used to de-clutter topology diagrams by default; the matrix and risk
+        # list always remain exhaustive).
+        $targetUniverse = @($zoneNames)
+        if ($edges | Where-Object { $_.From -eq 'external' -or $_.To -eq 'external' }) { $targetUniverse += 'external' }
+        $anyAnyDest = @{}
+        foreach ($e in $edges) {
+            if (-not $e.AnyAny) { continue }
+            if (-not $anyAnyDest.ContainsKey($e.From)) { $anyAnyDest[$e.From] = [System.Collections.Generic.HashSet[string]]::new() }
+            [void]$anyAnyDest[$e.From].Add($e.To)
+        }
+        $collapsed = [System.Collections.Generic.List[string]]::new()
+        foreach ($srcName in $anyAnyDest.Keys) {
+            $dests = $anyAnyDest[$srcName]
+            $others = @($targetUniverse | Where-Object { $_ -ne $srcName })
+            if ($dests.Count -ge 2 -and ($others.Count -gt 0) -and -not (@($others | Where-Object { -not $dests.Contains($_) }))) {
+                [void]$collapsed.Add($srcName)
+            }
+        }
+
         $notes = @(
             'Edges are CONFIGURED/ALLOWED flows from access-group-bound permit ACEs, not end-to-end reachability.',
             'NAT translation, routing, and cross-path rule order/shadowing are NOT modeled.',
@@ -222,6 +242,7 @@ function Get-AsaZoneModel {
             Edges        = $edges
             Bindings     = $bindings
             ExternalUsed = [bool](@($edges | Where-Object { $_.From -eq 'external' -or $_.To -eq 'external' }).Count)
+            CollapsedSources = @($collapsed)
             Notes        = $notes
         }
     }

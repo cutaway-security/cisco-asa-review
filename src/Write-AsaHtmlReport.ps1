@@ -29,6 +29,7 @@ function Write-AsaHtmlReport {
         [string]$OutputDirectory,
         [string]$Profile = 'commercial',
         [switch]$RevealSecrets,
+        [switch]$ExpandAnyAny,
         [string]$Timestamp,
         [int]$ChecksEvaluated
     )
@@ -58,6 +59,10 @@ function Write-AsaHtmlReport {
         if ($e.AnyAny) { $agg[$k].AnyAny = $true }
         [void]$agg[$k].Protos.Add($e.Proto.ToLowerInvariant())
     }
+
+    $collapse = -not $ExpandAnyAny
+    $collapsedSet = [System.Collections.Generic.HashSet[string]]::new()
+    foreach ($cs in @($ZoneModel.CollapsedSources)) { [void]$collapsedSet.Add($cs) }
 
     $tierRank = @{ Untrusted = 0; DMZ = 1; Trusted = 2 }
     $orderedZones = @($ZoneModel.Zones | Sort-Object @{Expression={$tierRank[$_.Tier]}}, @{Expression={$_.Name}})
@@ -123,6 +128,9 @@ function Write-AsaHtmlReport {
     & $w "<h2>Network segmentation and data flow</h2>"
     & $w "<div class='note'>Best-effort, offline stop-gap. Shows <b>configured/allowed flows per the ruleset</b>, not end-to-end reachability (NAT, routing, and rule shadowing are not modeled). Addresses not within a configured interface subnet are shown as the <b>external</b> zone.</div>"
     & $w "<div class='legend'><span><span class='sw' style='background:#b00000'></span>permit ip any any (high risk)</span><span><span class='sw' style='background:#888'></span>scoped permit</span><span><span class='sw' style='background:#fde2e2;border-color:#b00000'></span>untrusted zone</span></div>"
+    if ($collapse -and $collapsedSet.Count -gt 0) {
+        & $w "<div class='note'>A zone with a <b>permit ip any any</b> that reaches every other zone is shown with an <b>ANY/ANY to ALL ZONES</b> badge instead of one arrow per destination (de-cluttered by default). The matrix and risk list below remain exhaustive; re-run with <code>-ExpandAnyAny</code> to draw every individual flow.</div>"
+    }
 
     # SVG layout: tier columns x rows
     $boxW = 170; $boxH = 64; $colGap = 90; $rowGap = 28; $margin = 16
@@ -162,6 +170,8 @@ function Write-AsaHtmlReport {
     $pairKeys = @($agg.Keys | Sort-Object)
     foreach ($k in $pairKeys) {
         $parts = $k -split '\|'; $f = $parts[0]; $t = $parts[1]
+        # collapse any-to-all-zones into a node badge (default) to de-clutter
+        if ($collapse -and $agg[$k].AnyAny -and $collapsedSet.Contains($f)) { continue }
         if (-not $pos.ContainsKey($f) -or -not $pos.ContainsKey($t)) { continue }
         $pf = $pos[$f]; $pt = $pos[$t]
         if ($pf.Col -lt $pt.Col) { $x1 = $pf.X + $boxW; $y1 = $pf.CY; $x2 = $pt.X; $y2 = $pt.CY }
@@ -183,6 +193,11 @@ function Write-AsaHtmlReport {
         [void]$svg.AppendLine("<text x='$cx' y='$($p.Y + 39)' text-anchor='middle' font-size='11' fill='#444'>$(& $esc $sub)</text>")
         $cidr = (@($z.Subnets | ForEach-Object { $_.Cidr }) -join ', ')
         if ($cidr) { [void]$svg.AppendLine("<text x='$cx' y='$($p.Y + 55)' text-anchor='middle' font-size='10' fill='#666'>$(& $esc $cidr)</text>") }
+        if ($collapse -and $collapsedSet.Contains($z.Name)) {
+            $by = $p.Y + $boxH - 9
+            [void]$svg.AppendLine("<rect x='$([math]::Round($cx-58))' y='$by' width='116' height='16' rx='8' fill='#b00000'/>")
+            [void]$svg.AppendLine("<text x='$cx' y='$($by + 12)' text-anchor='middle' font-size='10' font-weight='700' fill='#ffffff'>ANY/ANY to ALL ZONES</text>")
+        }
     }
     [void]$svg.AppendLine('</svg>')
     & $w "<div>$($svg.ToString())</div>"

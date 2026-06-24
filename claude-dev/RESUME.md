@@ -62,6 +62,12 @@
   - Suite 98/98 green. **Rendering visually verified** via wkhtmltoimage (WebKit)
     and the PDF path via wkhtmltopdf — the inline SVG renders realistically
     (addressed the "SVG may not display as coded" concern with evidence).
+- **Phase 5c (any-to-all-zones collapse), gate PASSED (2026-06-24):**
+  - Zone model computes `CollapsedSources`; HTML SVG + Mermaid collapse a source's
+    "any-any to all zones" into a single badge **by default**, with `-ExpandAnyAny`
+    to draw every flow. Matrix + risk list stay exhaustive. Suite 103/103 green;
+    collapsed render visually verified as de-cluttered. Entry point now creates a
+    missing `-OutputDirectory`.
 
 ## In Progress
 

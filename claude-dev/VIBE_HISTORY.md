@@ -7,6 +7,21 @@ project's lifetime.
 
 ---
 
+## 2026-06-24 -- Phase 5c: any-to-all-zones collapse (default), -ExpandAnyAny opt-in
+
+A `permit ip any any` fans out to every zone, producing a red-arrow hairball in the topology. At the maintainer's request, collapse is now the DEFAULT and expansion is opt-in.
+
+- `Get-AsaZoneModel.ps1` computes `CollapsedSources`: a source whose any-any reaches every other zone (>=2 destinations). Centralized so the HTML SVG and the Mermaid topology stay consistent.
+- Both topologies: by default, a collapsed source's individual any-any edges are suppressed and the node gets a single "ANY/ANY to ALL ZONES" badge (red SVG pill / Mermaid label suffix). `-ExpandAnyAny` (threaded through `Invoke-AsaReview.ps1`) draws every individual flow. The matrix and risk-flow list ALWAYS remain exhaustive -- collapse only de-clutters the diagram; the full detail is never hidden.
+- Tests: zone-model CollapsedSources; HTML/Mermaid collapse-default + expand-differential (expanded has more red edges/linkStyles + no badge). Existing Mermaid tests updated (default no longer draws the any-any edges). Suite 103/103.
+- Verified by rendering: the default (collapsed) HTML renders clean -- two badged zone boxes instead of an 8-arrow hairball.
+- Robustness fix found in testing: the entry point now creates a missing `-OutputDirectory` (writers previously threw on a nonexistent dir).
+- Design note: collapse threshold is "reaches every other zone, >=2 dests"; partial any-any (to specific zones) still draws as arrows. The matrix/list are the always-on "expansion."
+
+**Status**: on `claude-dev` only; NOT released to `main`.
+
+---
+
 ## 2026-06-24 -- Phase 5b: consolidated self-contained HTML deliverable (gate passed)
 
 **Why**: the client has no GitHub/VS Code, so the Mermaid `.md` does not render for them. Needed a deliverable that displays with nothing installed.

@@ -54,6 +54,23 @@ Describe 'HTML deliverable: structure' {
     It 'marks the outside->inside matrix cell as an ANY-ANY risk cell' {
         $script:Html | Should -Match "cell-risk'>ANY-ANY"
     }
+
+    It 'collapses any-to-all-zones in the SVG by default (badge) but keeps the matrix exhaustive' {
+        $script:Html | Should -Match 'ANY/ANY to ALL ZONES'      # node badge
+        $script:Html | Should -Match "cell-risk'>ANY-ANY"        # matrix still complete
+    }
+
+    It 'draws individual any-any SVG edges only with -ExpandAnyAny' {
+        $exp = Write-AsaHtmlReport -Findings $script:InFind -ZoneModel $script:InZone -Model $script:InModel `
+            -ConfigPath $script:Insecure -OutputDirectory $script:OutDir -Profile commercial `
+            -Timestamp '20260624_150200' -ChecksEvaluated 15 -ExpandAnyAny
+        $expHtml = Get-Content -Raw -LiteralPath $exp.HtmlPath
+        $redLine = "<line[^>]*stroke='#b00000'"
+        $expRed = ([regex]::Matches($expHtml, $redLine)).Count
+        $defRed = ([regex]::Matches($script:Html, $redLine)).Count
+        $expRed | Should -BeGreaterThan $defRed       # expanded draws the red arrows
+        $expHtml | Should -Not -Match 'ANY/ANY to ALL ZONES'   # no collapse badge when expanded
+    }
 }
 
 Describe 'HTML deliverable: portability and safety' {

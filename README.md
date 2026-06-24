@@ -67,6 +67,11 @@ secure-transfer gateways). For a PDF, open it in a browser and choose
 working/machine-readable artifacts; the Mermaid `.md` is for renderer-equipped
 contexts (VS Code / GitLab / GitHub).
 
+In the topology, a zone whose `permit ip any any` reaches every other zone is
+collapsed by default into a single **ANY/ANY to ALL ZONES** badge (so the diagram
+stays readable); the matrix and risk list remain exhaustive. Pass
+`-ExpandAnyAny` to draw every individual flow instead.
+
 Alongside the findings, the tool also writes a **segmentation + data-flow map**
 (a separate timestamped Markdown file): a zone-level Mermaid topology plus a
 zone-to-zone connectivity matrix, deriving zones from interface `nameif` +

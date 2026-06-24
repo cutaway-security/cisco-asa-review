@@ -21,6 +21,7 @@ function Write-AsaSegmentation {
         [Parameter(Mandatory)][string]$ConfigPath,
         [string]$OutputDirectory,
         [switch]$RevealSecrets,
+        [switch]$ExpandAnyAny,
         [string]$Timestamp
     )
 
@@ -28,6 +29,9 @@ function Write-AsaSegmentation {
         . (Join-Path $PSScriptRoot 'Protect-AsaSecret.ps1')
     }
     $mask = { param($t) if ($RevealSecrets) { $t } else { Protect-AsaLine -Line $t } }
+    $collapse = -not $ExpandAnyAny
+    $collapsedSet = [System.Collections.Generic.HashSet[string]]::new()
+    foreach ($cs in @($ZoneModel.CollapsedSources)) { [void]$collapsedSet.Add($cs) }
 
     if ([string]::IsNullOrEmpty($Timestamp)) { $Timestamp = (Get-Date).ToString('yyyyMMdd_HHmmss') }
     if ([string]::IsNullOrEmpty($OutputDirectory)) {
@@ -85,6 +89,7 @@ function Write-AsaSegmentation {
             $cidr = ($z.Subnets | ForEach-Object { $_.Cidr }) -join ','
             $label = "$($z.Name) / sl$($z.SecurityLevel)"
             if ($cidr) { $label += " / $cidr" }
+            if ($collapse -and $collapsedSet.Contains($z.Name)) { $label += ' / ANY-ANY to ALL' }
             $md.Add("    $(& $nodeId $z.Name)[`"$label`"]")
         }
         $md.Add('  end')
@@ -96,17 +101,20 @@ function Write-AsaSegmentation {
     }
 
     $riskIdx = [System.Collections.Generic.List[int]]::new()
-    for ($i = 0; $i -lt $aggEdges.Count; $i++) {
-        $e = $aggEdges[$i]
+    $emit = 0
+    foreach ($e in $aggEdges) {
+        # collapse any-to-all-zones into a node badge (default) to de-clutter
+        if ($collapse -and $e.AnyAny -and $collapsedSet.Contains($e.From)) { continue }
         if ($e.AnyAny) {
             $first = $e.Lines | Where-Object { $_.AnyAny } | Sort-Object LineNo | Select-Object -First 1
             $label = "ANY-ANY $($first.Acl) L$($first.LineNo)"
-            $riskIdx.Add($i)
+            $riskIdx.Add($emit)
         } else {
             $label = (@($e.Protos) | Sort-Object) -join '/'
             if (-not $label) { $label = 'permit' }
         }
         $md.Add("  $(& $nodeId $e.From) -->|`"$label`"| $(& $nodeId $e.To)")
+        $emit++
     }
 
     $md.Add('  classDef untrusted fill:#fde2e2,stroke:#b00000,color:#000000;')
@@ -117,6 +125,10 @@ function Write-AsaSegmentation {
         $md.Add("  linkStyle $ix stroke:#b00000,stroke-width:4px,color:#b00000;")
     }
     $md.Add('```')
+    if ($collapse -and $collapsedSet.Count -gt 0) {
+        $md.Add('')
+        $md.Add('> A zone whose `permit ip any any` reaches every other zone is shown with an `ANY-ANY to ALL` badge in its node instead of one arrow per destination (de-cluttered by default). The matrix and risk list below remain exhaustive; re-run with `-ExpandAnyAny` to draw every individual flow.')
+    }
     $md.Add('')
 
     # ---- matrix ----

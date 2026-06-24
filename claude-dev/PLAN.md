@@ -9,11 +9,12 @@ with no network and no device access.
 
 ## Current Phase
 
-**Phase**: Phase 5 + 5b — Segmentation visualization + HTML deliverable
-**Status**: Complete (2026-06-24) — gate passed: 98/98 Pester tests green;
-end-to-end + rendering verified. Mermaid topology + zone matrix (Phase 5) and a
-self-contained HTML deliverable consolidating findings + inline-SVG topology +
-matrix (Phase 5b). ANY/ANY (literal + object-group) highlighted.
+**Phase**: Phase 5/5b/5c — Segmentation viz + HTML deliverable + any-any collapse
+**Status**: Complete (2026-06-24) — gate passed: 103/103 Pester tests green;
+end-to-end + rendering verified. Mermaid topology + zone matrix (5), self-contained
+HTML deliverable (5b), and any-to-all-zones collapse-by-default with -ExpandAnyAny
+(5c). ANY/ANY (literal + object-group) highlighted; collapsed render visually
+verified as de-cluttered.
 **Focus**: Phase 5/5b done (not yet released to main). Pending: Windows PowerShell
 5.1 verification (NFR-01), then Phase 6 (v0.2 coverage).
 
@@ -162,6 +163,17 @@ single self-contained HTML report.
 **Acceptance gate**: PASSED — HTML is self-contained (no JS, no external refs),
 SVG well-formed and visually verified to render, findings + matrix + topology
 consolidated, ANY/ANY highlighted, no secret leak, deterministic.
+
+#### Phase 5c: any-to-all-zones collapse (Complete 2026-06-24)
+
+- [x] `Get-AsaZoneModel.ps1` computes `CollapsedSources` (sources whose any-any
+      reaches every other zone, >=2 dests).
+- [x] HTML SVG + Mermaid topology collapse those into a single "ANY/ANY to ALL
+      ZONES" node badge by default; `-ExpandAnyAny` draws every flow. Matrix +
+      risk list stay exhaustive. Threaded through `Invoke-AsaReview.ps1`.
+- [x] Tests added (collapse default + expand differential). Suite 103/103 green.
+      Default (collapsed) render visually verified — de-cluttered.
+- [x] Robustness: entry point now creates a missing `-OutputDirectory`.
 
 ### Phase 6: v0.2 — Coverage
 
