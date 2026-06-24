@@ -58,9 +58,16 @@ Business and technical criteria, each measurable. Tied to evidence in §3.
   manual audit only on a release sample. (AI review 20260624-101250: openai —
   manual spot-check was too weak.)
 - **TSC-12 (Secret non-leak)** No seeded secret token from the fixture appears
-  verbatim in default-masked output (Markdown, CSV, or verbose). *Threshold:*
-  hard pass/fail; any verbatim secret is a release blocker. (AI review
-  20260624-101250: anthropic HIGH — TR-08.)
+  verbatim in default-masked output (Markdown, CSV, **or the visualization
+  output**). *Threshold:* hard pass/fail; any verbatim secret is a release
+  blocker. (AI review 20260624-101250: anthropic HIGH — TR-08.)
+- **TSC-13 (Visualization correctness, Phase 5)** From the fixtures, the zone
+  model and inter-zone flows derive correctly, and the `permit ip any any` risk is
+  highlighted (red edge / darkest cell, labeled with the ACL line) on the insecure
+  fixture and absent on the hardened fixture. *Threshold:* the insecure
+  visualization contains the outside→inside ANY/ANY risk edge and matrix cell;
+  the hardened one contains none; Mermaid + matrix are well-formed and
+  deterministic across runs; no online renderer is invoked (static guard extends).
 - **TSC-07 (Authority traceability)** Every finding carries a CIS/STIG reference
   or "tool heuristic," with revision label, and remains valid on evidence alone.
   *Threshold:* manual audit confirms no finding depends solely on an `[unverified]`

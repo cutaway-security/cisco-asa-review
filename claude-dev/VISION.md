@@ -136,7 +136,10 @@ distinction is data, not hardcoded assumption.
   reads hitcounts. Rule-usage ("is this rule unused?") is out of scope — that
   needs device data.
 - **Not a dataplane/reachability modeler.** It does not compute end-to-end
-  reachability or simulate traffic (that is Batfish's domain).
+  reachability or simulate traffic (that is Batfish's domain). The planned
+  segmentation/data-flow visualization (Phase 5) shows *configured/allowed flows
+  per the ruleset*, explicitly labeled as such — it is a segmentation map, not a
+  reachability proof.
 - **Not multi-vendor.** ASA 9.x only. Not IOS, not FTD/Firepower, not PIX-era,
   not other firewalls.
 - **Not a remediation tool.** It reports; it never modifies a device or generates

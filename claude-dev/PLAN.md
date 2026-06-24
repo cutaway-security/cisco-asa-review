@@ -14,9 +14,10 @@ with no network and no device access.
 end-to-end CLI verified. **v0.1b (MVP) milestone reached.** Published to private
 `cutaway-security/cisco-asa-review` (tag v0.1b); validated on a real host under
 PowerShell 7 (both reports generated correctly).
-**Focus**: Evaluating a new visualization output (network segmentation + data
-flow, ANY/ANY risk highlighted) — research/options stage. Then candidates:
-Windows PowerShell 5.1 verification (NFR-01), Phase 5 (v0.2 coverage).
+**Focus**: Phase 5 (segmentation + data-flow visualization) is decided and
+planned (Package B: Mermaid topology + zone matrix, separate always-on output) —
+ready to build pending go-ahead. Also pending: Windows PowerShell 5.1 verification
+(NFR-01), then Phase 6 (v0.2 coverage).
 
 ## Phases
 
@@ -115,7 +116,31 @@ and confirm identical finding set; dev host is pwsh 7.6.2) and TSC-11 (runtime
 process-monitor egress check). The static guard covers the SR-01/SR-06 boundary in
 code in the interim.
 
-### Phase 5: v0.2 — Coverage
+### Phase 5: Segmentation & data-flow visualization
+
+**Status**: Not Started (planned; decided 2026-06-24, research
+`20260624_segmentation-visualization_RESEARCH.md`). Package B (Mermaid topology +
+zone matrix), separate output file, always produced.
+
+- [ ] `src/Get-AsaZoneModel.ps1` (FR-20/21): zones from interface-roles; map ACE
+      src/dst addresses to zones (longest-prefix vs interface subnets; `any` = all;
+      unresolved = `external/unknown`; carry OR-03 not-assessed).
+- [ ] Inter-zone allowed-flow edges from access-group-bound permit ACEs (FR-22).
+- [ ] `src/Write-AsaSegmentation.ps1` (FR-23/24/25/26): zone-level Mermaid topology
+      + zone-to-zone matrix; ANY/ANY + high-severity flows highlighted (color +
+      label + ACL line, reusing finding severity/evidence; masking applies).
+- [ ] Wire into `Invoke-AsaReview.ps1`: separate timestamped file next to the
+      config, produced on every run; states the configured-flows-not-reachability
+      boundary.
+- [ ] Tests: zone derivation + address→zone mapping; insecure fixture shows the
+      outside→inside ANY/ANY as a red edge / darkest cell; hardened shows none;
+      no secret leaks in the visualization (TSC-12 extends); deterministic output.
+
+**Acceptance gate**: on the fixtures, zones/edges derive correctly and the ANY/ANY
+risk is highlighted on insecure and absent on hardened; Mermaid + matrix are
+well-formed and deterministic; no online renderer invoked (static guard extends).
+
+### Phase 6: v0.2 — Coverage
 
 **Status**: Not Started
 
@@ -128,7 +153,7 @@ code in the interim.
 
 **Acceptance gate**: expanded catalog TP/FP gates pass; full absence set gated.
 
-### Phase 6: v0.3 — Depth
+### Phase 7: v0.3 — Depth
 
 **Status**: Not Started
 
@@ -150,6 +175,8 @@ code in the interim.
 | 2026-06-24 | Defaults model + interface-role model are doc-cited data, built in v0.1b prep | External source of truth avoids second oracle-circularity (multi-AI pass 2) |
 | 2026-06-24 | TR-07 real configs stored locally, never dev-time fetch | Dev-time fetch contradicts air-gapped posture (multi-AI pass 2) |
 | 2026-06-24 | Commercial profile default, DoD/STIG opt-in | Enterprise target; DoD-specific checks are noise on commercial ASA (multi-AI pass 1) |
+| 2026-06-24 | Add segmentation+data-flow visualization (Phase 5): Mermaid topology + zone matrix, separate always-on output | Conversation needs a topology, report needs a matrix; offline text emission, zero-install render; Nipper/CDO visualize nothing (research 20260624_segmentation-visualization) |
+| 2026-06-24 | Visualization shows configured/allowed flows, NOT reachability | Avoid overclaiming; reachability modeling stays OOS-02 (routing/NAT/shadowing not modeled) |
 
 ## Open process items (from multi-AI pass 2, P2)
 

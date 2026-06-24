@@ -104,6 +104,43 @@ makes a network call, and never modifies anything.
   commercial device. Profile membership MUST be catalog data, not hardcoded.
   (VISION §5 profiles; AI review 20260624-094932: anthropic Adjustment 3.)
 
+### Segmentation & data-flow visualization (Phase 5; decided 2026-06-24)
+
+Origin: `20260624_segmentation-visualization_RESEARCH.md`. Package B (Mermaid
+topology + zone matrix), separate output file, always produced.
+
+- **FR-20 [Viz]** The tool MUST derive a **zone model** from the parsed config:
+  one zone per in-service interface keyed by `nameif` + effective `security-level`
+  (reusing the interface-role model, FR-08a). Zones MAY be grouped into trust
+  tiers by security-level band for display.
+- **FR-21 [Viz]** The tool MUST map ACE source/destination addresses to zones —
+  by longest-prefix match against interface IP/subnets; `any` spans all zones; an
+  address not resolvable to a configured interface zone MUST be shown as an
+  explicit `external/unknown` zone, never silently dropped. Object/object-group
+  references are resolved via the existing resolver (FR-05a), with `not assessed`
+  (OR-03) carried through when resolution depth is exceeded.
+- **FR-22 [Viz]** The tool MUST derive inter-zone **allowed-flow edges** from the
+  permit ACEs of ACLs bound to interfaces/directions via `access-group`. Edges
+  represent *configured/allowed* flows per the ruleset, NOT computed dataplane
+  reachability (see §11 OOS-02).
+- **FR-23 [Viz]** The tool MUST emit a **zone-level Mermaid topology** (nodes =
+  zones, edges = allowed inter-zone flows) and a **zone-to-zone connectivity
+  matrix** (rows = source zone, cols = destination zone, cell = most-permissive
+  allowed posture).
+- **FR-24 [Viz]** Risk conditions MUST be highlighted with color **plus** a
+  redundant non-color cue (label/badge): `permit ip any any` and other
+  high-severity flows render as a thick highest-severity edge / darkest matrix
+  cell, each labeled with the offending ACL line and tied to the finding model
+  (severity + evidence reused from the check engine; SR-05 evidence-first holds).
+- **FR-25 [Viz]** The visualization MUST be written to a **separate output file**
+  next to the configuration file (distinct from the findings MD/CSV), timestamped
+  (DR-03), and MUST be **produced on every run**.
+- **FR-26 [Viz]** All visualization output MUST be generated as local text
+  (Mermaid source + Markdown/HTML matrix). The tool MUST NOT invoke any renderer
+  or online service; rendering to an image is the analyst's local, offline step
+  (SR-01 holds). Secret masking (SR-04) applies to any evidence shown in the
+  visualization.
+
 ## §2 Non-functional requirements (NFR)
 
 - **NFR-01 [MVP]** The tool MUST run on Windows PowerShell 5.1 with no installed
@@ -299,7 +336,11 @@ makes a network call, and never modifies anything.
 - **OOS-01** Live device interrogation / SSH / hitcount-based rule-usage analysis.
   Re-entry: a separate live-collection tool (needs device data). (VISION §6)
 - **OOS-02** Dataplane/reachability modeling (Batfish territory). Re-entry: none
-  planned. (VISION §6)
+  planned. NOTE: the Phase-5 visualization (FR-20..FR-26) shows *configured/allowed
+  flows per the ruleset*, which is NOT end-to-end reachability — it does not model
+  routing, NAT translation, or full cross-path rule-order/shadowing. The output
+  must state this so a segmentation map is not mistaken for a reachability proof.
+  (VISION §6)
 - **OOS-03** Multi-vendor or non-ASA-9.x parsing (IOS, FTD, PIX, others). Re-entry:
   a future parser generalization, explicitly not now. (VISION §6)
 - **OOS-04** Remediation / config-change generation / pushing changes. (VISION §6)

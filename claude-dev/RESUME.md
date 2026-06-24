@@ -53,9 +53,12 @@
 
 ## In Progress
 
-Nothing in progress. Phase 4 complete and gated; v0.1b published and validated on
-PSv7. Evaluating a new visualization output (segmentation + data flow) — options
-stage, not yet planned or built.
+Nothing being coded. Phase 4 complete/gated; v0.1b published and PSv7-validated.
+**Phase 5 (segmentation + data-flow visualization) is decided and now planned**
+(Package B: Mermaid topology + zone matrix, separate always-on output) — research
+in `20260624_segmentation-visualization_RESEARCH.md`; requirements (FR-20..FR-26),
+architecture (§7b), success criteria (TSC-13), and PLAN Phase 5 updated. **Not yet
+built — awaiting go-ahead.**
 
 ## Blockers
 
@@ -65,10 +68,10 @@ stage, not yet planned or built.
 
 ## Next Steps
 
-1. (User-directed) Decide on a new **visualization output** — network
-   segmentation + data flow, with risk conditions (ANY/ANY) highlighted, for use
-   in conversations and reports. Options under research now; planning to be updated
-   after option selection, then build. Do NOT start until options are agreed.
+1. **Build Phase 5 (visualization)** once given the go-ahead: `Get-AsaZoneModel.ps1`
+   + `Write-AsaSegmentation.ps1` (Mermaid topology + zone matrix), wired into the
+   entry point as a separate always-on output, with tests (TSC-13) and the static
+   guard extended to cover the new emitter. Decision + options already settled.
 2. Still pending for a full "shipped" claim: run on **Windows PowerShell 5.1**
    (TSC-09/NFR-01; PSv7 is now validated), a runtime egress-monitor check (TSC-11),
    and a findings-accuracy review against a real engagement config.

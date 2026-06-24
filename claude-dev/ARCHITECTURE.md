@@ -234,6 +234,45 @@ byte-identity as the implementation target.
 
 ---
 
+## §7b Decision: a segmentation + data-flow visualization as a separate, always-on text output (Phase 5)
+
+**Decision.** Add a new render-stage output that emits a **zone-level Mermaid
+topology** plus a **zone-to-zone connectivity matrix** from the parsed model, as a
+**separate file** written next to the config, produced on **every** run. Risky
+flows (`permit ip any any`, high-severity) are highlighted with color + a label
+and tied to the offending ACL line. (Decided 2026-06-24; research in
+`20260624_segmentation-visualization_RESEARCH.md`.)
+
+**Alternative considered.** Matrix-only (simpler, no topology); or a topology via
+Graphviz/D2/PlantUML (needs a local binary/runtime); or embedding in the existing
+report rather than a separate file.
+
+**Why this one.** A node-link topology serves live conversations (path-following);
+a matrix serves the written report (compact, exhaustive). Mermaid + a Markdown/
+HTML matrix are **pure text generated offline** and render with **zero install**
+in VS Code / GitLab / GitHub — so nothing leaves the host and no online tool is
+used (SR-01 holds; FR-26). The two tools closest to this niche (Nipper, Cisco CDO)
+visualize nothing, so this is additive. Zones reuse the interface-role model;
+risk styling reuses the finding severity + evidence, so the map, matrix, findings,
+and CSV speak one risk language.
+
+**How it could be wrong, and mitigation.** (1) **Overclaiming reachability** — a
+config-derived allowed-flow map is NOT end-to-end reachability (no routing/NAT/
+shadowing modeled, OOS-02). Mitigation: the output states this explicitly, and
+addresses not mappable to a configured zone render as an explicit `external/
+unknown` zone (FR-21), never dropped. (2) **Zone-mapping ambiguity** — mapping an
+ACE address to a zone (longest-prefix vs interface subnets) can be ambiguous with
+overlapping/NATed/routed subnets; carry `not assessed` (OR-03) through resolution
+and label ambiguous mappings rather than guessing. (3) **Graph hairball** — keep
+the topology zone-aggregated and emphasize only top-N risky edges; the matrix
+carries the exhaustive posture.
+
+**New components.** `src/Get-AsaZoneModel.ps1` (zones from interface-roles +
+address→zone mapping) and `src/Write-AsaSegmentation.ps1` (Mermaid + matrix
+emitter, masking-aware). Both consume the existing parsed/resolved model and the
+finding severities; they slot into the render stage without touching checks
+(AR-01/AR-04).
+
 ## §8 Cross-cutting concerns
 
 **Security / trust boundary.** Exactly one untrusted input: the config text file
@@ -282,6 +321,8 @@ cisco-asa-review/
         checks/
             structural.ps1      # resolution-aware/structural checks (code)
         Write-AsaReport.ps1     # Markdown + CSV renderers, secret masking
+        Get-AsaZoneModel.ps1    # zones (interface-roles) + address->zone mapping (Phase 5)
+        Write-AsaSegmentation.ps1 # Mermaid topology + zone matrix emitter (Phase 5)
     data/
         check-catalog.psd1      # declarative check catalog (DR-04 schema)
         asa-defaults.psd1       # defaults model, doc-cited, MVP-15 scope (v0.1b)
@@ -404,6 +445,11 @@ sequenceDiagram
   + run summary. Gate: exact seeded TP / zero FP + the secret-masking no-leak gate.
 - **v0.2:** full CIS/STIG catalog, deep resolution, undefined-ref/unbound-ACL
   heuristics, second independent fixture, version/EoL table.
+- **Phase 5 (segmentation visualization):** zone model + address→zone mapping;
+  Mermaid topology + zone-to-zone matrix as a separate always-on output; ANY/ANY
+  and high-severity flows highlighted and tied to the offending ACL line. Pure
+  offline text emission (FR-20..FR-26). Can land alongside or ahead of the rest
+  of v0.2.
 - **v0.3:** ACL shadowing/redundancy, large-config performance, baseline/suppression.
 
 ---
