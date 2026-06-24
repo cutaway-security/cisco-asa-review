@@ -9,11 +9,10 @@ with no network and no device access.
 
 ## Current Phase
 
-**Phase**: Phase 2 — v0.1a-core parser
-**Status**: Complete (2026-06-24) — gate passed: 36/36 Pester tests green (TR-03
-parser + TR-07 clean parse of both real configs)
-**Focus**: Next is Phase 3 — v0.1b-prep support models (minimal resolution,
-password classifier, defaults model, interface-role model).
+**Phase**: Phase 3 — v0.1b-prep support models
+**Status**: Complete (2026-06-24) — gate passed: 56/56 Pester tests green
+**Focus**: Next is Phase 4 — check engine + the 15 MVP checks + Markdown/CSV +
+secret masking.
 
 ## Phases
 
@@ -64,20 +63,27 @@ dump cross-validates expected construct counts.
 
 ### Phase 3: v0.1b-prep — Support models
 
-**Status**: Not Started
+**Status**: Complete (2026-06-24)
 
-- [ ] Minimal object/object-group resolution (FR-05a), stated nesting depth,
-      "not assessed" (OR-03) beyond it.
-- [ ] Password-hash classifier (FR-09): pbkdf2/encrypted/nt-encrypted/cleartext;
-      `nt-encrypted` gated as "not-cleartext" (TSC-05).
-- [ ] `asa-defaults.psd1` (FR-08b, DR-06): MVP-15 absence defaults, each with a
-      Cisco ASA 9.x doc citation.
-- [ ] `Get-AsaInterfaceRoles.ps1` (FR-08a): nameif + security-level per interface,
-      encodes security-level default; uRPF rule = sec-level 0 OR nameif outside.
+- [x] `src/Resolve-AsaReferences.ps1` (FR-05a): name resolution +
+      `Resolve-AsaNetworkGroup` / `Test-AsaNetworkGroupIsAny` with one level of
+      group-object expansion; "not assessed" (OR-03) beyond depth and on undefined
+      references.
+- [x] `src/Get-AsaSecrets.ps1` (FR-09/FR-10): `Get-AsaPasswordClass`
+      (pbkdf2/encrypted/nt-encrypted/cleartext/redacted) + `Get-AsaSecrets`
+      scanner (passwords, SNMP community, AAA key, NTP key, tunnel-group PSK);
+      `nt-encrypted` gated as not-cleartext (TSC-05).
+- [x] `data/asa-defaults.psd1` (FR-08b, DR-06): the 8 MVP absence/conditional
+      defaults, each with a Cisco ASA 9.x doc citation (SSH-version entry notes
+      the 9.16 `ssh version` removal).
+- [x] `src/Get-AsaInterfaceRoles.ps1` (FR-08a): nameif + security-level per
+      interface, encodes the security-level default (inside=100, other=0); uRPF
+      rule = security-level 0 OR nameif outside.
 
-**Acceptance gate**: each model passes its own unit tests; defaults model passes a
-doc-cited audit; classifier 100% on seeded credential lines (nt-encrypted as
-not-cleartext).
+**Acceptance gate**: PASSED — 56/56 Pester tests green; classifier 100% on seeded
+credentials (nt-encrypted not-cleartext); defaults model doc-cited and covers
+exactly the MVP absence/conditional checks; resolution reports not-assessed beyond
+one level.
 
 ### Phase 4: v0.1b — MVP checks + output
 

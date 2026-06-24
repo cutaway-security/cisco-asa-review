@@ -7,6 +7,39 @@ project's lifetime.
 
 ---
 
+## 2026-06-24 -- Phase 3: v0.1b-prep support models (gate passed)
+
+**What landed**
+
+- `src/Get-AsaSecrets.ps1` -- `Get-AsaPasswordClass` (value+tag -> pbkdf2 / encrypted / nt-encrypted / cleartext / redacted) and `Get-AsaSecrets` (scans the model for passwords, SNMP communities, AAA keys, NTP keys, tunnel-group PSKs; returns Class + IsCleartext per secret).
+- `src/Get-AsaInterfaceRoles.ps1` -- per-interface nameif + effective security-level (encodes the default: inside=100, other=0), InService, IsUntrusted (= security-level 0 OR nameif outside).
+- `src/Resolve-AsaReferences.ps1` -- `Resolve-AsaName`, `Resolve-AsaNetworkGroup`, `Test-AsaNetworkGroupIsAny`. One level of group-object expansion; deeper nesting and undefined references return Assessed=$false ("not-assessed", OR-03).
+- `data/asa-defaults.psd1` -- the 8 MVP absence/conditional defaults, each doc-cited.
+- `tests/unit/SupportModels.Tests.ps1` -- 20 tests. Suite now 56/56.
+
+**Durable decisions**
+
+- Secret classification is unified: PSKs / SNMP communities / AAA keys / NTP keys have no hash tag in running-config, so their VALUE is run through the same `Get-AsaPasswordClass` -- a `$sha512$` value (password-encryption-protected) classifies as not-cleartext, a literal classifies as cleartext. This is why the hardened fixture's `$sha512$`-wrapped aaa-key and PSK come back not-cleartext while its `md5 sharedntpkey` comes back cleartext.
+- `nt-encrypted` is classified to its own label but the TSC-05 gate only asserts IsCleartext=$false (not exact subtype), per the second multi-AI pass relaxation -- a confirmed real `nt-encrypted` sample is still needed before gating the subtype.
+- The defaults model carries a per-entry Cisco doc citation (DR-06), making it an externally-grounded model, not a second self-authored oracle. The MGMT-SSH-VERSION entry records the real version nuance found during research: the `ssh version` command was removed in 9.16(1), so the check is N/A on 9.16+ and applies to 9.x < 9.16 (our fixtures are 9.8).
+- A cross-consistency test asserts the defaults model's CheckIds equal exactly the MVP checks whose Kind is absence/conditional-absence in `expected-findings.psd1` -- so the two data files can't silently drift apart.
+
+**Lessons**
+
+- Web-verified the SSH-version default before writing the defaults entry (CIS recommends pinning `ssh version 2`; pre-9.16 it isn't enforced by default; 9.16+ removed the command). Cheap check that turned a vague "v1 negotiable" claim into a version-scoped, citable default. Confirms the value of the doc-cited-defaults discipline.
+- Known small gap (logged in RESUME Open Questions): the classifier captures the standalone `snmp-server community X` line but not the inline community in `snmp-server host ... community X`. Not a problem for the Phase-3 oracle, and Phase 4's conservative keyword fallback mask (SR-04) will redact it regardless -- but the SNMP-COMMUNITY check itself should also read the host-line form in Phase 4.
+
+**Project context**
+
+- Phase 3 gate PASSED: 56/56 tests green. All four support models the v0.1b checks depend on are built and tested: secret classifier, interface-role model, minimal resolution, doc-cited defaults.
+- Next: Phase 4 assembles these into the check engine + the 15 MVP checks + Markdown/CSV output with default masking, gated on the expected-findings oracle (exact TP / zero FP) and the no-leak gate (TSC-12).
+
+**Next session**
+
+- Build `data/check-catalog.psd1` (the 15 MVP checks as data) and `src/Invoke-AsaChecks.ps1`, wiring catalog + model + defaults + interface-roles + secrets; then `Write-AsaReport.ps1` with masking-on and the `Invoke-AsaReview.ps1` entry point.
+
+---
+
 ## 2026-06-24 -- Phase 2: v0.1a-core parser (gate passed)
 
 **What landed**
