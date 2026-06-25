@@ -1,0 +1,54 @@
+: Saved
+: Hardware:   ASA5515
+!
+ASA Version 9.8(4)
+!
+hostname lab-asa-hygiene
+!
+interface GigabitEthernet0/0
+ nameif inside
+ security-level 100
+ ip address 10.20.0.1 255.255.255.0
+!
+interface GigabitEthernet0/1
+ no nameif
+ no ip address
+!
+interface GigabitEthernet0/2
+ shutdown
+ no ip address
+!
+interface GigabitEthernet0/3
+ nameif bvi-member
+ security-level 50
+ bridge-group 1
+!
+interface BVI1
+ ip address 10.21.0.1 255.255.255.0
+!
+interface BVI2
+ ip address 10.22.0.1 255.255.255.0
+!
+object network used-host
+ host 10.20.0.10
+object network dead-host
+ host 10.20.0.99
+object-group network used-grp
+ network-object host 10.20.0.20
+object-group network dead-grp
+ network-object host 10.20.0.21
+time-range EXPIRED-TR
+ absolute end 00:00 01 January 2020
+time-range ACTIVE-TR
+ absolute end 00:00 01 January 2099
+access-list HYG_IN extended permit tcp any object used-host eq www
+access-list HYG_IN extended permit ip any object-group used-grp
+access-list HYG_IN extended permit tcp any host 10.20.0.5 eq 8080 inactive
+access-list HYG_IN extended permit tcp any host 10.20.0.6 eq https time-range EXPIRED-TR
+access-list HYG_IN extended permit tcp any host 10.20.0.7 eq https time-range ACTIVE-TR
+access-list CRYPTO_ACL extended permit ip 10.20.0.0 255.255.255.0 10.30.0.0 255.255.255.0
+access-list DEAD_ACL extended permit udp any any eq snmp
+access-group HYG_IN in interface inside
+crypto map HYGMAP 10 match address CRYPTO_ACL
+crypto map HYGMAP interface inside
+: end
