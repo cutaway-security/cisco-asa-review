@@ -7,6 +7,16 @@ project's lifetime.
 
 ---
 
+## 2026-06-24 -- v0.2 catalog coverage, Slice 5: logging/monitoring (gate passed)
+
+Slice 5 = 4 checks (2 code + 2 data): LOG-BUFFER-SIZE (code: logging buffered on with buffer-size <512KB or absent/default), NTP-REDUNDANT (code: ntp configured with <2 servers), THREAT-DETECTION-BASIC (absent), SNMP-V3-NOPRIV (present: snmp-server group v3 noauth/auth, i.e. not priv). Catalog now 49 checks.
+
+TP: LOG-BUFFER-SIZE on insecure (logging buffered, no buffer-size); NTP-REDUNDANT/THREAT-DETECTION-BASIC/SNMP-V3-NOPRIV on coverage. TN on hardened: appended `logging buffer-size 524288` and a 2nd ntp server (it had 1, NTP-REDUNDANT would have fired); it already had threat-detection basic-threat and snmp v3 priv. Added a single ntp server to coverage so NTP-REDUNDANT has a clean TP. The high-value logging checks were front-loaded (enable/host/timestamp/trap/console/community), so the remaining ones here are lower-severity (mostly Low) -- a deliberately smaller slice.
+
+Suite 113/113. ~2 catalog slices left (access-control, interface-hardening) + 4 infra. On claude-dev; not released.
+
+---
+
 ## 2026-06-24 -- v0.2 catalog coverage, Slice 4: crypto strength (gate passed)
 
 Slice 4 = 5 crypto-strength checks, all DATA-DRIVEN (present patterns, no code): CRYPTO-IKE-INTEGRITY (SHA-1 in IKE), CRYPTO-IPSEC-INTEGRITY (esp-sha-hmac), CRYPTO-DH-14 (group 14 < 16), CRYPTO-AES128 (aes/aes-128 instead of aes-256), CRYPTO-SSL-CIPHER (rc4/des/3des/null or low/medium ssl cipher). Catalog now 45 checks.

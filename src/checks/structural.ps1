@@ -151,6 +151,28 @@ function Test-AsaInterfaceNoIp {
     return @($out)
 }
 
+# --- v0.2 coverage Slice 5: logging / monitoring ---
+
+function Test-AsaLogBufferSize {
+    [CmdletBinding()] param([Parameter(Mandatory)][pscustomobject]$Model)
+    $buffered = $Model.Lines | Where-Object { $_.Kind -eq 'line' -and $_.Text -match '^logging buffered\b' } | Select-Object -First 1
+    if ($null -eq $buffered) { return @() }   # buffered logging not in use
+    $bsize = $Model.Lines | Where-Object { $_.Kind -eq 'line' -and $_.Text -match '^logging buffer-size\s+(\d+)\b' } | Select-Object -First 1
+    if ($null -ne $bsize) {
+        [void]($bsize.Text -match '^logging buffer-size\s+(\d+)\b')
+        if ([int]$Matches[1] -ge 524288) { return @() }
+        return @(New-AsaDetection -Fired $true -Evidence @($bsize))
+    }
+    return @(New-AsaDetection -Fired $true -Evidence @($buffered))   # default 4096 < 512KB
+}
+
+function Test-AsaNtpRedundant {
+    [CmdletBinding()] param([Parameter(Mandatory)][pscustomobject]$Model)
+    $servers = @($Model.Lines | Where-Object { $_.Kind -eq 'line' -and $_.Text -match '^ntp server\b' })
+    if ($servers.Count -ge 1 -and $servers.Count -lt 2) { return @(New-AsaDetection -Fired $true -Evidence @($servers[0])) }
+    return @()
+}
+
 # --- v0.2 coverage Slice 3: AAA depth ---
 
 function Test-AsaAaaHttp {

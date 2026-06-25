@@ -79,12 +79,14 @@ snmp-server user monitorUser monitorGroup v3 auth sha AuthPass priv aes 256 Priv
 logging enable
 logging timestamp
 logging buffered notifications
+logging buffer-size 524288
 logging trap notifications
 logging host mgmt 192.168.1.70
 ntp authenticate
 ntp authentication-key 1 md5 sharedntpkey
 ntp trusted-key 1
 ntp server 192.168.1.80 key 1 source mgmt prefer
+ntp server 192.168.1.81 key 1 source mgmt
 crypto ipsec ikev2 ipsec-proposal SECURE-PROP
  protocol esp encryption aes-256
  protocol esp integrity sha-384

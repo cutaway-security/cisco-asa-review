@@ -208,6 +208,40 @@
             Remediation = 'Use SNMPv3 with SHA authentication and AES privacy.'
         }
 
+        # --- v0.2 coverage Slice 5: logging / monitoring ---
+        @{
+            Id = 'LOG-BUFFER-SIZE'; Category = 'logging'; Severity = 'Low'
+            Profile = @('commercial','dod'); Authority = 'CIS 1.10.9'; Verified = $false
+            Confidence = 'deterministic'; Dependency = @('raw'); Kind = 'presence'
+            Detector = @{ Type = 'code'; Function = 'Test-AsaLogBufferSize' }
+            Rationale = 'Buffered logging is enabled with a small (or default 4 KB) buffer; CIS recommends at least 512 KB.'
+            Remediation = 'Set logging buffer-size to 524288 (512 KB) or larger.'
+        }
+        @{
+            Id = 'NTP-REDUNDANT'; Category = 'logging'; Severity = 'Low'
+            Profile = @('commercial','dod'); Authority = 'CIS 1.9.1.3; STIG V-239924'; Verified = $false
+            Confidence = 'deterministic'; Dependency = @('raw'); Kind = 'presence'
+            Detector = @{ Type = 'code'; Function = 'Test-AsaNtpRedundant' }
+            Rationale = 'Only one NTP server is configured; a single time source is a single point of failure.'
+            Remediation = 'Configure at least two NTP servers (one with the prefer keyword).'
+        }
+        @{
+            Id = 'THREAT-DETECTION-BASIC'; Category = 'logging'; Severity = 'Low'
+            Profile = @('commercial','dod'); Authority = 'CIS 3.6; STIG V-239860'; Verified = $false
+            Confidence = 'deterministic'; Dependency = @('raw'); Kind = 'absence'
+            Detector = @{ Type = 'absent'; Pattern = '^threat-detection basic-threat\b' }
+            Rationale = 'Basic threat detection is not enabled; the device will not report basic attack indicators.'
+            Remediation = 'Configure threat-detection basic-threat.'
+        }
+        @{
+            Id = 'SNMP-V3-NOPRIV'; Category = 'logging'; Severity = 'Medium'
+            Profile = @('commercial','dod'); Authority = 'CIS 1.11.1; STIG V-239928'; Verified = $false
+            Confidence = 'deterministic'; Dependency = @('raw'); Kind = 'presence'
+            Detector = @{ Type = 'present'; Patterns = @('^snmp-server group\s+\S+\s+v3\s+(noauth|auth)(\s|$)') }
+            Rationale = 'An SNMPv3 group is configured without privacy (priv); SNMP data is not encrypted.'
+            Remediation = 'Configure the SNMPv3 group with priv (authPriv).'
+        }
+
         # --- v0.2 coverage Slice 4: crypto strength ---
         @{
             Id = 'CRYPTO-IKE-INTEGRITY'; Category = 'crypto'; Severity = 'Medium'

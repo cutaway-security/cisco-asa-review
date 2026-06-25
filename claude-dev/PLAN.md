@@ -189,13 +189,13 @@ v0.2 coverage:
         AUTH-BANNER-MOTD.
       - Slice 4 (crypto strength, 5): CRYPTO-IKE-INTEGRITY, CRYPTO-IPSEC-INTEGRITY,
         CRYPTO-DH-14, CRYPTO-AES128, CRYPTO-SSL-CIPHER.
-      Catalog now **45 checks** (15 MVP + 25 v0.2 + 5 hygiene). `Coverage.Tests.ps1`
-      gates TP (insecure/coverage) + TN (hardened). **~3 catalog slices left**:
-      Slice 5 logging/monitoring (syslog TCP, buffer size, redundant NTP, default
-      community, threat-detection basic), Slice 6 access-control (implicit-deny
-      logging, ICMP-to-device, sysopt permit-vpn), Slice 7 interface-hardening
-      (threat-detection scanning, outside sec-level, same-security-traffic, DNS
-      guard, failover, DNS lookup).
+      - Slice 5 (logging/monitoring, 4): LOG-BUFFER-SIZE, NTP-REDUNDANT,
+        THREAT-DETECTION-BASIC, SNMP-V3-NOPRIV.
+      Catalog now **49 checks** (15 MVP + 29 v0.2 + 5 hygiene). `Coverage.Tests.ps1`
+      gates TP (insecure/coverage) + TN (hardened). **~2 catalog slices left**:
+      Slice 6 access-control (implicit-deny logging, ICMP-to-device, sysopt
+      permit-vpn), Slice 7 interface-hardening (threat-detection scanning, outside
+      sec-level, same-security-traffic, DNS guard, failover, DNS lookup).
 - [ ] Deep recursive resolution (FR-05b).
 - [ ] Version/EoL lookup table (FR-15, `asa-eol.psd1`, DR-05).
 - [ ] Second independently authored fixture (TR-05).

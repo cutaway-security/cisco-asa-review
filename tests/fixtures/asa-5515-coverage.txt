@@ -16,6 +16,7 @@ logging console debugging
 logging host inside 10.40.0.10
 snmp-server host inside 10.40.0.20 version 3 weakuser
 snmp-server group monGrp v3 auth
+ntp server 10.40.0.30
 snmp-server user weakuser monGrp v3 auth md5 AuthPass priv des PrivPass
 crypto ikev2 policy 10
  encryption aes-256

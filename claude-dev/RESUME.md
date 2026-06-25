@@ -79,10 +79,10 @@
   - `tests/fixtures/asa-5515-hygiene.txt` + `tests/unit/Hygiene.Tests.ps1`. Suite
     108/108 green; end-to-end + HTML render re-verified; crypto-only ACL not flagged.
 
-- **v0.2 catalog coverage Slices 1-4 (2026-06-24):** Slice 1 (+8 data-driven),
-  Slice 2 (+4 numeric/conditional), Slice 3 (+8 AAA depth), Slice 4 (+5 crypto
-  strength: IKE/IPsec SHA-1 integrity, DH-14, AES-128, weak SSL cipher). Catalog
-  = **45 checks**. `Coverage.Tests.ps1` gates TP/TN. Suite 113/113.
+- **v0.2 catalog coverage Slices 1-5 (2026-06-24):** S1 (+8 data), S2 (+4
+  numeric/conditional), S3 (+8 AAA depth), S4 (+5 crypto strength), S5 (+4
+  logging/monitoring: LOG-BUFFER-SIZE, NTP-REDUNDANT, THREAT-DETECTION-BASIC,
+  SNMP-V3-NOPRIV). Catalog = **49 checks**. Suite 113/113.
 
 ## In Progress
 
