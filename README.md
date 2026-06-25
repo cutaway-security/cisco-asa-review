@@ -1,4 +1,4 @@
-# cisco-asa-review
+# Cisco ASA Firewall Review
 
 Offline, read-only PowerShell tool that reviews a Cisco ASA firewall
 configuration for security issues. Point it at a `show running-config` dump and
@@ -9,6 +9,26 @@ to the CIS Cisco ASA Benchmark and DISA Cisco ASA STIG.
 
 It runs entirely on the analyst's machine. No internet, no device access, no data
 leaves the host. The config is sensitive, and the tool treats it that way.
+
+> **Where this fits — and where it doesn't.** This is a stopgap, not the mature
+> method. A proper firewall review correlates a device's configuration with the
+> surrounding routers, switches, and firewalls to reason about end-to-end access
+> paths and segmentation, and applies deep, device-specific checks across many
+> product families. Commercial tools built for exactly that —
+> [Network Perception NP-View](https://www.network-perception.com/) (cross-device
+> access-path and segmentation analysis; NERC CIP-003/005) and
+> [Titania Nipper](https://www.titania.com/products/nipper) (pentester-grade
+> per-device audits with pass/fail compliance evidence across 180+ device types) —
+> are what a team doing this work seriously should adopt.
+>
+> This project is for the gap before that: find real issues *now* on a single ASA
+> config, offline, with nothing to install and no data leaving the host — and use
+> what it surfaces to help justify acquiring those tools. The issues it flags map
+> directly to the
+> [SANS Five ICS Cybersecurity Critical Controls](https://www.sans.org/white-papers/five-ics-cybersecurity-critical-controls)
+> (Tim Conway and Robert M. Lee): **Control 2, Defensible Architecture** — the
+> zone/segmentation view and over-permissive access rules — and **Control 4,
+> Secure Remote Access** — insecure management access and weak VPN crypto.
 
 ## Quick start
 
