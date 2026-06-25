@@ -1,0 +1,125 @@
+: Saved
+: Serial Number: FCW9876ZYXW
+: Hardware:   ASA5515, 8192 MB RAM, CPU Clarkdale 3060 MHz
+: Written by enable_15 at 14:30:00.000 UTC Wed Jun 24 2026
+!
+ASA Version 9.20(2)
+!
+hostname lab-asa-hardened
+domain-name example.com
+enable password $sha512$5000$3cG3QAab0Lb9gXO6RegaBg==$w+L+xkuP5C0+XjSXvZLsSQ== pbkdf2
+passwd $sha512$5000$vwpFMF7n51iDb1Lto8Ck8Q==$xDd7N+mQZGG6V798ToFV5A== pbkdf2
+no service password-recovery
+names
+!
+interface GigabitEthernet0/0
+ description Link to ISP
+ nameif outside
+ security-level 0
+ ip address 203.0.113.2 255.255.255.0
+ ip verify reverse-path
+!
+interface GigabitEthernet0/1
+ nameif inside
+ security-level 100
+ ip address 10.10.20.1 255.255.255.0
+!
+interface Management0/0
+ nameif mgmt
+ security-level 100
+ ip address 192.168.1.1 255.255.255.0
+!
+banner login UNAUTHORIZED ACCESS TO THIS DEVICE IS PROHIBITED.
+banner login You must have explicit permission to access or configure this device.
+banner login All activity is logged and monitored.
+banner motd Authorized use only.
+object network inside-net
+ subnet 10.10.20.0 255.255.255.0
+object-group network mgmt-admins
+ network-object host 192.168.1.50
+ network-object host 192.168.1.51
+object-group service web-services
+ service-object tcp destination eq https
+access-list outside_in remark permit inbound https to web
+access-list outside_in extended permit tcp any host 203.0.113.10 eq https
+access-list outside_in extended deny ip any any log
+access-list inside_in extended permit tcp object inside-net any object-group web-services
+access-list inside_in extended deny ip any any log
+access-group outside_in in interface outside
+access-group inside_in in interface inside
+icmp deny any outside
+aaa-server TACACS protocol tacacs+
+aaa-server TACACS (inside) host 10.10.20.41
+ key $sha512$5000$abcdEFgh1234ijklMNop==$qrstUVwx5678yzABcdEF==
+aaa authentication ssh console TACACS LOCAL
+aaa authentication serial console TACACS LOCAL
+aaa authentication enable console TACACS LOCAL
+aaa authentication http console TACACS LOCAL
+aaa local authentication attempts max-fail 3
+aaa authorization command TACACS LOCAL
+aaa accounting command TACACS
+username admin password $sha512$5000$vwpFMF7n51iDb1Lto8Ck8Q==$xDd7N+mQZGG6V798ToFV5A== pbkdf2 privilege 15
+password-policy minimum-length 15
+password-policy minimum-uppercase 1
+password-policy minimum-lowercase 1
+password-policy minimum-numeric 1
+password-policy minimum-special 1
+password-policy minimum-changes 8
+password-policy lifetime 90
+http server enable
+http server idle-timeout 5
+http 192.168.1.0 255.255.255.0 mgmt
+ssh 192.168.1.0 255.255.255.0 mgmt
+ssh version 2
+ssh key-exchange group dh-group14-sha1
+ssh timeout 5
+console timeout 5
+snmp-server host mgmt 192.168.1.60 version 3 monitorUser
+snmp-server group monitorGroup v3 priv
+snmp-server user monitorUser monitorGroup v3 auth sha AuthPass priv aes 256 PrivPass
+logging enable
+logging timestamp
+logging buffered notifications
+logging buffer-size 524288
+logging trap notifications
+logging host mgmt 192.168.1.70
+ntp authenticate
+ntp authentication-key 1 md5 sharedntpkey
+ntp trusted-key 1
+ntp server 192.168.1.80 key 1 source mgmt prefer
+ntp server 192.168.1.81 key 1 source mgmt
+crypto ipsec ikev2 ipsec-proposal SECURE-PROP
+ protocol esp encryption aes-256
+ protocol esp integrity sha-384
+crypto ikev2 policy 10
+ encryption aes-256
+ integrity sha384
+ group 20
+ prf sha384
+ lifetime seconds 86400
+crypto map outside_map 10 match address outside_in
+crypto map outside_map 10 set peer 198.51.100.10
+crypto map outside_map 10 set ikev2 ipsec-proposal SECURE-PROP
+crypto map outside_map 10 set pfs group20
+crypto map outside_map interface outside
+crypto ikev2 enable outside
+ssl server-version tlsv1.2 dtlsv1.2
+ssl cipher tlsv1.2 high
+webvpn
+ enable outside
+ anyconnect enable
+group-policy ra-vpn internal
+group-policy ra-vpn attributes
+ vpn-tunnel-protocol ikev2 ssl-client
+ split-tunnel-policy tunnelall
+ webvpn
+  anyconnect ssl dtls enable
+tunnel-group 198.51.100.10 type ipsec-l2l
+tunnel-group 198.51.100.10 ipsec-attributes
+ ikev2 local-authentication pre-shared-key $sha512$5000$zyxwVUts9876rqpoNMlk==$jihgFEdc5432baZYxwVU==
+threat-detection basic-threat
+threat-detection scanning-threat shun
+threat-detection statistics tcp-intercept rate-interval 30 burst-rate 400 average-rate 200
+dns server-group DefaultDNS
+ name-server 192.168.1.53
+: end
