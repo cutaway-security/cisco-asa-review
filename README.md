@@ -120,6 +120,16 @@ findings file are also written **into the same directory as the configuration
 file** (never overwriting the config). Status messages go to the error/information
 stream so the stdout report stays clean. Secret values are masked by default.
 
+### Software version / end-of-life
+
+The review flags the running ASA software train against an end-of-life status,
+reading a **bundled offline reference** (`data/asa-eol.psd1`, a dated snapshot) —
+the review itself never goes online. To refresh that reference, run the separate,
+opt-in `Update-AsaEolData.ps1` on a connected machine with your own EoL feed URL;
+it is the only script that uses the network and is never invoked by a review.
+Always verify EoL status against Cisco's official lifecycle pages before relying
+on it.
+
 ## Status
 
 **Version:** v0.1c (released to `main`).

@@ -116,14 +116,18 @@ defense-in-depth.
 
 ### A7. Software / version
 
-| Check | Authority | PASS | FAIL | Sev |
-|---|---|---|---|---|
-| Supported/non-EoL ASA OS | STIG V-239944 | current supported 9.x | EoL/known-vuln train | High |
-| Image integrity | CIS 1.3.1/1.3.2 | verified image | unverified | Medium |
+| Check | Authority | PASS | FAIL | Sev | Id |
+|---|---|---|---|---|---|
+| Supported/non-EoL ASA OS | STIG V-239944 | current supported 9.x | EoL/known-vuln train | Medium | VERSION-EOL |
+| Image integrity | CIS 1.3.1/1.3.2 | verified image | unverified | Medium | — |
 
-Note: version is usually NOT in running-config. Parse `ASA Version 9.x(y)` header
-or `boot system flash:` if present; compare to a maintained local EoL/known-vuln
-table (OQ-B). Degrade gracefully if absent.
+VERSION-EOL is **implemented** (v0.2, `Test-AsaVersionEol`): it parses the
+`ASA Version X.Y` header and compares the train against a **bundled offline
+reference** (`data/asa-eol.psd1`, a dated snapshot) — EoL train -> finding,
+supported -> none finding, unlisted train or no header -> not-assessed (OR-03).
+The review never goes online for this; the bundled reference is refreshed only by
+the separate, opt-in `Update-AsaEolData.ps1` (the project's only network script,
+outside the review path). Verify EoL status against Cisco before relying on it.
 
 ### A8. MVP shortlist (implement first — single-line, near-zero ambiguity)
 

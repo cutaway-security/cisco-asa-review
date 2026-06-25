@@ -7,6 +7,22 @@ project's lifetime.
 
 ---
 
+## 2026-06-24 -- v0.2 version/EoL (FR-15) + second fixture / anti-overfit (TR-05)
+
+The interesting tension here: the user asked to "check the internet" for EoL data, but the load-bearing guarantee of this tool (SR-01, enforced by Guard.Tests) is that a config review makes ZERO network calls -- the config is sensitive client data. Resolution: split the concern. The REVIEW stays 100% offline and reads a bundled snapshot reference, `data/asa-eol.psd1` (dated 2026-06-24; trains 9.1-9.14 EoL, 9.16-9.22 supported; ASA5515 end-of-support; carries a disclaimer to verify against Cisco). The internet check lives in a SEPARATE, opt-in maintenance tool, `Update-AsaEolData.ps1` -- the only script in the repo that touches the network, deliberately run by the analyst on a connected machine to refresh the reference. Its flow is exactly the user's ask: "check the internet, if unavailable use reference" (fetch JSON feed -> rewrite reference; unreachable/invalid -> warn and keep the bundled one).
+
+Guarding the boundary as code: `Update-AsaEolData.ps1` sits at repo ROOT, not in `src/` and not the entry point, so it is outside Guard.Tests's scanned `$ToolFiles` (correct -- it's allowed to use the network). Added a NEW Guard assertion that the review never *invokes* the updater (entry point + no src file references `Update-AsaEolData`), so the network tool can never be pulled into a review path.
+
+Gotcha fixed: `EolData.Tests.ps1` dot-sources the updater to unit-test `Get-AsaEolFromWeb`, but the script's main body ends in `exit 0`, which would kill Pester. Wrapped the main body in `if ($MyInvocation.InvocationName -ne '.') { ... }` so dot-sourcing only defines the functions.
+
+VERSION-EOL check (`Test-AsaVersionEol`, Medium): parses `ASA Version X.Y`, looks the train up in the bundled reference -- EoL -> finding, Supported -> none, unlisted -> not-assessed (OR-03). Hardened fixture had to move off 9.8 (correctly EoL) to `ASA Version 9.20(2)` for its TN.
+
+TR-05 (second fixture / anti-overfit): rather than hand-author a third synthetic fixture (which would just re-encode my own assumptions), reused the two INDEPENDENT real sanitized configs (HQ-FW2, ASABuzzNick) already present for the TR-07 parser gate. `Robustness.Tests.ps1` runs the whole pipeline (model + zones + reference index + checks) on each and asserts no throw + well-formed findings + findings>0; skips if the gitignored real configs are absent (so CI without them stays green). Catalog now 58 checks. Suite 124/124.
+
+Remaining v0.2 infra: only the 20k-line perf benchmark (NFR-04). On claude-dev; not released.
+
+---
+
 ## 2026-06-24 -- v0.2 deep recursive resolution (FR-05b) + undefined references
 
 Deepened `Resolve-AsaNetworkGroup`: was MaxGroupDepth=1 (returning "not-assessed" beyond one level); now MaxGroupDepth=16 with a visited-set CYCLE GUARD, so nested group-object chains resolve fully. "not-assessed" (OR-03) is now reserved for genuinely-unresolvable cases: a circular reference, an undefined group, or the 16-deep backstop. This sharpens ACL-ANY-ANY (a deeply-nested object-group that spans 0.0.0.0/0 is now caught as a finding instead of not-assessed) and the zone model.

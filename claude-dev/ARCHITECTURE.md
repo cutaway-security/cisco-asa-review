@@ -440,7 +440,15 @@ needed to run):
 | `-Verbose` | Dump parser decisions for misparse troubleshooting (OR-04) |
 
 The check catalog (`data/check-catalog.psd1`) and EoL table (`data/asa-eol.psd1`)
-are bundled data, never network-loaded (IR-03).
+are bundled data, never network-loaded (IR-03). The EoL table is a *dated
+snapshot*; refreshing it is the job of the separate, opt-in `Update-AsaEolData.ps1`
+(repo root) — the only script in the project that uses the network. It is
+deliberately outside the review path: it lives outside `src/`, the entry point
+never calls it, and a Guard test (`Guard.Tests.ps1`) asserts that neither the
+entry point nor any `src/` file invokes it, so a config review stays fully offline
+(SR-01) regardless of the updater's existence. Its behavior is fetch-or-fallback:
+pull an EoL feed and rewrite the table, or — if unreachable/invalid — leave the
+bundled snapshot in place.
 
 ---
 

@@ -10,12 +10,12 @@ with no network and no device access.
 ## Current Phase
 
 **Phase**: Phase 6 — v0.2 coverage + GitHub issue #1
-**Status**: GitHub issue #1 COMPLETE (2026-06-24, 108/108 tests; on `claude-dev`,
-not yet released). v0.2 catalog coverage still open. Phases 1–5c released to
-`main` as v0.1c.
-**Focus**: issue #1 built and gated (hygiene checks + Informational tier + CSV
-remediation tracking + HTML full report + segmentation .md removed). Next: decide
-release to main; continue v0.2 catalog coverage; Windows PowerShell 5.1 (NFR-01).
+**Status**: GitHub issue #1 + v0.2 catalog coverage (58 checks) + deep resolution
++ version/EoL (FR-15) + second fixture (TR-05) COMPLETE (2026-06-24, **124/124
+tests**; on `claude-dev`, not yet released). Phases 1–5c released to `main` as
+v0.1c. Only remaining v0.2 item: 20k-line perf benchmark (NFR-04).
+**Focus**: v0.2 substantively done. Next: 20k-line perf benchmark (NFR-04); decide
+release of accumulated v0.2 work to main; Windows PowerShell 5.1 (NFR-01).
 
 ## Phases
 
@@ -204,9 +204,16 @@ v0.2 coverage:
       now fully recurses nested `group-object` with cycle detection (MaxGroupDepth 16);
       "not-assessed" reserved for cycles/undefined/backstop. Added REF-UNDEFINED check
       (dangling object/object-group references). Catalog now 57 checks.
-- [ ] Version/EoL lookup table (FR-15, `asa-eol.psd1`, DR-05).
-- [ ] Second independently authored fixture (TR-05).
-- [ ] 20k-line non-blocking performance benchmark (NFR-04).
+- [x] Version/EoL lookup table (FR-15, `asa-eol.psd1`, DR-05) — done (2026-06-24):
+      bundled offline reference (snapshot 2026-06-24), `Test-AsaVersionEol` +
+      VERSION-EOL check (EoL->finding, supported->none, unlisted->not-assessed).
+      The internet check is a SEPARATE opt-in tool, `Update-AsaEolData.ps1` (the
+      only network script, outside the review path) — fetch-or-keep-reference; a
+      Guard test asserts the review never invokes it. Catalog now 58 checks.
+- [x] Second independently authored fixture (TR-05) — done (2026-06-24):
+      `Robustness.Tests.ps1` runs the full pipeline on the two independent real
+      sanitized configs and asserts well-formed findings (anti-overfit guard).
+- [ ] 20k-line non-blocking performance benchmark (NFR-04). **Only remaining v0.2 item.**
 
 GitHub issue #1 (hygiene + tracking + output changes) -- **COMPLETE (2026-06-24)**:
 - [x] `src/Get-AsaReferenceIndex.ps1` (FR-31): ACL/object/object-group ->
@@ -232,9 +239,9 @@ checks hit exact seeded TP / zero FP (crypto-only ACL NOT flagged, TSC-15); CSV
 has the new columns + Informational rows (TSC-16); HTML carries the full findings
 detail and no segmentation `.md` is produced (TSC-17); HTML rendering re-verified.
 
-**Still open in Phase 6 (the v0.2 coverage tasks above):** remaining CIS/STIG
-catalog, deep recursive resolution, version/EoL table, second fixture, 20k
-benchmark. (Issue #1 is done; catalog coverage continues.)
+**Still open in Phase 6:** only the 20k-line performance benchmark (NFR-04).
+Issue #1, catalog coverage (58 checks), deep resolution, version/EoL (FR-15), and
+the second-fixture anti-overfit guard (TR-05) are all done.
 
 ### Phase 7: v0.3 — Depth
 

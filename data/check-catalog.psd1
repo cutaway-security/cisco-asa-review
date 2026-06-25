@@ -208,6 +208,16 @@
             Remediation = 'Use SNMPv3 with SHA authentication and AES privacy.'
         }
 
+        # --- v0.2 version / EoL ---
+        @{
+            Id = 'VERSION-EOL'; Category = 'management'; Severity = 'Medium'
+            Profile = @('commercial','dod'); Authority = 'STIG V-239944; Cisco EoL notices'; Verified = $false
+            Confidence = 'heuristic'; Dependency = @('eol-reference'); Kind = 'presence'
+            Detector = @{ Type = 'code'; Function = 'Test-AsaVersionEol' }
+            Rationale = 'The ASA software train is end-of-life per the bundled reference; EoL software receives no security fixes.'
+            Remediation = 'Upgrade to a currently-supported ASA release; verify against Cisco EoL notices (refresh the reference with Update-AsaEolData.ps1).'
+        }
+
         # --- v0.2 deep resolution: undefined references ---
         @{
             Id = 'REF-UNDEFINED'; Category = 'access'; Severity = 'Medium'

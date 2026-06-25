@@ -92,11 +92,28 @@
   ACL-ANY-ANY now catches deeply-nested any-any. Added REF-UNDEFINED (dangling
   references). Catalog = **57 checks**. Suite 115/115.
 
+- **v0.2 version/EoL (FR-15) + second fixture / anti-overfit (TR-05) (2026-06-24):**
+  - `data/asa-eol.psd1` — bundled EoL reference, snapshot dated 2026-06-24 (the
+    review reads this, never the network). Trains 9.1-9.14 = EoL, 9.16-9.22 =
+    Supported; ASA5515 hardware end-of-support. Disclaimer to verify against Cisco.
+  - `Test-AsaVersionEol` + VERSION-EOL catalog entry (Medium): EoL train -> finding,
+    supported -> none, unlisted -> not-assessed.
+  - **Offline preserved:** the internet check lives in a SEPARATE opt-in tool,
+    `Update-AsaEolData.ps1` (the only network script; not in the review path). It
+    fetches an EoL feed and rewrites the reference, else keeps the bundled one
+    ("check the internet, else use the reference"). Guard test asserts neither the
+    entry point nor any `src/` file invokes the updater.
+  - **TR-05 anti-overfit:** `tests/unit/Robustness.Tests.ps1` runs the full
+    pipeline (model + zones + reference index + checks) on the two independent real
+    sanitized configs; asserts clean run and well-formed findings. Skips if absent.
+  - Hardened fixture bumped to `ASA Version 9.20(2)` (VERSION-EOL TN). New tests:
+    `EolData.Tests.ps1`. Catalog = **58 checks**. Suite **124/124** green.
+
 ## In Progress
 
-v0.2 catalog coverage + deep resolution COMPLETE. Remaining v0.2 infrastructure:
-version/EoL table (needs data-source decision); second independent fixture
-(TR-05); 20k-line perf benchmark (NFR-04). On `claude-dev`; not released to `main`.
+v0.2 catalog coverage + deep resolution + version/EoL + second fixture COMPLETE.
+Only remaining v0.2 infrastructure: **20k-line perf benchmark (NFR-04)**. On
+`claude-dev`; not released to `main`.
 
 ## Blockers
 
@@ -106,18 +123,15 @@ version/EoL table (needs data-source decision); second independent fixture
 
 ## Next Steps
 
-1. Decide whether to release issue #1 to `main` (would be v0.1d) per
-   RELEASE_TO_MAIN.md, or bundle it with the v0.2 catalog coverage first.
-2. Continue Phase 6 v0.2 catalog coverage (remaining CIS/STIG checks, deep
-   resolution, version/EoL, second fixture).
-3. Windows PowerShell 5.1 verification (NFR-01).
-2. Still pending for a full "shipped" claim: run on **Windows PowerShell 5.1**
+1. **20k-line performance benchmark (NFR-04)** — the only remaining v0.2
+   infrastructure item.
+2. Decide whether to release the accumulated v0.2 work (issue #1 + catalog
+   coverage + deep resolution + version/EoL + second fixture) to `main` as the
+   next release (e.g. v0.1d) per RELEASE_TO_MAIN.md.
+3. Still pending for a full "shipped" claim: run on **Windows PowerShell 5.1**
    (TSC-09/NFR-01; PSv7 is now validated), a runtime egress-monitor check (TSC-11),
    and a findings-accuracy review against a real engagement config.
-3. Phase 5 (v0.2 coverage): remaining CIS/STIG catalog; deep recursive resolution
-   (FR-05b); undefined-reference + unbound-ACL heuristics (FR-13); version/EoL
-   table (FR-15); second independent fixture (TR-05).
-4. Optional process items (PLAN "Open process items"): ADRs, traceability matrix.
+4. Optional: DoD-profile-specific checks; process items (ADRs, traceability matrix).
 
 ## Open Questions
 

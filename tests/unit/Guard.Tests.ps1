@@ -46,6 +46,16 @@ Describe 'Passive/offline guard (SR-01, SR-06)' {
             $code | Should -Not -Match '\biex\b'
         }
     }
+
+    It 'the review never invokes the (network-using) EoL updater' {
+        # Update-AsaEolData.ps1 is the only network script; the review path must
+        # not call it, so a config review stays fully offline.
+        $entry = Get-CodeOnly -Path (Join-Path $script:Root 'Invoke-AsaReview.ps1')
+        $entry | Should -Not -Match 'Update-AsaEolData'
+        foreach ($f in $script:SrcFiles) {
+            (Get-CodeOnly -Path $f.FullName) | Should -Not -Match 'Update-AsaEolData'
+        }
+    }
 }
 
 Describe 'Write boundary (SR-02)' {

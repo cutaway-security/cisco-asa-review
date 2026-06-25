@@ -3,7 +3,7 @@
 : Hardware:   ASA5515, 8192 MB RAM, CPU Clarkdale 3060 MHz
 : Written by enable_15 at 14:30:00.000 UTC Wed Jun 24 2026
 !
-ASA Version 9.8(4)
+ASA Version 9.20(2)
 !
 hostname lab-asa-hardened
 domain-name example.com

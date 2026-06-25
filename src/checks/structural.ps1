@@ -151,6 +151,27 @@ function Test-AsaInterfaceNoIp {
     return @($out)
 }
 
+# --- v0.2 version / EoL (FR-15) ---
+
+function Test-AsaVersionEol {
+    # Compare the config's ASA software train against the bundled EoL reference
+    # (offline). EoL train -> finding; supported -> pass; unlisted -> not-assessed.
+    [CmdletBinding()] param([Parameter(Mandatory)][pscustomobject]$Model)
+    $verLine = $Model.Lines | Where-Object { $_.Kind -eq 'line' -and $_.Text -match '^ASA Version\s+(\d+)\.(\d+)' } | Select-Object -First 1
+    if ($null -eq $verLine) { return @() }   # no version header -> cannot assess
+    [void]($verLine.Text -match '^ASA Version\s+(\d+)\.(\d+)')
+    $train = "$($Matches[1]).$($Matches[2])"
+
+    $eolPath = Join-Path $PSScriptRoot '..\..\data\asa-eol.psd1'
+    if (-not (Test-Path -LiteralPath $eolPath)) { return @() }
+    $eol = Import-PowerShellDataFile -LiteralPath $eolPath
+    $entry = $eol.Trains | Where-Object { $_.Train -eq $train } | Select-Object -First 1
+
+    if ($null -ne $entry -and $entry.Status -eq 'EoL') { return @(New-AsaDetection -Fired $true -Status 'finding' -Evidence @($verLine)) }
+    if ($null -ne $entry -and $entry.Status -eq 'Supported') { return @() }
+    return @(New-AsaDetection -Fired $true -Status 'not-assessed' -Evidence @($verLine))   # unlisted train
+}
+
 # --- v0.2 deep resolution: undefined references (FR-13) ---
 
 function Test-AsaUndefinedRef {
