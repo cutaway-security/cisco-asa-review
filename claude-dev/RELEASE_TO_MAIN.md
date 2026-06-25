@@ -47,8 +47,20 @@ git tag -f -a <version> -m "<notes>"; git push -f origin <version>
 git checkout -f claude-dev         # restore the dev working tree (see caveat below)
 ```
 
-Force-push of `main`/tags is acceptable while the repo is private and
-single-maintainer. Re-evaluate once there are collaborators or the repo is public.
+**The repo is now PUBLIC (made public 2026-06-25), so this re-evaluation is due.**
+The orphan-rebuild model force-pushes `main` (and moves tags) on every release,
+which rewrites the history of the public default branch — disruptive to anyone who
+has cloned or forked it. Decide before the next release:
+
+- Keep `main` as a clean release branch but build it with normal, non-force commits
+  (a curated copy committed on top of the existing `main` history, not an orphan
+  rebuild), so history is append-only.
+- Or drop the two-branch split: now that both branches are public, the "hide dev
+  files from `main`" benefit is cosmetic, so a single linear history with release
+  tags may be simpler and force-push-free.
+
+Until that decision is made, treat a force-push of `main` as a known cost, not a
+routine step. (It was acceptable while the repo was private and single-maintainer.)
 
 ### Caveat: the final `checkout claude-dev` needs `-f`
 

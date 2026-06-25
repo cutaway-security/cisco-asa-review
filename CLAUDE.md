@@ -4,6 +4,9 @@
 
 **Project**: cisco-asa-review
 **Repository**: https://github.com/cutaway-security/cisco-asa-review
+**Visibility**: PUBLIC (made public 2026-06-25) — both `main` and `claude-dev` are
+world-readable. Never commit secrets, real/client configs, or any sensitive data to
+either branch; the `*.key.txt` and `tests/fixtures/real/` ignores are load-bearing.
 **Development Branch**: claude-dev
 **Release Branch**: main
 **Description**: An offline, read-only, pure-PowerShell tool that parses a Cisco

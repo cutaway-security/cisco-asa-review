@@ -4,6 +4,10 @@
 
 **Last Session**: 2026-06-25
 **Branch**: claude-dev
+**Repo visibility**: **PUBLIC as of 2026-06-25** (both branches world-readable;
+goal.md is generic, no client data; keys + real configs remain gitignored). Open
+decision: the force-push/orphan-rebuild release model needs reconsidering for a
+public default branch — see RELEASE_TO_MAIN.md and Next Steps.
 **Status**: **v0.2d released to `main`** (latest). v0.2b = README finalization;
 v0.2c = examples/ + project-layout tree + tests off main; v0.2d = removed all
 dev references from the README (Guard.Tests, claude-dev branch/links, Pester,
@@ -47,8 +51,9 @@ branches (no trim step). Default suite 124 passed / 1 skipped (opt-in perf).
   - End-to-end CLI verified on a config copy: 15 findings, secrets masked
     (`community [REDACTED]`), no leaks, input unmodified, outputs next to config.
 
-- **Published + branch model (2026-06-24):** pushed to private repo
-  `cutaway-security/cisco-asa-review`. `main` = release-only (no Claude files,
+- **Published + branch model (2026-06-24):** pushed to
+  `cutaway-security/cisco-asa-review` (private at the time; **made public
+  2026-06-25** — see the public-repo note under Current State / Blockers). `main` = release-only (no Claude files,
   orphan history); `claude-dev` = development. Tag `v0.1b` on the main release
   commit. Procedure in `claude-dev/RELEASE_TO_MAIN.md`.
 - **Real-host validation (2026-06-24, user-reported):** cloned the repo and ran
@@ -179,7 +184,7 @@ branches (no trim step). Default suite 124 passed / 1 skipped (opt-in perf).
 
 ## In Progress
 
-**v0.2c released.** Nothing open in the README/packaging track.
+**v0.2d released.** Nothing open in the README/packaging track.
 
 ## Blockers
 
@@ -189,8 +194,13 @@ branches (no trim step). Default suite 124 passed / 1 skipped (opt-in perf).
 
 ## Next Steps
 
-1. Push the README + planning-doc commits and release them to `main` (next tag,
-   e.g. v0.2b) when ready.
+1. **Public-repo follow-ups (new 2026-06-25):**
+   - Decide the release model now that `main` is a public default branch
+     (force-push/orphan rebuild rewrites public history) — see RELEASE_TO_MAIN.md
+     options (non-force curated copy, or drop the two-branch split).
+   - Confirm the `claude-dev` branch (planning docs, `.ai-reviews/`, `background/`)
+     is meant to be publicly visible; if not, move dev artifacts to a private repo.
+   - Optional public-repo polish: a top-level CONTRIBUTING note / issue templates.
 2. **Tool-code follow-ups from the multi-AI review** (each needs its own
    test+verify; NOT README): stale Guard-test description ("only Write-AsaReport");
    dead EoL `Hardware` data in `asa-eol.psd1`; the status-line "N (High/Med/Low)"

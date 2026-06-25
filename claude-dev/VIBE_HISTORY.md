@@ -7,6 +7,18 @@ project's lifetime.
 
 ---
 
+## 2026-06-25 -- repo made PUBLIC; planning-doc and release-model implications
+
+Maintainer made `cutaway-security/cisco-asa-review` public. Checked exposure first: `background/goal.md` is a generic, sanitized engagement framing (no client name, IPs, or config), the `.ai-reviews/` are reviews of the project's own code/docs, and `*.key.txt` + `tests/fixtures/real/` stay gitignored — so nothing sensitive is exposed. Updated docs to record public status: CLAUDE.md (a Visibility line + the heightened "never commit secrets/real configs to either branch" note), RESUME (Current State + Next Steps), PLAN (decision log), and RELEASE_TO_MAIN.md.
+
+Two real implications I flagged rather than silently resolved, because both are maintainer decisions:
+1. **Release model.** The orphan-rebuild release force-pushes `main` and moves tags every release. That was explicitly "acceptable while private, re-evaluate when public" in RELEASE_TO_MAIN.md — and that re-evaluation is now due. Force-pushing the public default branch rewrites history for anyone who cloned/forked. Options written into RELEASE_TO_MAIN.md: build `main` with non-force curated commits (append-only history), or drop the two-branch split entirely (now that both branches are public, hiding dev files from `main` is purely cosmetic). Left as OPEN; did not change the procedure unilaterally.
+2. **Dev-branch visibility.** `claude-dev` (planning docs, `.ai-reviews/`, `background/`) is now world-readable. Generic, but the maintainer should confirm they want the dev/AI-review process public; if not, dev artifacts could live in a separate private repo. Flagged in Next Steps.
+
+No code or release this turn — planning-doc updates only.
+
+---
+
 ## 2026-06-25 -- strip all dev references from the README (v0.2d)
 
 Maintainer call: the README should not reference the `claude-dev` branch or any dev-only files/tools, since all dev planning lives in the planning docs and those references aren't needed on either branch. Removed: the `tests/unit/Guard.Tests.ps1` reference in "Passive and offline" (reworded to state the offline boundary as a design property, keeping the `Update-AsaEolData.ps1` exception); the "test suite lives in the claude-dev branch" sentence; "Pester 5.x for tests" in the At-a-glance deps; the test-count / opt-in-perf / `(TR-07)` / "anti-overfit guard" / "MVP-15 in the code and tests" mentions in Status; the layout note about `tests/`+`claude-dev/`; and the entire **Companion docs** section (the claude-dev/ links). Also fixed `examples/README.md`, which linked `../tests/fixtures/...` (a path that doesn't exist on `main` once tests are excluded) and hard-coded the fixture in the regenerate command — both genericized.
