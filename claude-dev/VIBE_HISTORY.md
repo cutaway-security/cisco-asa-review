@@ -7,6 +7,18 @@ project's lifetime.
 
 ---
 
+## 2026-06-24 -- v0.2 catalog coverage, Slice 3: AAA depth (gate passed)
+
+Slice 3 = 8 AAA checks (6 data-driven absent + 2 code): AUTH-ENABLE-PW, AUTH-AAA-ENABLE, AUTH-AAA-HTTP (code, conditional on http server enable), AUTH-CMD-AUTHZ, AUTH-CMD-ACCT, AUTH-PW-COMPLEXITY (code, fires if any of minimum-upper/lower/numeric/special missing), AUTH-PW-LIFETIME, AUTH-BANNER-MOTD. Catalog now 40 checks (15 MVP + 20 v0.2 + 5 hygiene).
+
+TP split: insecure triggers cmd-authz/acct, pw-complexity, pw-lifetime, motd (it has no command authz/acct, no full password policy, no motd banner); coverage triggers enable-pw, aaa-enable, aaa-http (no enable password, no aaa block; added `http server enable` to coverage so the conditional aaa-http fires). TN: appended to hardened `aaa authorization command`, `aaa accounting command`, `password-policy lifetime 90` (it already had the complexity lines + motd banner + enable pw + aaa enable/http). Hardened "zero risk findings" gate still holds. Suite 113/113.
+
+Pattern reminder: when a new ABSENT check would otherwise fire on the hardened baseline (because hardened lacked that one good line), append the good line to hardened. All fixture appends are safe (no hardened/coverage line-number assertions).
+
+~4 catalog slices left (crypto-strength, logging/monitoring, access-control, interface-hardening) + 4 infra items (deep resolution, version/EoL, second fixture, perf). On claude-dev; not released.
+
+---
+
 ## 2026-06-24 -- v0.2 catalog coverage, Slice 2 (gate passed)
 
 Slice 2 = 4 numeric/conditional CODE checks (the ones that can't be pure data): MGMT-SSH-TIMEOUT (ssh timeout >5), MGMT-HTTP-TIMEOUT (http server enabled AND idle-timeout missing-or->5), CRYPTO-PFS (crypto map present but no set pfs), CRYPTO-SA-LIFETIME (lifetime seconds >86400). Detectors in checks/structural.ps1; catalog Type='code'. Catalog now 32 checks.

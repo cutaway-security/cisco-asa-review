@@ -208,6 +208,72 @@
             Remediation = 'Use SNMPv3 with SHA authentication and AES privacy.'
         }
 
+        # --- v0.2 coverage Slice 3: AAA depth ---
+        @{
+            Id = 'AUTH-ENABLE-PW'; Category = 'auth'; Severity = 'Medium'
+            Profile = @('commercial','dod'); Authority = 'CIS 1.1.2'; Verified = $false
+            Confidence = 'deterministic'; Dependency = @('raw'); Kind = 'absence'
+            Detector = @{ Type = 'absent'; Pattern = '^enable password\b' }
+            Rationale = 'No enable password is set; privileged EXEC mode is not password-protected.'
+            Remediation = 'Configure an enable password (stored as a strong pbkdf2 hash).'
+        }
+        @{
+            Id = 'AUTH-AAA-ENABLE'; Category = 'auth'; Severity = 'Medium'
+            Profile = @('commercial','dod'); Authority = 'CIS 1.4.3.1'; Verified = $false
+            Confidence = 'deterministic'; Dependency = @('raw'); Kind = 'absence'
+            Detector = @{ Type = 'absent'; Pattern = '^aaa authentication enable console\b' }
+            Rationale = 'Without AAA on enable, privilege escalation is not centrally authenticated.'
+            Remediation = 'Configure aaa authentication enable console <server-group> LOCAL.'
+        }
+        @{
+            Id = 'AUTH-AAA-HTTP'; Category = 'auth'; Severity = 'Medium'
+            Profile = @('commercial','dod'); Authority = 'CIS 1.4.3.2'; Verified = $false
+            Confidence = 'deterministic'; Dependency = @('raw'); Kind = 'presence'
+            Detector = @{ Type = 'code'; Function = 'Test-AsaAaaHttp' }
+            Rationale = 'The HTTP/ASDM server is enabled without AAA on the http console; admin access is not centrally authenticated.'
+            Remediation = 'Configure aaa authentication http console <server-group> LOCAL (or disable the http server).'
+        }
+        @{
+            Id = 'AUTH-CMD-AUTHZ'; Category = 'auth'; Severity = 'Medium'
+            Profile = @('commercial','dod'); Authority = 'CIS 1.4.4.1'; Verified = $false
+            Confidence = 'deterministic'; Dependency = @('raw'); Kind = 'absence'
+            Detector = @{ Type = 'absent'; Pattern = '^aaa authorization command\b' }
+            Rationale = 'Without command authorization, administrators are not restricted to permitted commands.'
+            Remediation = 'Configure aaa authorization command <server-group> LOCAL.'
+        }
+        @{
+            Id = 'AUTH-CMD-ACCT'; Category = 'auth'; Severity = 'Low'
+            Profile = @('commercial','dod'); Authority = 'CIS 1.4.5.1'; Verified = $false
+            Confidence = 'deterministic'; Dependency = @('raw'); Kind = 'absence'
+            Detector = @{ Type = 'absent'; Pattern = '^aaa accounting command\b' }
+            Rationale = 'Without command accounting, administrative actions are not audited.'
+            Remediation = 'Configure aaa accounting command <server-group>.'
+        }
+        @{
+            Id = 'AUTH-PW-COMPLEXITY'; Category = 'auth'; Severity = 'Medium'
+            Profile = @('commercial','dod'); Authority = 'CIS 1.1.5; STIG V-239915/916/917/918'; Verified = $false
+            Confidence = 'deterministic'; Dependency = @('raw'); Kind = 'presence'
+            Detector = @{ Type = 'code'; Function = 'Test-AsaPwComplexity' }
+            Rationale = 'The password policy is missing one or more complexity requirements (uppercase/lowercase/numeric/special).'
+            Remediation = 'Configure password-policy minimum-uppercase/lowercase/numeric/special (>= 1 each).'
+        }
+        @{
+            Id = 'AUTH-PW-LIFETIME'; Category = 'auth'; Severity = 'Low'
+            Profile = @('commercial','dod'); Authority = 'CIS 1.1.5'; Verified = $false
+            Confidence = 'deterministic'; Dependency = @('raw'); Kind = 'absence'
+            Detector = @{ Type = 'absent'; Pattern = '^password-policy lifetime\b' }
+            Rationale = 'No password lifetime is enforced; local-account passwords never expire.'
+            Remediation = 'Configure password-policy lifetime (e.g., 90 days, per policy).'
+        }
+        @{
+            Id = 'AUTH-BANNER-MOTD'; Category = 'auth'; Severity = 'Low'
+            Profile = @('commercial','dod'); Authority = 'CIS 1.5.1'; Verified = $false
+            Confidence = 'deterministic'; Dependency = @('raw'); Kind = 'absence'
+            Detector = @{ Type = 'absent'; Pattern = '^banner motd\b' }
+            Rationale = 'No message-of-the-day banner is configured.'
+            Remediation = 'Configure a banner motd with the organization-approved text.'
+        }
+
         # --- v0.2 coverage Slice 2: numeric / conditional checks ---
         @{
             Id = 'MGMT-SSH-TIMEOUT'; Category = 'management'; Severity = 'High'

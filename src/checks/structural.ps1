@@ -151,6 +151,30 @@ function Test-AsaInterfaceNoIp {
     return @($out)
 }
 
+# --- v0.2 coverage Slice 3: AAA depth ---
+
+function Test-AsaAaaHttp {
+    # Only relevant when the HTTP/ASDM server is enabled.
+    [CmdletBinding()] param([Parameter(Mandatory)][pscustomobject]$Model)
+    $httpOn = $Model.Lines | Where-Object { $_.Kind -eq 'line' -and $_.Text -match '^http server enable\b' } | Select-Object -First 1
+    if ($null -eq $httpOn) { return @() }
+    $aaaHttp = $Model.Lines | Where-Object { $_.Kind -eq 'line' -and $_.Text -match '^aaa authentication http console\b' } | Select-Object -First 1
+    if ($null -eq $aaaHttp) { return @(New-AsaDetection -Fired $true -Evidence @($httpOn)) }
+    return @()
+}
+
+function Test-AsaPwComplexity {
+    [CmdletBinding()] param([Parameter(Mandatory)][pscustomobject]$Model)
+    $needed = @('minimum-uppercase','minimum-lowercase','minimum-numeric','minimum-special')
+    $missing = @()
+    foreach ($req in $needed) {
+        $present = $Model.Lines | Where-Object { $_.Kind -eq 'line' -and $_.Text -match "^password-policy $([regex]::Escape($req))\b" } | Select-Object -First 1
+        if ($null -eq $present) { $missing += $req }
+    }
+    if ($missing.Count -gt 0) { return @(New-AsaDetection -Fired $true -Evidence @()) }
+    return @()
+}
+
 # --- v0.2 coverage Slice 2: numeric / conditional checks ---
 
 function Test-AsaSshTimeout {

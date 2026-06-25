@@ -184,10 +184,17 @@ v0.2 coverage:
         LOG-TRAP, LOG-CONSOLE, AUTH-PW-LOCKOUT, IF-URPF, SNMP-V3-WEAK.
       - Slice 2 (numeric/conditional code, 4): MGMT-SSH-TIMEOUT, MGMT-HTTP-TIMEOUT,
         CRYPTO-PFS, CRYPTO-SA-LIFETIME.
-      Catalog now **32 checks** (15 MVP + 12 v0.2 + 5 hygiene). `Coverage.Tests.ps1`
-      gates TP (insecure/coverage) + TN (hardened). More slices to come (AAA
-      password-complexity, IKE integrity/DH-14, mgmt session quota, threat-detection
-      scanning, etc.).
+      - Slice 3 (AAA depth, 8): AUTH-ENABLE-PW, AUTH-AAA-ENABLE, AUTH-AAA-HTTP,
+        AUTH-CMD-AUTHZ, AUTH-CMD-ACCT, AUTH-PW-COMPLEXITY, AUTH-PW-LIFETIME,
+        AUTH-BANNER-MOTD.
+      Catalog now **40 checks** (15 MVP + 20 v0.2 + 5 hygiene). `Coverage.Tests.ps1`
+      gates TP (insecure/coverage) + TN (hardened). **~4 catalog slices left**:
+      Slice 4 crypto-strength (IKE/IPsec integrity SHA-2, DH-14, AES-128, SSL
+      cipher), Slice 5 logging/monitoring (syslog TCP, buffer size, redundant NTP,
+      default community, threat-detection basic), Slice 6 access-control
+      (implicit-deny logging, ICMP-to-device, sysopt permit-vpn), Slice 7
+      interface-hardening (threat-detection scanning, outside sec-level,
+      same-security-traffic, DNS guard, failover, DNS lookup).
 - [ ] Deep recursive resolution (FR-05b).
 - [ ] Version/EoL lookup table (FR-15, `asa-eol.psd1`, DR-05).
 - [ ] Second independently authored fixture (TR-05).

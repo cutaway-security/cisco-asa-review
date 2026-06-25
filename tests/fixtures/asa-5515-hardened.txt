@@ -55,6 +55,8 @@ aaa authentication serial console TACACS LOCAL
 aaa authentication enable console TACACS LOCAL
 aaa authentication http console TACACS LOCAL
 aaa local authentication attempts max-fail 3
+aaa authorization command TACACS LOCAL
+aaa accounting command TACACS
 username admin password $sha512$5000$vwpFMF7n51iDb1Lto8Ck8Q==$xDd7N+mQZGG6V798ToFV5A== pbkdf2 privilege 15
 password-policy minimum-length 15
 password-policy minimum-uppercase 1
@@ -62,6 +64,7 @@ password-policy minimum-lowercase 1
 password-policy minimum-numeric 1
 password-policy minimum-special 1
 password-policy minimum-changes 8
+password-policy lifetime 90
 http server enable
 http server idle-timeout 5
 http 192.168.1.0 255.255.255.0 mgmt
