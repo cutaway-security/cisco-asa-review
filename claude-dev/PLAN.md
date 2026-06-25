@@ -200,7 +200,10 @@ v0.2 coverage:
       gates TP (insecure/coverage) + TN (hardened). Commercial catalog coverage
       complete. (DoD-profile checks — FIPS, exact DoD banner, split-tunnel,
       RSA modulus, etc. — remain an optional follow-on under the dod profile.)
-- [ ] Deep recursive resolution (FR-05b).
+- [x] Deep recursive resolution (FR-05b) — done (2026-06-24): `Resolve-AsaNetworkGroup`
+      now fully recurses nested `group-object` with cycle detection (MaxGroupDepth 16);
+      "not-assessed" reserved for cycles/undefined/backstop. Added REF-UNDEFINED check
+      (dangling object/object-group references). Catalog now 57 checks.
 - [ ] Version/EoL lookup table (FR-15, `asa-eol.psd1`, DR-05).
 - [ ] Second independently authored fixture (TR-05).
 - [ ] 20k-line non-blocking performance benchmark (NFR-04).

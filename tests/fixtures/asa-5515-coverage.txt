@@ -32,4 +32,5 @@ crypto ikev1 policy 20
 crypto ipsec ikev1 transform-set WEAK-TS esp-aes esp-sha-hmac
 sysopt connection permit-vpn
 same-security-traffic permit inter-interface
+access-list COV_ACL extended permit ip any object-group MISSING-GRP
 : end

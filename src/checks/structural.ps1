@@ -151,6 +151,32 @@ function Test-AsaInterfaceNoIp {
     return @($out)
 }
 
+# --- v0.2 deep resolution: undefined references (FR-13) ---
+
+function Test-AsaUndefinedRef {
+    # Flag references to objects/object-groups that are not defined (dangling
+    # references -- a typo or a deleted object). Token-based to avoid matching the
+    # 'object' inside 'object-group' / 'network-object' / 'service-object'.
+    [CmdletBinding()] param([Parameter(Mandatory)][pscustomobject]$Model)
+    $objs = $Model.Objects.Keys
+    $ogs  = $Model.ObjectGroups.Keys
+    $out = [System.Collections.Generic.List[object]]::new()
+    foreach ($n in $Model.Lines) {
+        if ($n.Kind -ne 'line') { continue }
+        # skip the definition headers themselves
+        if ($n.Text -match '^(object-group|object)\s') { continue }
+        $toks = $n.Text -split '\s+'
+        for ($i = 0; $i -lt $toks.Count - 1; $i++) {
+            switch ($toks[$i]) {
+                'object-group'  { if ($ogs -notcontains $toks[$i+1])  { $out.Add((New-AsaDetection -Fired $true -Evidence @($n))); $i = $toks.Count } }
+                'group-object'  { if ($ogs -notcontains $toks[$i+1])  { $out.Add((New-AsaDetection -Fired $true -Evidence @($n))); $i = $toks.Count } }
+                'object'        { if ($objs -notcontains $toks[$i+1]) { $out.Add((New-AsaDetection -Fired $true -Evidence @($n))); $i = $toks.Count } }
+            }
+        }
+    }
+    return @($out)
+}
+
 # --- v0.2 coverage Slice 6: access control ---
 
 function Test-AsaImplicitDenyLog {

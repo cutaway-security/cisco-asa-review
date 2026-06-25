@@ -86,13 +86,17 @@
   **56 checks** (15 MVP + 36 v0.2 + 5 hygiene). Suite 113/113. Commercial catalog
   coverage done; DoD-profile checks optional follow-on.
 
+- **v0.2 deep resolution (FR-05b) + undefined-ref (2026-06-24):**
+  `Resolve-AsaNetworkGroup` now fully recurses nested group-object with cycle
+  detection (MaxGroupDepth 16; not-assessed only on cycle/undefined/backstop);
+  ACL-ANY-ANY now catches deeply-nested any-any. Added REF-UNDEFINED (dangling
+  references). Catalog = **57 checks**. Suite 115/115.
+
 ## In Progress
 
-v0.2 catalog coverage COMPLETE (56 checks). Remaining v0.2 infrastructure:
-deep recursive resolution (FR-05b) + undefined-ref/unbound-ACL structural
-checks; version/EoL table (needs data-source decision); second independent
-fixture (TR-05); 20k-line perf benchmark (NFR-04). On `claude-dev`; the issue #1
-work and all 7 catalog slices are not yet released to `main`.
+v0.2 catalog coverage + deep resolution COMPLETE. Remaining v0.2 infrastructure:
+version/EoL table (needs data-source decision); second independent fixture
+(TR-05); 20k-line perf benchmark (NFR-04). On `claude-dev`; not released to `main`.
 
 ## Blockers
 

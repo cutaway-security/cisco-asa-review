@@ -208,6 +208,16 @@
             Remediation = 'Use SNMPv3 with SHA authentication and AES privacy.'
         }
 
+        # --- v0.2 deep resolution: undefined references ---
+        @{
+            Id = 'REF-UNDEFINED'; Category = 'access'; Severity = 'Medium'
+            Profile = @('commercial','dod'); Authority = 'tool heuristic'; Verified = $false
+            Confidence = 'deterministic'; Dependency = @('resolved'); Kind = 'presence'
+            Detector = @{ Type = 'code'; Function = 'Test-AsaUndefinedRef' }
+            Rationale = 'A rule references an object or object-group that is not defined; the reference is dangling (a typo or a deleted object) and the rule may not behave as intended.'
+            Remediation = 'Define the missing object/object-group, or correct/remove the dangling reference.'
+        }
+
         # --- v0.2 coverage Slice 7: interface / network hardening ---
         @{
             Id = 'IF-SCANNING-THREAT'; Category = 'access'; Severity = 'Low'

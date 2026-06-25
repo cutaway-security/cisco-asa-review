@@ -124,14 +124,22 @@ Describe 'Minimal resolution: object-group network' {
         $nested.Assessed    | Should -BeTrue
         $nested.ContainsAny | Should -BeFalse
     }
-    It 'reports not-assessed beyond the stated nesting depth (OR-03)' {
+    It 'fully resolves deep group-object nesting (FR-05b)' {
         $lines = @(
             'object-group network gA', ' group-object gB',
             'object-group network gB', ' group-object gC',
-            'object-group network gC', ' network-object host 10.0.0.1'
+            'object-group network gC', ' network-object 0.0.0.0 0.0.0.0'
         )
-        $deep = ConvertTo-AsaModel -Lines $lines
-        Test-AsaNetworkGroupIsAny -Model $deep -Name 'gA' | Should -Be 'not-assessed'
+        # gC spans any; deep recursion (gA->gB->gC) now resolves it (was not-assessed at depth 1)
+        Test-AsaNetworkGroupIsAny -Model (ConvertTo-AsaModel -Lines $lines) -Name 'gA' | Should -BeTrue
+    }
+
+    It 'reports not-assessed for a circular group-object reference (cycle)' {
+        $lines = @(
+            'object-group network gA', ' group-object gB',
+            'object-group network gB', ' group-object gA'
+        )
+        Test-AsaNetworkGroupIsAny -Model (ConvertTo-AsaModel -Lines $lines) -Name 'gA' | Should -Be 'not-assessed'
     }
     It 'reports not-assessed for an undefined group reference' {
         Test-AsaNetworkGroupIsAny -Model $script:M -Name 'does-not-exist' | Should -Be 'not-assessed'

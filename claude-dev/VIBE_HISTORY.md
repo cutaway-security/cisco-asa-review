@@ -7,6 +7,18 @@ project's lifetime.
 
 ---
 
+## 2026-06-24 -- v0.2 deep recursive resolution (FR-05b) + undefined references
+
+Deepened `Resolve-AsaNetworkGroup`: was MaxGroupDepth=1 (returning "not-assessed" beyond one level); now MaxGroupDepth=16 with a visited-set CYCLE GUARD, so nested group-object chains resolve fully. "not-assessed" (OR-03) is now reserved for genuinely-unresolvable cases: a circular reference, an undefined group, or the 16-deep backstop. This sharpens ACL-ANY-ANY (a deeply-nested object-group that spans 0.0.0.0/0 is now caught as a finding instead of not-assessed) and the zone model.
+
+New check REF-UNDEFINED (code, Medium): flags rules referencing an object/object-group that is not defined (dangling reference -- typo or deleted object). Token-based walk (skip definition headers; match the standalone `object`/`object-group`/`group-object` tokens, NOT the 'object' inside 'network-object'/'service-object'/'object-group'). Catalog now 57 checks. Note: bare object names in twice-NAT (no `object` keyword) are intentionally not flagged (conservative -- avoid false positives).
+
+Test updates driven by the behavior change: the old "deep nesting -> not-assessed" assertions (SupportModels + Checks) now assert deep nesting RESOLVES (FR-05b), and a CYCLE is the not-assessed case (new tests for both). TP for REF-UNDEFINED via a `permit ip any object-group MISSING-GRP` line added to the coverage fixture; TN on insecure/hardened (all refs defined). Suite 115/115.
+
+Remaining v0.2 infra: version/EoL table (data-source decision needed), second fixture, 20k perf. On claude-dev; not released.
+
+---
+
 ## 2026-06-24 -- v0.2 catalog coverage, Slice 7: interface hardening (COMPLETE)
 
 Slice 7 = 4 checks (3 absent + 1 present): IF-SCANNING-THREAT (absent threat-detection scanning-threat), IF-THREAT-STATS (absent threat-detection statistics), IF-SAME-SECURITY (present same-security-traffic permit), DNS-LOOKUP (absent name-server). Catalog now 56 checks. This COMPLETES the commercial catalog-coverage slices (1-7).

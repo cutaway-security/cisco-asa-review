@@ -59,14 +59,27 @@ Describe 'Check engine: zero false positives on the hardened fixture' {
     }
 }
 
-Describe 'Check engine: not-assessed (OR-03) for deep object-group nesting' {
+Describe 'Check engine: deep resolution (FR-05b) and not-assessed (OR-03)' {
 
-    It 'reports ACL-ANY-ANY not-assessed when a referenced group exceeds resolution depth' {
+    It 'resolves a deeply-nested object-group any-any as a real finding (FR-05b)' {
         $lines = @(
             'object-group network gDeep', ' group-object gMid',
             'object-group network gMid', ' group-object gLeaf',
             'object-group network gLeaf', ' network-object 0.0.0.0 0.0.0.0',
             'access-list t extended permit ip object-group gDeep any',
+            'access-group t in interface outside'
+        )
+        $m = ConvertTo-AsaModel -Lines $lines
+        $f = @(Invoke-AsaChecks -Model $m -Profile commercial) | Where-Object { $_.CheckId -eq 'ACL-ANY-ANY' }
+        $f | Should -Not -BeNullOrEmpty
+        $f.Status | Should -Be 'finding'   # deep recursion now resolves gDeep -> any
+    }
+
+    It 'reports ACL-ANY-ANY not-assessed on a circular group-object reference' {
+        $lines = @(
+            'object-group network gA', ' group-object gB',
+            'object-group network gB', ' group-object gA',
+            'access-list t extended permit ip object-group gA any',
             'access-group t in interface outside'
         )
         $m = ConvertTo-AsaModel -Lines $lines

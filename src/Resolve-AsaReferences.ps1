@@ -35,14 +35,22 @@ function Resolve-AsaNetworkGroup {
     param(
         [Parameter(Mandatory)][pscustomobject]$Model,
         [Parameter(Mandatory)][string]$Name,
-        [ValidateRange(0, 8)][int]$MaxGroupDepth = 1
+        [ValidateRange(1, 64)][int]$MaxGroupDepth = 16
     )
 
+    # Deep recursive resolution (FR-05b): fully expand nested group-object
+    # references with cycle detection. "not assessed" (OR-03) is now reserved for
+    # genuinely unresolvable cases -- an undefined reference, a circular group, or
+    # nesting beyond the (high) MaxGroupDepth backstop.
     $members = [System.Collections.Generic.List[string]]::new()
     $state = @{ ContainsAny = $false; Assessed = $true }
+    $visited = [System.Collections.Generic.HashSet[string]]::new()
 
     $expand = {
         param($groupName, $depth)
+
+        if (-not $visited.Add($groupName)) { $state.Assessed = $false; return }   # cycle
+        if ($depth -gt $MaxGroupDepth) { $state.Assessed = $false; return }       # backstop
 
         $node = $null
         if ($Model.ObjectGroups.ContainsKey($groupName)) { $node = $Model.ObjectGroups[$groupName] }
@@ -58,12 +66,7 @@ function Resolve-AsaNetworkGroup {
             elseif ($ct -match '^network-object\s+object\s+(\S+)') { $members.Add("object $($Matches[1])") }
             elseif ($ct -match '^network-object\s+(\S+)\s+(\S+)')   { $members.Add("$($Matches[1]) $($Matches[2])") }
             elseif ($ct -match '^group-object\s+(\S+)') {
-                if ($depth + 1 -gt $MaxGroupDepth) {
-                    $state.Assessed = $false      # deeper than stated depth -> not assessed (OR-03)
-                }
-                else {
-                    & $expand $Matches[1] ($depth + 1)
-                }
+                & $expand $Matches[1] ($depth + 1)   # full recursion (cycle-guarded above)
             }
         }
     }
