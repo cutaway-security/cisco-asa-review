@@ -148,6 +148,52 @@ every individual flow. This is a **best-effort, offline view** (not a commercial
 segmentation tool): it shows *configured/allowed* flows, not end-to-end
 reachability (NAT/routing/shadowing are not modeled).
 
+## Manual review checklist
+
+The tool is a fast first pass. The list below is where human judgment and
+live-device checks add what static analysis can't — review these by hand when
+accuracy matters or to catch unusual conditions.
+
+**Risk the tool does not evaluate — check by hand**
+
+1. **NAT exposure** — static NATs / port-forwards that publish internal hosts to
+   less-trusted zones; effective reachability is ACL + NAT + routing together,
+   which the tool does not combine.
+2. **ACL shadowing & dead rules** — a broad earlier rule masking a later one, or
+   rules that never match; confirm with `show access-list` hit counts on the live
+   device.
+3. **Over-permissive but not any/any** — wide subnets, "any" service/port, or
+   object-groups whose *contents* are broad (e.g. a group named TRUSTED holding
+   public ranges). Only literal/expanded any/any is auto-flagged.
+4. **VPN posture** — tunnel-groups / group-policies: split-tunneling, weak or
+   shared pre-shared keys, PSK vs certificate, group-policy permissions, default
+   tunnel-group. The tool checks crypto *strength*, not VPN *policy*.
+5. **Object / object-group contents** — eyeball the actual members of groups used
+   in permit rules.
+
+**Sanity-check the tool's own findings**
+
+6. **`not-assessed` items** — follow up each (undefined references, circular or
+   over-deep object-groups); the tool flagged that it couldn't resolve them.
+7. **"Unused" / hygiene findings** — conservative by design (it under-flags);
+   confirm before deleting, and note it may also miss some dead config.
+8. **Secret completeness** — confirm every credential line was masked *and* that
+   all were detected (VPN PSKs, RADIUS/TACACS keys, SNMPv3 keys, local users);
+   masking falls back to keywords for unusual constructs.
+9. **Absence findings** — an "absent" result means the parser didn't see the
+   line; verify the feature isn't configured in a form it didn't recognize and
+   that the secure-default assumption holds.
+
+**Outside the config snapshot**
+
+10. **Patch level / CVEs** — EoL *trains* are flagged, but not specific CVEs for a
+    supported-but-vulnerable build; check the exact `X.Y(z)` against Cisco
+    advisories.
+11. **Certificate / trustpoint expiry** — present in config, but expiry isn't
+    visible; verify on the device.
+12. **Operational truth** — logging actually reaching a monitored SIEM, NTP
+    actually synced, running-vs-startup drift, management plane truly isolated.
+
 ## Software version / end-of-life
 
 The review flags the running ASA software train against an end-of-life status,
