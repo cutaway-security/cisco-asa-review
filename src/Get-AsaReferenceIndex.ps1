@@ -29,27 +29,40 @@ function Get-AsaReferenceIndex {
     )
 
     process {
-        # Per-line token sets (whitespace split), for 'line' nodes only.
-        $lineTokens = [System.Collections.Generic.List[object]]::new()
+        # Inverted index: token -> the line nodes whose text contains that token
+        # (built in one pass, NFR-04). A naive per-entity scan over every line is
+        # O(entities x lines) = quadratic on large configs; this makes each
+        # entity lookup proportional to the (small) number of lines that mention
+        # it, so the whole pass is linear in total tokens.
+        $tokenToNodes = @{}
         foreach ($n in $Model.Lines) {
             if ($n.Kind -ne 'line') { continue }
-            $set = [System.Collections.Generic.HashSet[string]]::new()
-            foreach ($t in ($n.Text -split '\s+')) { if ($t) { [void]$set.Add($t) } }
-            $lineTokens.Add([pscustomobject]@{ Node = $n; Tokens = $set })
+            $seen = [System.Collections.Generic.HashSet[string]]::new()
+            foreach ($t in ($n.Text -split '\s+')) {
+                if (-not $t) { continue }
+                if (-not $seen.Add($t)) { continue }   # add each node once per distinct token
+                $list = $tokenToNodes[$t]
+                if ($null -eq $list) {
+                    $list = [System.Collections.Generic.List[object]]::new()
+                    $tokenToNodes[$t] = $list
+                }
+                $list.Add($n)
+            }
         }
 
         # Is $name referenced anywhere outside a definition line of $defKind?
         $isReferenced = {
             param([string]$name, [string]$defKind)
+            $cand = $tokenToNodes[$name]
+            if ($null -eq $cand) { return $false }   # token appears on no line at all
             $escaped = [regex]::Escape($name)
             $defRx = switch ($defKind) {
                 'acl' { "^access-list\s+$escaped(\s|$)" }
                 'obj' { "^object\s+(network|service)\s+$escaped(\s|$)" }
                 'og'  { "^object-group\s+(network|service|protocol)\s+$escaped(\s|$)" }
             }
-            foreach ($lt in $lineTokens) {
-                if (-not $lt.Tokens.Contains($name)) { continue }
-                if ($lt.Node.Text -notmatch $defRx) { return $true }   # a non-definition use
+            foreach ($node in $cand) {
+                if ($node.Text -notmatch $defRx) { return $true }   # a non-definition use
             }
             return $false
         }

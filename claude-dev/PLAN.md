@@ -10,12 +10,13 @@ with no network and no device access.
 ## Current Phase
 
 **Phase**: Phase 6 — v0.2 coverage + GitHub issue #1
-**Status**: GitHub issue #1 + v0.2 catalog coverage (58 checks) + deep resolution
-+ version/EoL (FR-15) + second fixture (TR-05) COMPLETE (2026-06-24, **124/124
-tests**; on `claude-dev`, not yet released). Phases 1–5c released to `main` as
-v0.1c. Only remaining v0.2 item: 20k-line perf benchmark (NFR-04).
-**Focus**: v0.2 substantively done. Next: 20k-line perf benchmark (NFR-04); decide
-release of accumulated v0.2 work to main; Windows PowerShell 5.1 (NFR-01).
+**Status**: **v0.2 infrastructure COMPLETE** (2026-06-24) — issue #1 + catalog
+coverage (58 checks) + deep resolution + version/EoL (FR-15) + second fixture
+(TR-05) + 20k perf benchmark & quadratic fix (NFR-04). Default suite **124 passed
+/ 1 skipped** (opt-in perf). On `claude-dev`, not yet released. Phases 1–5c
+released to `main` as v0.1c.
+**Focus**: v0.2 done. Next: decide release of accumulated v0.2 work to main
+(v0.1d); Windows PowerShell 5.1 verification (NFR-01).
 
 ## Phases
 
@@ -213,7 +214,13 @@ v0.2 coverage:
 - [x] Second independently authored fixture (TR-05) — done (2026-06-24):
       `Robustness.Tests.ps1` runs the full pipeline on the two independent real
       sanitized configs and asserts well-formed findings (anti-overfit guard).
-- [ ] 20k-line non-blocking performance benchmark (NFR-04). **Only remaining v0.2 item.**
+- [x] 20k-line non-blocking performance benchmark (NFR-04) — done (2026-06-24):
+      `tests/perf/` generator + `Measure-AsaPerf.ps1` (parse + full pipeline at
+      2.5k-20k; growth exponent + doubling-factor verdict). It surfaced a real
+      quadratic in `Get-AsaReferenceIndex` (O(entities x lines)) — fixed with an
+      inverted token index: 20k pipeline 24.5s -> 5.1s, doubling 4.28x -> 1.85x,
+      parser linear (251ms / exponent 0.54). Opt-in `Performance.Tests.ps1`
+      regression guard (env `ASA_RUN_PERF`). **v0.2 infrastructure complete.**
 
 GitHub issue #1 (hygiene + tracking + output changes) -- **COMPLETE (2026-06-24)**:
 - [x] `src/Get-AsaReferenceIndex.ps1` (FR-31): ACL/object/object-group ->
@@ -239,9 +246,9 @@ checks hit exact seeded TP / zero FP (crypto-only ACL NOT flagged, TSC-15); CSV
 has the new columns + Informational rows (TSC-16); HTML carries the full findings
 detail and no segmentation `.md` is produced (TSC-17); HTML rendering re-verified.
 
-**Still open in Phase 6:** only the 20k-line performance benchmark (NFR-04).
-Issue #1, catalog coverage (58 checks), deep resolution, version/EoL (FR-15), and
-the second-fixture anti-overfit guard (TR-05) are all done.
+**Phase 6 / v0.2 COMPLETE.** Issue #1, catalog coverage (58 checks), deep
+resolution, version/EoL (FR-15), the second-fixture anti-overfit guard (TR-05),
+and the 20k-line perf benchmark + quadratic fix (NFR-04) are all done.
 
 ### Phase 7: v0.3 — Depth
 

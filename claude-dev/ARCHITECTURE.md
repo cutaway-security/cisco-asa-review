@@ -304,7 +304,13 @@ for renderer-equipped contexts.
   yields a false "unused"; mitigation — enumerate sites explicitly and treat an
   unrecognized construct conservatively (do not assert "unused" when a token
   could be a reference). These are Informational, so a miss is low-harm and
-  analyst-reviewed.
+  analyst-reviewed. *Scaling (NFR-04):* the index is built from an inverted
+  `token -> line nodes` map computed in one pass, so each entity's "referenced?"
+  lookup touches only the lines that mention it — linear, not the O(entities ×
+  lines) it would be if every entity rescanned every line. The 20k-line benchmark
+  (`tests/perf/Measure-AsaPerf.ps1`) drove this: the naive scan made the pipeline
+  quadratic (24.5s, 4.28x per doubling); the inverted index brought it to 5.1s
+  and a 1.85x doubling factor, parser linear throughout.
 
 - **Informational severity tier.** Hygiene/cleanup findings (unused ACL/object,
   inactive rules, no-ip-shutdown, BVI) are **Informational** — ranked below Low,

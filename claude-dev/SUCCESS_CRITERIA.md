@@ -119,7 +119,11 @@ Business and technical criteria, each measurable. Tied to evidence in §3.
   release gate). The ~20,000-line no-quadratic-blowup target (NFR-04) is a
   **non-blocking v0.2 benchmark**, not a v0.1 gate — the engagement target is a
   single ASA 5515 config. (AI review 20260624-101250: anthropic+openai — 20k was
-  premature as a gate.)
+  premature as a gate.) *Met (2026-06-24):* `tests/perf/Measure-AsaPerf.ps1`
+  shows the parser linear (251ms at 20k, growth exponent ~0.55) and the full
+  pipeline sub-quadratic (5.1s at 20k, top-two doubling factor 1.85x) after
+  fixing an O(entities×lines) scan in `Get-AsaReferenceIndex`. Opt-in regression
+  guard: `tests/unit/Performance.Tests.ps1` (env `ASA_RUN_PERF`).
 - **TSC-11 (Offline/read-only)** No network activity and no input mutation during
   a run. *Threshold:* SR-01/SR-02 verification (§3) shows zero connections and an
   unchanged input file hash.

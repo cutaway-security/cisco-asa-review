@@ -109,11 +109,24 @@
   - Hardened fixture bumped to `ASA Version 9.20(2)` (VERSION-EOL TN). New tests:
     `EolData.Tests.ps1`. Catalog = **58 checks**. Suite **124/124** green.
 
+- **v0.2 20k-line perf benchmark (NFR-04) + quadratic fix (2026-06-24):**
+  - `tests/perf/New-AsaLargeConfig.ps1` (deterministic large-config generator) +
+    `tests/perf/Measure-AsaPerf.ps1` (times parse + full pipeline at 2.5k/5k/10k/20k,
+    fits a growth exponent and a top-two doubling factor; PASS = sub-quadratic).
+  - **Benchmark surfaced a real quadratic:** `Get-AsaReferenceIndex` scanned every
+    line for every entity (O(entities x lines)); 20k pipeline was **24.5s**,
+    doubling factor 4.28x. Fixed with an inverted token index (token -> nodes,
+    one pass): now **5.1s**, doubling factor **1.85x**, parser 251ms (exponent
+    0.54). Behavior unchanged (hygiene/unused tests still green).
+  - `tests/unit/Performance.Tests.ps1` — opt-in (env `ASA_RUN_PERF`) scaling
+    regression guard; skipped in the default suite to avoid timing flakiness.
+  - Default suite **124 passed / 1 skipped**; perf test passes when opted in.
+
 ## In Progress
 
-v0.2 catalog coverage + deep resolution + version/EoL + second fixture COMPLETE.
-Only remaining v0.2 infrastructure: **20k-line perf benchmark (NFR-04)**. On
-`claude-dev`; not released to `main`.
+**v0.2 infrastructure COMPLETE** (catalog coverage, deep resolution, version/EoL,
+second fixture, 20k perf benchmark). Nothing open in v0.2. On `claude-dev`; not
+released to `main` — next step is the release decision (would be v0.1d).
 
 ## Blockers
 
@@ -123,15 +136,13 @@ Only remaining v0.2 infrastructure: **20k-line perf benchmark (NFR-04)**. On
 
 ## Next Steps
 
-1. **20k-line performance benchmark (NFR-04)** — the only remaining v0.2
-   infrastructure item.
-2. Decide whether to release the accumulated v0.2 work (issue #1 + catalog
-   coverage + deep resolution + version/EoL + second fixture) to `main` as the
-   next release (e.g. v0.1d) per RELEASE_TO_MAIN.md.
-3. Still pending for a full "shipped" claim: run on **Windows PowerShell 5.1**
+1. Decide whether to release the accumulated v0.2 work (issue #1 + catalog
+   coverage + deep resolution + version/EoL + second fixture + perf fix) to `main`
+   as the next release (e.g. v0.1d) per RELEASE_TO_MAIN.md.
+2. Still pending for a full "shipped" claim: run on **Windows PowerShell 5.1**
    (TSC-09/NFR-01; PSv7 is now validated), a runtime egress-monitor check (TSC-11),
    and a findings-accuracy review against a real engagement config.
-4. Optional: DoD-profile-specific checks; process items (ADRs, traceability matrix).
+3. Optional: DoD-profile-specific checks; process items (ADRs, traceability matrix).
 
 ## Open Questions
 

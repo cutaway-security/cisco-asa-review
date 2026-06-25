@@ -7,6 +7,20 @@ project's lifetime.
 
 ---
 
+## 2026-06-24 -- v0.2 20k-line perf benchmark (NFR-04) + a real quadratic fix
+
+NFR-04 is scoped to the parser ("no quadratic blowup or unbounded memory at ~20k lines") and is explicitly a NON-BLOCKING benchmark, not a v0.1 gate (TSC-10). Built `tests/perf/New-AsaLargeConfig.ps1` (deterministic large-config generator -- generated in memory, NOT committed as a fixture) and `tests/perf/Measure-AsaPerf.ps1` (times parse + full pipeline at 2.5k/5k/10k/20k, fits a log-log growth exponent AND a top-two-sizes doubling factor).
+
+The benchmark earned its keep immediately: the PARSER was already cleanly linear (251ms at 20k, exponent ~0.55), but the full pipeline took **24.5s at 20k with a 4.28x doubling factor** -- quadratic. Root cause: `Get-AsaReferenceIndex` (the "is this ACL/object/object-group referenced anywhere?" pass behind the Informational hygiene checks) scanned EVERY line for EVERY entity -- O(entities x lines). On 20k lines with thousands of objects that's ~1e8 ops. Fixed by inverting it: one pass builds a `token -> nodes` hashtable, then each entity lookup touches only the handful of lines that actually mention its name. Same semantics (referenced = name appears as a whole token outside its own definition line), now linear: 20k pipeline **24.5s -> 5.1s**, doubling factor **4.28x -> 1.85x**. All hygiene/unused tests stayed green, so behavior is unchanged.
+
+Lesson worth keeping: a log-log exponent fit over a range that starts BELOW the quadratic regime is a deceptive metric -- it read 1.25 ("passing") on the quadratic version because the small sizes have lots of fixed overhead and haven't entered n^2 yet. The doubling factor between the two largest sizes (which double in line count: ~2x linear, ~4x quadratic) is the honest, sensitive test. The verdict now requires BOTH (exponent <= 1.5 AND doubling <= 2.6x).
+
+Note also that the two hygiene checks (`Test-AsaUnusedAcl`, `Test-AsaUnusedObject`) each call `Get-AsaReferenceIndex` independently, so it builds ~3x per review -- acceptable now that each build is linear (~175ms), not worth memoizing on the model (would mean mutating the input object).
+
+`tests/unit/Performance.Tests.ps1` is an OPT-IN regression guard (runs only when env `ASA_RUN_PERF` is set) so the default 124-test suite stays fast and free of timing flakiness; it dot-sources the measurement script (guarded against `exit`, like the EoL updater) and asserts the sub-quadratic verdict. Default suite: 124 passed / 1 skipped. **v0.2 infrastructure is now complete.**
+
+---
+
 ## 2026-06-24 -- v0.2 version/EoL (FR-15) + second fixture / anti-overfit (TR-05)
 
 The interesting tension here: the user asked to "check the internet" for EoL data, but the load-bearing guarantee of this tool (SR-01, enforced by Guard.Tests) is that a config review makes ZERO network calls -- the config is sensitive client data. Resolution: split the concern. The REVIEW stays 100% offline and reads a bundled snapshot reference, `data/asa-eol.psd1` (dated 2026-06-24; trains 9.1-9.14 EoL, 9.16-9.22 supported; ASA5515 end-of-support; carries a disclaimer to verify against Cisco). The internet check lives in a SEPARATE, opt-in maintenance tool, `Update-AsaEolData.ps1` -- the only script in the repo that touches the network, deliberately run by the analyst on a connected machine to refresh the reference. Its flow is exactly the user's ask: "check the internet, if unavailable use reference" (fetch JSON feed -> rewrite reference; unreachable/invalid -> warn and keep the bundled one).
