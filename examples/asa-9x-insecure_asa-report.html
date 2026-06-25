@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<title>ASA Review - asa-9x-insecure.txt</title>
+<style>
+  body{font-family:Segoe UI,Arial,sans-serif;color:#1a1a1a;margin:24px;line-height:1.4}
+  h1{font-size:22px;margin:0 0 4px} h2{font-size:17px;border-bottom:2px solid #ccc;padding-bottom:4px;margin-top:28px}
+  .meta{color:#555;font-size:13px} .note{background:#f4f6f8;border-left:4px solid #888;padding:8px 12px;font-size:13px;margin:10px 0}
+  table{border-collapse:collapse;width:100%;font-size:13px;margin:8px 0} th,td{border:1px solid #bbb;padding:5px 8px;text-align:left;vertical-align:top}
+  th{background:#eef1f4} code{font-family:Consolas,monospace;font-size:12px}
+  .sev-High{background:#f8d7da} .sev-Medium{background:#fff3cd} .sev-Low{background:#e2e3e5} .sev-na{background:#d1ecf1} .sev-Informational{background:#eef5ff}
+  .pill{display:inline-block;padding:1px 7px;border-radius:9px;font-size:11px;font-weight:700}
+  .pill.High{background:#b00000;color:#fff} .pill.Medium{background:#9a6700;color:#fff} .pill.Low{background:#555;color:#fff} .pill.Informational{background:#3a6ea5;color:#fff}
+  .detail{border:1px solid #ddd;border-radius:6px;padding:8px 12px;margin:10px 0} .detail h4{margin:0 0 4px;font-size:14px} .detail ul{margin:4px 0 4px 18px;padding:0}
+  .cell-risk{background:#f8d7da;font-weight:700} .cell-ok{background:#fff} .matrix td:first-child,.matrix th:first-child{background:#eef1f4;font-weight:700}
+  .legend span{display:inline-block;margin-right:14px;font-size:12px}
+  .sw{display:inline-block;width:12px;height:12px;vertical-align:middle;margin-right:4px;border:1px solid #999}
+  @media print{body{margin:8px} h2{page-break-after:avoid} table{page-break-inside:auto}}
+</style></head><body>
+<h1>Cisco ASA Configuration Review</h1>
+<div class='meta'>Configuration: <b>asa-9x-insecure.txt</b> &middot; Profile: commercial &middot; Generated: 20260625_091359</div>
+<div class='meta'>Tool: cisco-asa-review (passive, offline, read-only static analysis; no device contact)</div>
+<h2>Executive summary</h2>
+<p>Findings: <b>39</b> (High: 11, Medium: 16, Low: 12). Informational (hygiene): 5. Not assessed: 0. Checks evaluated: 58. Config lines parsed: 147.</p>
+<div class='note'>To save as PDF: open this file in any web browser and choose <b>Print &rarr; Save as PDF</b>. No software is required.</div>
+<h2>Findings</h2>
+<table><tr><th>Severity</th><th>Check</th><th>Category</th><th>Authority</th><th>Evidence</th><th>Recommendation</th></tr>
+<tr class='sev-High'><td><span class='pill High'>High</span></td><td><b>ACL-ANY-ANY</b></td><td>access</td><td>Cisco hardening guide</td><td>line 80: <code>access-list outside_in extended permit ip any any</code></td><td>Review each permit ip any any rule and scope it to required sources, destinations, and services.</td></tr>
+<tr class='sev-High'><td><span class='pill High'>High</span></td><td><b>AUTH-AAA-SSH</b></td><td>auth</td><td>CIS 1.4.3.5; STIG V-239940</td><td><i>setting absent</i></td><td>Configure aaa authentication ssh console &lt;server-group&gt; LOCAL.</td></tr>
+<tr class='sev-High'><td><span class='pill High'>High</span></td><td><b>CRYPTO-SSL-TLS</b></td><td>crypto</td><td>CIS 1.7.2; STIG V-239975</td><td>line 128: <code>ssl server-version tlsv1</code></td><td>Set ssl server-version tlsv1.2 (or higher) for WebVPN/management TLS.</td></tr>
+<tr class='sev-High'><td><span class='pill High'>High</span></td><td><b>CRYPTO-WEAK-VPN</b></td><td>crypto</td><td>STIG V-239952/957/979</td><td>line 116: <code>crypto ipsec ikev1 transform-set legacy-ts esp-3des esp-md5-hmac</code></td><td>Migrate to IKEv2 with AES-256, SHA-2 integrity, and DH group 16 or higher.</td></tr>
+<tr class='sev-High'><td><span class='pill High'>High</span></td><td><b>LOG-HOST</b></td><td>logging</td><td>CIS 1.10.3; STIG V-239943</td><td><i>setting absent</i></td><td>Configure one or more logging host destinations (STIG requires two).</td></tr>
+<tr class='sev-High'><td><span class='pill High'>High</span></td><td><b>MGMT-CONSOLE-TIMEOUT</b></td><td>management</td><td>CIS 1.8.1; STIG V-239920</td><td>line 107: <code>console timeout 0</code></td><td>Set console timeout to a value between 1 and 5 minutes.</td></tr>
+<tr class='sev-High'><td><span class='pill High'>High</span></td><td><b>MGMT-HTTP-TIMEOUT</b></td><td>management</td><td>CIS 1.8.3; STIG V-239920</td><td>line 101: <code>http server enable</code></td><td>Set http server idle-timeout to 5 minutes or less (or disable the http server if unused).</td></tr>
+<tr class='sev-High'><td><span class='pill High'>High</span></td><td><b>MGMT-SSH-OUTSIDE</b></td><td>management</td><td>CIS 1.6.1 (narrative)</td><td>line 105: <code>ssh 0.0.0.0 0.0.0.0 outside</code></td><td>Remove ssh access on the outside interface; restrict SSH to an internal management interface.</td></tr>
+<tr class='sev-High'><td><span class='pill High'>High</span></td><td><b>MGMT-SSH-TIMEOUT</b></td><td>management</td><td>CIS 1.8.2; STIG V-239920</td><td>line 106: <code>ssh timeout 30</code></td><td>Set ssh timeout to 5 minutes or less.</td></tr>
+<tr class='sev-High'><td><span class='pill High'>High</span></td><td><b>MGMT-SSH-VERSION</b></td><td>management</td><td>CIS 1.6.2</td><td><i>setting absent</i></td><td>Configure: ssh version 2 (not applicable on ASA 9.16+, which is SSHv2-only).</td></tr>
+<tr class='sev-High'><td><span class='pill High'>High</span></td><td><b>MGMT-TELNET</b></td><td>management</td><td>CIS 1.6.5; STIG V-239911</td><td>line 103: <code>telnet 10.10.20.0 255.255.255.0 inside</code></td><td>Remove all telnet access lines and use SSHv2 for management.</td></tr>
+<tr class='sev-Medium'><td><span class='pill Medium'>Medium</span></td><td><b>AUTH-AAA-SERIAL</b></td><td>auth</td><td>CIS 1.4.3.4; STIG V-239940</td><td><i>setting absent</i></td><td>Configure aaa authentication serial console &lt;server-group&gt; LOCAL.</td></tr>
+<tr class='sev-Medium'><td><span class='pill Medium'>Medium</span></td><td><b>AUTH-CMD-AUTHZ</b></td><td>auth</td><td>CIS 1.4.4.1</td><td><i>setting absent</i></td><td>Configure aaa authorization command &lt;server-group&gt; LOCAL.</td></tr>
+<tr class='sev-Medium'><td><span class='pill Medium'>Medium</span></td><td><b>AUTH-PW-COMPLEXITY</b></td><td>auth</td><td>CIS 1.1.5; STIG V-239915/916/917/918</td><td><i>setting absent</i></td><td>Configure password-policy minimum-uppercase/lowercase/numeric/special (&gt;= 1 each).</td></tr>
+<tr class='sev-Medium'><td><span class='pill Medium'>Medium</span></td><td><b>AUTH-PW-LOCKOUT</b></td><td>auth</td><td>CIS 1.4.1.1</td><td><i>setting absent</i></td><td>Configure aaa local authentication attempts max-fail 3 (or per policy).</td></tr>
+<tr class='sev-Medium'><td><span class='pill Medium'>Medium</span></td><td><b>AUTH-PWPOLICY</b></td><td>auth</td><td>CIS 1.1.5; STIG V-239914</td><td><i>setting absent</i></td><td>Configure password-policy minimum-length and complexity (uppercase/lowercase/numeric/special).</td></tr>
+<tr class='sev-Medium'><td><span class='pill Medium'>Medium</span></td><td><b>AUTH-PWRECOVERY</b></td><td>auth</td><td>CIS 1.1.4</td><td><i>setting absent</i></td><td>Configure: no service password-recovery (ensure documented break-glass procedures).</td></tr>
+<tr class='sev-Medium'><td><span class='pill Medium'>Medium</span></td><td><b>CRYPTO-PFS</b></td><td>crypto</td><td>STIG V-239954</td><td>line 123: <code>crypto map outside_map 10 match address split_tunnel</code></td><td>Configure set pfs (group 14 or higher) on the crypto map.</td></tr>
+<tr class='sev-Medium'><td><span class='pill Medium'>Medium</span></td><td><b>CRYPTO-SSL-CIPHER</b></td><td>crypto</td><td>CIS 1.7.3</td><td>line 129: <code>ssl encryption rc4-sha1 aes128-sha1</code></td><td>Set ssl cipher to a high/strong cipher set (e.g., ssl cipher tlsv1.2 high).</td></tr>
+<tr class='sev-Medium'><td><span class='pill Medium'>Medium</span></td><td><b>ICMP-TO-DEVICE</b></td><td>access</td><td>CIS 2.5; Cisco hardening guide</td><td><i>setting absent</i></td><td>Restrict ICMP to the device with icmp deny/permit statements (e.g., icmp deny any outside).</td></tr>
+<tr class='sev-Medium'><td><span class='pill Medium'>Medium</span></td><td><b>IF-URPF</b></td><td>access</td><td>CIS 3.7; Cisco hardening guide</td><td><i>setting absent</i></td><td>Enable ip verify reverse-path interface &lt;untrusted-interface&gt;.</td></tr>
+<tr class='sev-Medium'><td><span class='pill Medium'>Medium</span></td><td><b>LOG-ENABLE</b></td><td>logging</td><td>CIS 1.10.1</td><td><i>setting absent</i></td><td>Configure: logging enable.</td></tr>
+<tr class='sev-Medium'><td><span class='pill Medium'>Medium</span></td><td><b>LOG-TRAP</b></td><td>logging</td><td>CIS 1.10 (trap level)</td><td><i>setting absent</i></td><td>Configure logging trap (e.g., notifications or informational).</td></tr>
+<tr class='sev-Medium'><td><span class='pill Medium'>Medium</span></td><td><b>MGMT-ANY-SOURCE</b></td><td>management</td><td>CIS 1.6.1; CIS 1.7.1</td><td>line 102: <code>http 0.0.0.0 0.0.0.0 outside</code></td><td>Restrict ssh/http access lines to specific management subnets on an internal interface.</td></tr>
+<tr class='sev-Medium'><td><span class='pill Medium'>Medium</span></td><td><b>NTP-AUTH</b></td><td>logging</td><td>CIS 1.9.1.1; STIG V-239929</td><td>line 112: <code>ntp server 10.10.20.7</code></td><td>Enable ntp authenticate with an authentication-key and trusted-key for each ntp server.</td></tr>
+<tr class='sev-Medium'><td><span class='pill Medium'>Medium</span></td><td><b>SNMP-COMMUNITY</b></td><td>logging</td><td>CIS 1.11.1; STIG V-239928</td><td>line 108: <code>snmp-server host inside 10.10.20.50 community [REDACTED] version 2c</code></td><td>Replace SNMP v1/v2c communities with SNMPv3 using auth (SHA) and priv (AES).</td></tr>
+<tr class='sev-Medium'><td><span class='pill Medium'>Medium</span></td><td><b>VERSION-EOL</b></td><td>management</td><td>STIG V-239944; Cisco EoL notices</td><td>line 6: <code>ASA Version 9.8(4)</code></td><td>Upgrade to a currently-supported ASA release; verify against Cisco EoL notices (refresh the reference with Update-AsaEolData.ps1).</td></tr>
+<tr class='sev-Low'><td><span class='pill Low'>Low</span></td><td><b>ACL-IMPLICIT-DENY-LOG</b></td><td>access</td><td>Cisco hardening guide</td><td>line 86: <code>access-group outside_in in interface outside</code></td><td>Append an explicit &quot;deny ip any any log&quot; to the bound access-list.</td></tr>
+<tr class='sev-Low'><td><span class='pill Low'>Low</span></td><td><b>ACL-IMPLICIT-DENY-LOG</b></td><td>access</td><td>Cisco hardening guide</td><td>line 87: <code>access-group inside_in in interface inside</code></td><td>Append an explicit &quot;deny ip any any log&quot; to the bound access-list.</td></tr>
+<tr class='sev-Low'><td><span class='pill Low'>Low</span></td><td><b>ACL-IMPLICIT-DENY-LOG</b></td><td>access</td><td>Cisco hardening guide</td><td>line 88: <code>access-group dmz_in in interface dmz</code></td><td>Append an explicit &quot;deny ip any any log&quot; to the bound access-list.</td></tr>
+<tr class='sev-Low'><td><span class='pill Low'>Low</span></td><td><b>AUTH-BANNER</b></td><td>auth</td><td>CIS 1.5.3</td><td><i>setting absent</i></td><td>Configure a banner login with the organization-approved notice text.</td></tr>
+<tr class='sev-Low'><td><span class='pill Low'>Low</span></td><td><b>AUTH-BANNER-MOTD</b></td><td>auth</td><td>CIS 1.5.1</td><td><i>setting absent</i></td><td>Configure a banner motd with the organization-approved text.</td></tr>
+<tr class='sev-Low'><td><span class='pill Low'>Low</span></td><td><b>AUTH-CMD-ACCT</b></td><td>auth</td><td>CIS 1.4.5.1</td><td><i>setting absent</i></td><td>Configure aaa accounting command &lt;server-group&gt;.</td></tr>
+<tr class='sev-Low'><td><span class='pill Low'>Low</span></td><td><b>AUTH-PW-LIFETIME</b></td><td>auth</td><td>CIS 1.1.5</td><td><i>setting absent</i></td><td>Configure password-policy lifetime (e.g., 90 days, per policy).</td></tr>
+<tr class='sev-Low'><td><span class='pill Low'>Low</span></td><td><b>DNS-LOOKUP</b></td><td>logging</td><td>CIS 3.1</td><td><i>setting absent</i></td><td>Configure a dns server-group with one or more name-server entries.</td></tr>
+<tr class='sev-Low'><td><span class='pill Low'>Low</span></td><td><b>IF-SCANNING-THREAT</b></td><td>access</td><td>STIG V-239864</td><td><i>setting absent</i></td><td>Configure threat-detection scanning-threat (optionally with shun).</td></tr>
+<tr class='sev-Low'><td><span class='pill Low'>Low</span></td><td><b>IF-THREAT-STATS</b></td><td>access</td><td>CIS 3.6</td><td><i>setting absent</i></td><td>Configure threat-detection statistics (e.g., tcp-intercept).</td></tr>
+<tr class='sev-Low'><td><span class='pill Low'>Low</span></td><td><b>LOG-BUFFER-SIZE</b></td><td>logging</td><td>CIS 1.10.9</td><td>line 114: <code>logging buffered debugging</code></td><td>Set logging buffer-size to 524288 (512 KB) or larger.</td></tr>
+<tr class='sev-Low'><td><span class='pill Low'>Low</span></td><td><b>LOG-TIMESTAMP</b></td><td>logging</td><td>CIS 1.10 (timestamps)</td><td><i>setting absent</i></td><td>Configure logging timestamp.</td></tr>
+<tr class='sev-Informational'><td><span class='pill Informational'>Informational</span></td><td><b>HYGIENE-UNUSED-ACL</b></td><td>hygiene</td><td>tool heuristic</td><td>line 84: <code>access-list unused_acl extended permit udp any any eq domain</code></td><td>Review and remove the unused access-list if it is genuinely not needed.</td></tr>
+<tr class='sev-Informational'><td><span class='pill Informational'>Informational</span></td><td><b>HYGIENE-UNUSED-OBJECT</b></td><td>hygiene</td><td>tool heuristic</td><td>line 54: <code>object network partner-fqdn</code></td><td>Review and remove the unused object or object-group if it is genuinely not needed.</td></tr>
+<tr class='sev-Informational'><td><span class='pill Informational'>Informational</span></td><td><b>HYGIENE-UNUSED-OBJECT</b></td><td>hygiene</td><td>tool heuristic</td><td>line 65: <code>object-group network nested-admins</code></td><td>Review and remove the unused object or object-group if it is genuinely not needed.</td></tr>
+<tr class='sev-Informational'><td><span class='pill Informational'>Informational</span></td><td><b>HYGIENE-UNUSED-OBJECT</b></td><td>hygiene</td><td>tool heuristic</td><td>line 72: <code>object-group service legacy-ports tcp</code></td><td>Review and remove the unused object or object-group if it is genuinely not needed.</td></tr>
+<tr class='sev-Informational'><td><span class='pill Informational'>Informational</span></td><td><b>HYGIENE-UNUSED-OBJECT</b></td><td>hygiene</td><td>tool heuristic</td><td>line 75: <code>object-group protocol routing-protos</code></td><td>Review and remove the unused object or object-group if it is genuinely not needed.</td></tr>
+</table>
+<h2>Network segmentation and data flow</h2>
+<div class='note'>Best-effort, offline stop-gap. Shows <b>configured/allowed flows per the ruleset</b>, not end-to-end reachability (NAT, routing, and rule shadowing are not modeled). Addresses not within a configured interface subnet are shown as the <b>external</b> zone.</div>
+<div class='legend'><span><span class='sw' style='background:#b00000'></span>permit ip any any (high risk)</span><span><span class='sw' style='background:#888'></span>scoped permit</span><span><span class='sw' style='background:#fde2e2;border-color:#b00000'></span>untrusted zone</span></div>
+<div class='note'>A zone with a <b>permit ip any any</b> that reaches every other zone is shown with an <b>ANY/ANY to ALL ZONES</b> badge instead of one arrow per destination (de-cluttered by default). The matrix and risk list below remain exhaustive; re-run with <code>-ExpandAnyAny</code> to draw every individual flow.</div>
+<div><svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1056 234' width='1056' height='234' font-family='Segoe UI,Arial,sans-serif'>
+<defs><marker id='ah' markerWidth='9' markerHeight='9' refX='8' refY='3' orient='auto'><path d='M0,0 L9,3 L0,6 Z' fill='#666'/></marker><marker id='ahr' markerWidth='10' markerHeight='10' refX='8' refY='3' orient='auto'><path d='M0,0 L9,3 L0,6 Z' fill='#b00000'/></marker></defs>
+<text x='101' y='14' text-anchor='middle' font-size='12' font-weight='700' fill='#444'>Untrusted</text>
+<text x='361' y='14' text-anchor='middle' font-size='12' font-weight='700' fill='#444'>DMZ</text>
+<text x='621' y='14' text-anchor='middle' font-size='12' font-weight='700' fill='#444'>Trusted</text>
+<text x='881' y='14' text-anchor='middle' font-size='12' font-weight='700' fill='#444'>External</text>
+<rect x='16' y='40' width='170' height='64' rx='6' fill='#fde2e2' stroke='#b00000' stroke-width='1.5'/>
+<text x='101' y='62' text-anchor='middle' font-size='13' font-weight='700' fill='#1a1a1a'>outside</text>
+<text x='101' y='79' text-anchor='middle' font-size='11' fill='#444'>sl 0</text>
+<text x='101' y='95' text-anchor='middle' font-size='10' fill='#666'>203.0.113.0/24</text>
+<rect x='43' y='95' width='116' height='16' rx='8' fill='#b00000'/>
+<text x='101' y='107' text-anchor='middle' font-size='10' font-weight='700' fill='#ffffff'>ANY/ANY to ALL ZONES</text>
+<rect x='276' y='40' width='170' height='64' rx='6' fill='#eef5ff' stroke='#5b78a8' stroke-width='1.5'/>
+<text x='361' y='62' text-anchor='middle' font-size='13' font-weight='700' fill='#1a1a1a'>dmz</text>
+<text x='361' y='79' text-anchor='middle' font-size='11' fill='#444'>sl 50</text>
+<text x='361' y='95' text-anchor='middle' font-size='10' fill='#666'>10.10.30.0/24</text>
+<rect x='536' y='40' width='170' height='64' rx='6' fill='#eef5ff' stroke='#5b78a8' stroke-width='1.5'/>
+<text x='621' y='62' text-anchor='middle' font-size='13' font-weight='700' fill='#1a1a1a'>inside</text>
+<text x='621' y='79' text-anchor='middle' font-size='11' fill='#444'>sl 100</text>
+<text x='621' y='95' text-anchor='middle' font-size='10' fill='#666'>10.10.20.0/24</text>
+<rect x='563' y='95' width='116' height='16' rx='8' fill='#b00000'/>
+<text x='621' y='107' text-anchor='middle' font-size='10' font-weight='700' fill='#ffffff'>ANY/ANY to ALL ZONES</text>
+<rect x='536' y='132' width='170' height='64' rx='6' fill='#eef5ff' stroke='#5b78a8' stroke-width='1.5'/>
+<text x='621' y='154' text-anchor='middle' font-size='13' font-weight='700' fill='#1a1a1a'>mgmt</text>
+<text x='621' y='171' text-anchor='middle' font-size='11' fill='#444'>sl 100</text>
+<text x='621' y='187' text-anchor='middle' font-size='10' fill='#666'>192.168.1.0/24</text>
+<rect x='796' y='40' width='170' height='64' rx='6' fill='#eeeeee' stroke='#5b78a8' stroke-width='1.5'/>
+<text x='881' y='62' text-anchor='middle' font-size='13' font-weight='700' fill='#1a1a1a'>external</text>
+<text x='881' y='79' text-anchor='middle' font-size='11' fill='#444'>unmapped / off-box</text>
+</svg>
+</div>
+<h3>Zone-to-zone connectivity matrix</h3>
+<p style='font-size:13px'>Most-permissive configured flow from each source zone (row) to each destination zone (column). Red = <b>permit ip any any</b> exposure.</p>
+<table class='matrix'><tr><th>src &rarr; dst</th><th>outside</th><th>dmz</th><th>inside</th><th>mgmt</th><th>external</th></tr>
+<tr><td>outside</td><td class='cell-ok'>-</td><td class='cell-risk'>ANY-ANY</td><td class='cell-risk'>ANY-ANY</td><td class='cell-risk'>ANY-ANY</td><td class='cell-risk'>ANY-ANY</td></tr>
+<tr><td>dmz</td><td class='cell-ok'>-</td><td class='cell-ok'>-</td><td class='cell-ok'>-</td><td class='cell-ok'>-</td><td class='cell-ok'>-</td></tr>
+<tr><td>inside</td><td class='cell-risk'>ANY-ANY</td><td class='cell-risk'>ANY-ANY</td><td class='cell-ok'>-</td><td class='cell-risk'>ANY-ANY</td><td class='cell-risk'>ANY-ANY</td></tr>
+<tr><td>mgmt</td><td class='cell-ok'>-</td><td class='cell-ok'>-</td><td class='cell-ok'>-</td><td class='cell-ok'>-</td><td class='cell-ok'>-</td></tr>
+<tr><td>external</td><td class='cell-ok'>-</td><td class='cell-ok'>-</td><td class='cell-ok'>-</td><td class='cell-ok'>-</td><td class='cell-ok'>-</td></tr>
+</table>
+<h3>Highlighted risk flows</h3>
+<ul>
+<li><b>ANY/ANY</b> inside &rarr; dmz (ACL inside_in, line 81): <code>access-list inside_in extended permit ip object-group any-net object-group any-net</code></li>
+<li><b>ANY/ANY</b> inside &rarr; external (ACL inside_in, line 81): <code>access-list inside_in extended permit ip object-group any-net object-group any-net</code></li>
+<li><b>ANY/ANY</b> inside &rarr; mgmt (ACL inside_in, line 81): <code>access-list inside_in extended permit ip object-group any-net object-group any-net</code></li>
+<li><b>ANY/ANY</b> inside &rarr; outside (ACL inside_in, line 81): <code>access-list inside_in extended permit ip object-group any-net object-group any-net</code></li>
+<li><b>ANY/ANY</b> outside &rarr; dmz (ACL outside_in, line 80): <code>access-list outside_in extended permit ip any any</code></li>
+<li><b>ANY/ANY</b> outside &rarr; external (ACL outside_in, line 80): <code>access-list outside_in extended permit ip any any</code></li>
+<li><b>ANY/ANY</b> outside &rarr; inside (ACL outside_in, line 80): <code>access-list outside_in extended permit ip any any</code></li>
+<li><b>ANY/ANY</b> outside &rarr; mgmt (ACL outside_in, line 80): <code>access-list outside_in extended permit ip any any</code></li>
+</ul>
+<h2>Findings detail</h2>
+<div class='detail'>
+<h4><span class='pill High'>High</span> ACL-ANY-ANY</h4>
+<div style='font-size:12px;color:#555'>Category: access | Authority: Cisco hardening guide (verified: False) | Confidence: heuristic</div>
+<div style='font-size:13px;margin-top:4px'>Evidence:</div><ul>
+<li>line 80: <code>access-list outside_in extended permit ip any any</code></li>
+<li>line 81: <code>access-list inside_in extended permit ip object-group any-net object-group any-net</code></li>
+</ul>
+<div style='font-size:13px'><b>Rationale:</b> A permit ip any any rule allows unrestricted traffic; it may be overly broad.</div>
+<div style='font-size:13px'><b>Remediation:</b> Review each permit ip any any rule and scope it to required sources, destinations, and services.</div>
+</div>
+<div class='detail'>
+<h4><span class='pill High'>High</span> AUTH-AAA-SSH</h4>
+<div style='font-size:12px;color:#555'>Category: auth | Authority: CIS 1.4.3.5; STIG V-239940 (verified: True) | Confidence: deterministic</div>
+<div style='font-size:13px;margin-top:4px'>Evidence: <i>setting absent</i></div>
+<div style='font-size:13px'><b>Rationale:</b> Without AAA on the SSH console, administrative access is not centrally authenticated or accounted.</div>
+<div style='font-size:13px'><b>Remediation:</b> Configure aaa authentication ssh console &lt;server-group&gt; LOCAL.</div>
+</div>
+<div class='detail'>
+<h4><span class='pill High'>High</span> CRYPTO-SSL-TLS</h4>
+<div style='font-size:12px;color:#555'>Category: crypto | Authority: CIS 1.7.2; STIG V-239975 (verified: False) | Confidence: deterministic</div>
+<div style='font-size:13px;margin-top:4px'>Evidence:</div><ul>
+<li>line 128: <code>ssl server-version tlsv1</code></li>
+</ul>
+<div style='font-size:13px'><b>Rationale:</b> SSL/TLS below TLS 1.2 (SSLv3, TLS 1.0/1.1) is deprecated and vulnerable.</div>
+<div style='font-size:13px'><b>Remediation:</b> Set ssl server-version tlsv1.2 (or higher) for WebVPN/management TLS.</div>
+</div>
+<div class='detail'>
+<h4><span class='pill High'>High</span> CRYPTO-WEAK-VPN</h4>
+<div style='font-size:12px;color:#555'>Category: crypto | Authority: STIG V-239952/957/979 (verified: False) | Confidence: deterministic</div>
+<div style='font-size:13px;margin-top:4px'>Evidence:</div><ul>
+<li>line 116: <code>crypto ipsec ikev1 transform-set legacy-ts esp-3des esp-md5-hmac</code></li>
+<li>line 117: <code>crypto ikev1 policy 10</code></li>
+<li>line 119: <code>encryption 3des</code></li>
+<li>line 120: <code>hash md5</code></li>
+<li>line 121: <code>group 2</code></li>
+<li>line 127: <code>crypto ikev1 enable outside</code></li>
+</ul>
+<div style='font-size:13px'><b>Rationale:</b> Deprecated IKE/IPsec crypto (DES/3DES, MD5, DH groups 1/2/5, IKEv1) is cryptographically weak.</div>
+<div style='font-size:13px'><b>Remediation:</b> Migrate to IKEv2 with AES-256, SHA-2 integrity, and DH group 16 or higher.</div>
+</div>
+<div class='detail'>
+<h4><span class='pill High'>High</span> LOG-HOST</h4>
+<div style='font-size:12px;color:#555'>Category: logging | Authority: CIS 1.10.3; STIG V-239943 (verified: True) | Confidence: deterministic</div>
+<div style='font-size:13px;margin-top:4px'>Evidence: <i>setting absent</i></div>
+<div style='font-size:13px'><b>Rationale:</b> Without an external syslog host, logs are lost on reload and unavailable for correlation.</div>
+<div style='font-size:13px'><b>Remediation:</b> Configure one or more logging host destinations (STIG requires two).</div>
+</div>
+<div class='detail'>
+<h4><span class='pill High'>High</span> MGMT-CONSOLE-TIMEOUT</h4>
+<div style='font-size:12px;color:#555'>Category: management | Authority: CIS 1.8.1; STIG V-239920 (verified: False) | Confidence: deterministic</div>
+<div style='font-size:13px;margin-top:4px'>Evidence:</div><ul>
+<li>line 107: <code>console timeout 0</code></li>
+</ul>
+<div style='font-size:13px'><b>Rationale:</b> A console timeout of 0 (the default) or greater than 5 minutes leaves idle privileged sessions open.</div>
+<div style='font-size:13px'><b>Remediation:</b> Set console timeout to a value between 1 and 5 minutes.</div>
+</div>
+<div class='detail'>
+<h4><span class='pill High'>High</span> MGMT-HTTP-TIMEOUT</h4>
+<div style='font-size:12px;color:#555'>Category: management | Authority: CIS 1.8.3; STIG V-239920 (verified: False) | Confidence: deterministic</div>
+<div style='font-size:13px;margin-top:4px'>Evidence:</div><ul>
+<li>line 101: <code>http server enable</code></li>
+</ul>
+<div style='font-size:13px'><b>Rationale:</b> With the HTTP/ASDM server enabled, a missing or &gt;5-minute idle-timeout leaves idle admin sessions open.</div>
+<div style='font-size:13px'><b>Remediation:</b> Set http server idle-timeout to 5 minutes or less (or disable the http server if unused).</div>
+</div>
+<div class='detail'>
+<h4><span class='pill High'>High</span> MGMT-SSH-OUTSIDE</h4>
+<div style='font-size:12px;color:#555'>Category: management | Authority: CIS 1.6.1 (narrative) (verified: False) | Confidence: deterministic</div>
+<div style='font-size:13px;margin-top:4px'>Evidence:</div><ul>
+<li>line 105: <code>ssh 0.0.0.0 0.0.0.0 outside</code></li>
+</ul>
+<div style='font-size:13px'><b>Rationale:</b> SSH management permitted on the outside (untrusted) interface exposes the control plane to the Internet.</div>
+<div style='font-size:13px'><b>Remediation:</b> Remove ssh access on the outside interface; restrict SSH to an internal management interface.</div>
+</div>
+<div class='detail'>
+<h4><span class='pill High'>High</span> MGMT-SSH-TIMEOUT</h4>
+<div style='font-size:12px;color:#555'>Category: management | Authority: CIS 1.8.2; STIG V-239920 (verified: False) | Confidence: deterministic</div>
+<div style='font-size:13px;margin-top:4px'>Evidence:</div><ul>
+<li>line 106: <code>ssh timeout 30</code></li>
+</ul>
+<div style='font-size:13px'><b>Rationale:</b> An SSH idle timeout greater than 5 minutes leaves idle management sessions open.</div>
+<div style='font-size:13px'><b>Remediation:</b> Set ssh timeout to 5 minutes or less.</div>
+</div>
+<div class='detail'>
+<h4><span class='pill High'>High</span> MGMT-SSH-VERSION</h4>
+<div style='font-size:12px;color:#555'>Category: management | Authority: CIS 1.6.2 (verified: True) | Confidence: deterministic</div>
+<div style='font-size:13px;margin-top:4px'>Evidence: <i>setting absent</i></div>
+<div style='font-size:13px'><b>Rationale:</b> Without pinning SSH version 2 (pre-9.16), weaker SSHv1 negotiation is not excluded.</div>
+<div style='font-size:13px'><b>Remediation:</b> Configure: ssh version 2 (not applicable on ASA 9.16+, which is SSHv2-only).</div>
+</div>
+<div class='detail'>
+<h4><span class='pill High'>High</span> MGMT-TELNET</h4>
+<div style='font-size:12px;color:#555'>Category: management | Authority: CIS 1.6.5; STIG V-239911 (verified: False) | Confidence: deterministic</div>
+<div style='font-size:13px;margin-top:4px'>Evidence:</div><ul>
+<li>line 103: <code>telnet 10.10.20.0 255.255.255.0 inside</code></li>
+</ul>
+<div style='font-size:13px'><b>Rationale:</b> Telnet transmits management traffic, including credentials, in cleartext.</div>
+<div style='font-size:13px'><b>Remediation:</b> Remove all telnet access lines and use SSHv2 for management.</div>
+</div>
+<div class='detail'>
+<h4><span class='pill Medium'>Medium</span> AUTH-AAA-SERIAL</h4>
+<div style='font-size:12px;color:#555'>Category: auth | Authority: CIS 1.4.3.4; STIG V-239940 (verified: True) | Confidence: deterministic</div>
+<div style='font-size:13px;margin-top:4px'>Evidence: <i>setting absent</i></div>
+<div style='font-size:13px'><b>Rationale:</b> Without AAA on the serial console, console access is not centrally authenticated.</div>
+<div style='font-size:13px'><b>Remediation:</b> Configure aaa authentication serial console &lt;server-group&gt; LOCAL.</div>
+</div>
+<div class='detail'>
+<h4><span class='pill Medium'>Medium</span> AUTH-CMD-AUTHZ</h4>
+<div style='font-size:12px;color:#555'>Category: auth | Authority: CIS 1.4.4.1 (verified: False) | Confidence: deterministic</div>
+<div style='font-size:13px;margin-top:4px'>Evidence: <i>setting absent</i></div>
+<div style='font-size:13px'><b>Rationale:</b> Without command authorization, administrators are not restricted to permitted commands.</div>
+<div style='font-size:13px'><b>Remediation:</b> Configure aaa authorization command &lt;server-group&gt; LOCAL.</div>
+</div>
+<div class='detail'>
+<h4><span class='pill Medium'>Medium</span> AUTH-PW-COMPLEXITY</h4>
+<div style='font-size:12px;color:#555'>Category: auth | Authority: CIS 1.1.5; STIG V-239915/916/917/918 (verified: False) | Confidence: deterministic</div>
+<div style='font-size:13px;margin-top:4px'>Evidence: <i>setting absent</i></div>
+<div style='font-size:13px'><b>Rationale:</b> The password policy is missing one or more complexity requirements (uppercase/lowercase/numeric/special).</div>
+<div style='font-size:13px'><b>Remediation:</b> Configure password-policy minimum-uppercase/lowercase/numeric/special (&gt;= 1 each).</div>
+</div>
+<div class='detail'>
+<h4><span class='pill Medium'>Medium</span> AUTH-PW-LOCKOUT</h4>
+<div style='font-size:12px;color:#555'>Category: auth | Authority: CIS 1.4.1.1 (verified: False) | Confidence: deterministic</div>
+<div style='font-size:13px;margin-top:4px'>Evidence: <i>setting absent</i></div>
+<div style='font-size:13px'><b>Rationale:</b> No local lockout policy allows unlimited password-guessing against local accounts.</div>
+<div style='font-size:13px'><b>Remediation:</b> Configure aaa local authentication attempts max-fail 3 (or per policy).</div>
+</div>
+<div class='detail'>
+<h4><span class='pill Medium'>Medium</span> AUTH-PWPOLICY</h4>
+<div style='font-size:12px;color:#555'>Category: auth | Authority: CIS 1.1.5; STIG V-239914 (verified: True) | Confidence: deterministic</div>
+<div style='font-size:13px;margin-top:4px'>Evidence: <i>setting absent</i></div>
+<div style='font-size:13px'><b>Rationale:</b> No password policy is enforced by default; local account passwords may be weak.</div>
+<div style='font-size:13px'><b>Remediation:</b> Configure password-policy minimum-length and complexity (uppercase/lowercase/numeric/special).</div>
+</div>
+<div class='detail'>
+<h4><span class='pill Medium'>Medium</span> AUTH-PWRECOVERY</h4>
+<div style='font-size:12px;color:#555'>Category: auth | Authority: CIS 1.1.4 (verified: True) | Confidence: deterministic</div>
+<div style='font-size:13px;margin-top:4px'>Evidence: <i>setting absent</i></div>
+<div style='font-size:13px'><b>Rationale:</b> Password recovery is enabled by default, allowing credential reset via console access.</div>
+<div style='font-size:13px'><b>Remediation:</b> Configure: no service password-recovery (ensure documented break-glass procedures).</div>
+</div>
+<div class='detail'>
+<h4><span class='pill Medium'>Medium</span> CRYPTO-PFS</h4>
+<div style='font-size:12px;color:#555'>Category: crypto | Authority: STIG V-239954 (verified: False) | Confidence: heuristic</div>
+<div style='font-size:13px;margin-top:4px'>Evidence:</div><ul>
+<li>line 123: <code>crypto map outside_map 10 match address split_tunnel</code></li>
+</ul>
+<div style='font-size:13px'><b>Rationale:</b> A crypto map without Perfect Forward Secrecy (set pfs) weakens the protection of session keys.</div>
+<div style='font-size:13px'><b>Remediation:</b> Configure set pfs (group 14 or higher) on the crypto map.</div>
+</div>
+<div class='detail'>
+<h4><span class='pill Medium'>Medium</span> CRYPTO-SSL-CIPHER</h4>
+<div style='font-size:12px;color:#555'>Category: crypto | Authority: CIS 1.7.3 (verified: False) | Confidence: deterministic</div>
+<div style='font-size:13px;margin-top:4px'>Evidence:</div><ul>
+<li>line 129: <code>ssl encryption rc4-sha1 aes128-sha1</code></li>
+</ul>
+<div style='font-size:13px'><b>Rationale:</b> Weak SSL/TLS ciphers (RC4, DES/3DES, NULL, or a low/medium cipher level) are configured for management/WebVPN TLS.</div>
+<div style='font-size:13px'><b>Remediation:</b> Set ssl cipher to a high/strong cipher set (e.g., ssl cipher tlsv1.2 high).</div>
+</div>
+<div class='detail'>
+<h4><span class='pill Medium'>Medium</span> ICMP-TO-DEVICE</h4>
+<div style='font-size:12px;color:#555'>Category: access | Authority: CIS 2.5; Cisco hardening guide (verified: False) | Confidence: heuristic</div>
+<div style='font-size:13px;margin-top:4px'>Evidence: <i>setting absent</i></div>
+<div style='font-size:13px'><b>Rationale:</b> No ICMP control (icmp permit/deny) is configured, so ICMP to the device interfaces is allowed.</div>
+<div style='font-size:13px'><b>Remediation:</b> Restrict ICMP to the device with icmp deny/permit statements (e.g., icmp deny any outside).</div>
+</div>
+<div class='detail'>
+<h4><span class='pill Medium'>Medium</span> IF-URPF</h4>
+<div style='font-size:12px;color:#555'>Category: access | Authority: CIS 3.7; Cisco hardening guide (verified: False) | Confidence: heuristic</div>
+<div style='font-size:13px;margin-top:4px'>Evidence: <i>setting absent</i></div>
+<div style='font-size:13px'><b>Rationale:</b> Without uRPF (ip verify reverse-path), the device does not drop spoofed source addresses.</div>
+<div style='font-size:13px'><b>Remediation:</b> Enable ip verify reverse-path interface &lt;untrusted-interface&gt;.</div>
+</div>
+<div class='detail'>
+<h4><span class='pill Medium'>Medium</span> LOG-ENABLE</h4>
+<div style='font-size:12px;color:#555'>Category: logging | Authority: CIS 1.10.1 (verified: True) | Confidence: deterministic</div>
+<div style='font-size:13px;margin-top:4px'>Evidence: <i>setting absent</i></div>
+<div style='font-size:13px'><b>Rationale:</b> Syslog logging is disabled by default; without it there is no audit trail.</div>
+<div style='font-size:13px'><b>Remediation:</b> Configure: logging enable.</div>
+</div>
+<div class='detail'>
+<h4><span class='pill Medium'>Medium</span> LOG-TRAP</h4>
+<div style='font-size:12px;color:#555'>Category: logging | Authority: CIS 1.10 (trap level) (verified: False) | Confidence: deterministic</div>
+<div style='font-size:13px;margin-top:4px'>Evidence: <i>setting absent</i></div>
+<div style='font-size:13px'><b>Rationale:</b> Without a logging trap level set, syslog severity sent to hosts is not controlled.</div>
+<div style='font-size:13px'><b>Remediation:</b> Configure logging trap (e.g., notifications or informational).</div>
+</div>
+<div class='detail'>
+<h4><span class='pill Medium'>Medium</span> MGMT-ANY-SOURCE</h4>
+<div style='font-size:12px;color:#555'>Category: management | Authority: CIS 1.6.1; CIS 1.7.1 (verified: False) | Confidence: deterministic</div>
+<div style='font-size:13px;margin-top:4px'>Evidence:</div><ul>
+<li>line 102: <code>http 0.0.0.0 0.0.0.0 outside</code></li>
+<li>line 105: <code>ssh 0.0.0.0 0.0.0.0 outside</code></li>
+</ul>
+<div style='font-size:13px'><b>Rationale:</b> Management access permitted from any source (0.0.0.0/0) exposes the control plane broadly.</div>
+<div style='font-size:13px'><b>Remediation:</b> Restrict ssh/http access lines to specific management subnets on an internal interface.</div>
+</div>
+<div class='detail'>
+<h4><span class='pill Medium'>Medium</span> NTP-AUTH</h4>
+<div style='font-size:12px;color:#555'>Category: logging | Authority: CIS 1.9.1.1; STIG V-239929 (verified: True) | Confidence: context-sensitive</div>
+<div style='font-size:13px;margin-top:4px'>Evidence:</div><ul>
+<li>line 112: <code>ntp server 10.10.20.7</code></li>
+<li>line 113: <code>ntp server 203.0.113.53</code></li>
+</ul>
+<div style='font-size:13px'><b>Rationale:</b> NTP without authentication can be spoofed, skewing time and undermining logs and certificates.</div>
+<div style='font-size:13px'><b>Remediation:</b> Enable ntp authenticate with an authentication-key and trusted-key for each ntp server.</div>
+</div>
+<div class='detail'>
+<h4><span class='pill Medium'>Medium</span> SNMP-COMMUNITY</h4>
+<div style='font-size:12px;color:#555'>Category: logging | Authority: CIS 1.11.1; STIG V-239928 (verified: False) | Confidence: deterministic</div>
+<div style='font-size:13px;margin-top:4px'>Evidence:</div><ul>
+<li>line 108: <code>snmp-server host inside 10.10.20.50 community [REDACTED] version 2c</code></li>
+<li>line 109: <code>snmp-server community [REDACTED]</code></li>
+</ul>
+<div style='font-size:13px'><b>Rationale:</b> SNMP v1/v2c community strings are cleartext, reusable credentials.</div>
+<div style='font-size:13px'><b>Remediation:</b> Replace SNMP v1/v2c communities with SNMPv3 using auth (SHA) and priv (AES).</div>
+</div>
+<div class='detail'>
+<h4><span class='pill Medium'>Medium</span> VERSION-EOL</h4>
+<div style='font-size:12px;color:#555'>Category: management | Authority: STIG V-239944; Cisco EoL notices (verified: False) | Confidence: heuristic</div>
+<div style='font-size:13px;margin-top:4px'>Evidence:</div><ul>
+<li>line 6: <code>ASA Version 9.8(4)</code></li>
+</ul>
+<div style='font-size:13px'><b>Rationale:</b> The ASA software train is end-of-life per the bundled reference; EoL software receives no security fixes.</div>
+<div style='font-size:13px'><b>Remediation:</b> Upgrade to a currently-supported ASA release; verify against Cisco EoL notices (refresh the reference with Update-AsaEolData.ps1).</div>
+</div>
+<div class='detail'>
+<h4><span class='pill Low'>Low</span> ACL-IMPLICIT-DENY-LOG</h4>
+<div style='font-size:12px;color:#555'>Category: access | Authority: Cisco hardening guide (verified: False) | Confidence: heuristic</div>
+<div style='font-size:13px;margin-top:4px'>Evidence:</div><ul>
+<li>line 86: <code>access-group outside_in in interface outside</code></li>
+</ul>
+<div style='font-size:13px'><b>Rationale:</b> An interface-bound ACL has no explicit &quot;deny ip any any log&quot;; traffic dropped by the implicit deny is not logged.</div>
+<div style='font-size:13px'><b>Remediation:</b> Append an explicit &quot;deny ip any any log&quot; to the bound access-list.</div>
+</div>
+<div class='detail'>
+<h4><span class='pill Low'>Low</span> ACL-IMPLICIT-DENY-LOG</h4>
+<div style='font-size:12px;color:#555'>Category: access | Authority: Cisco hardening guide (verified: False) | Confidence: heuristic</div>
+<div style='font-size:13px;margin-top:4px'>Evidence:</div><ul>
+<li>line 87: <code>access-group inside_in in interface inside</code></li>
+</ul>
+<div style='font-size:13px'><b>Rationale:</b> An interface-bound ACL has no explicit &quot;deny ip any any log&quot;; traffic dropped by the implicit deny is not logged.</div>
+<div style='font-size:13px'><b>Remediation:</b> Append an explicit &quot;deny ip any any log&quot; to the bound access-list.</div>
+</div>
+<div class='detail'>
+<h4><span class='pill Low'>Low</span> ACL-IMPLICIT-DENY-LOG</h4>
+<div style='font-size:12px;color:#555'>Category: access | Authority: Cisco hardening guide (verified: False) | Confidence: heuristic</div>
+<div style='font-size:13px;margin-top:4px'>Evidence:</div><ul>
+<li>line 88: <code>access-group dmz_in in interface dmz</code></li>
+</ul>
+<div style='font-size:13px'><b>Rationale:</b> An interface-bound ACL has no explicit &quot;deny ip any any log&quot;; traffic dropped by the implicit deny is not logged.</div>
+<div style='font-size:13px'><b>Remediation:</b> Append an explicit &quot;deny ip any any log&quot; to the bound access-list.</div>
+</div>
+<div class='detail'>
+<h4><span class='pill Low'>Low</span> AUTH-BANNER</h4>
+<div style='font-size:12px;color:#555'>Category: auth | Authority: CIS 1.5.3 (verified: True) | Confidence: deterministic</div>
+<div style='font-size:13px;margin-top:4px'>Evidence: <i>setting absent</i></div>
+<div style='font-size:13px'><b>Rationale:</b> No login banner is presented; a legal/consent notice is commonly required.</div>
+<div style='font-size:13px'><b>Remediation:</b> Configure a banner login with the organization-approved notice text.</div>
+</div>
+<div class='detail'>
+<h4><span class='pill Low'>Low</span> AUTH-BANNER-MOTD</h4>
+<div style='font-size:12px;color:#555'>Category: auth | Authority: CIS 1.5.1 (verified: False) | Confidence: deterministic</div>
+<div style='font-size:13px;margin-top:4px'>Evidence: <i>setting absent</i></div>
+<div style='font-size:13px'><b>Rationale:</b> No message-of-the-day banner is configured.</div>
+<div style='font-size:13px'><b>Remediation:</b> Configure a banner motd with the organization-approved text.</div>
+</div>
+<div class='detail'>
+<h4><span class='pill Low'>Low</span> AUTH-CMD-ACCT</h4>
+<div style='font-size:12px;color:#555'>Category: auth | Authority: CIS 1.4.5.1 (verified: False) | Confidence: deterministic</div>
+<div style='font-size:13px;margin-top:4px'>Evidence: <i>setting absent</i></div>
+<div style='font-size:13px'><b>Rationale:</b> Without command accounting, administrative actions are not audited.</div>
+<div style='font-size:13px'><b>Remediation:</b> Configure aaa accounting command &lt;server-group&gt;.</div>
+</div>
+<div class='detail'>
+<h4><span class='pill Low'>Low</span> AUTH-PW-LIFETIME</h4>
+<div style='font-size:12px;color:#555'>Category: auth | Authority: CIS 1.1.5 (verified: False) | Confidence: deterministic</div>
+<div style='font-size:13px;margin-top:4px'>Evidence: <i>setting absent</i></div>
+<div style='font-size:13px'><b>Rationale:</b> No password lifetime is enforced; local-account passwords never expire.</div>
+<div style='font-size:13px'><b>Remediation:</b> Configure password-policy lifetime (e.g., 90 days, per policy).</div>
+</div>
+<div class='detail'>
+<h4><span class='pill Low'>Low</span> DNS-LOOKUP</h4>
+<div style='font-size:12px;color:#555'>Category: logging | Authority: CIS 3.1 (verified: False) | Confidence: heuristic</div>
+<div style='font-size:13px;margin-top:4px'>Evidence: <i>setting absent</i></div>
+<div style='font-size:13px'><b>Rationale:</b> No DNS name-server is configured; the device cannot resolve FQDN objects, NTP names, or validate certificates by name.</div>
+<div style='font-size:13px'><b>Remediation:</b> Configure a dns server-group with one or more name-server entries.</div>
+</div>
+<div class='detail'>
+<h4><span class='pill Low'>Low</span> IF-SCANNING-THREAT</h4>
+<div style='font-size:12px;color:#555'>Category: access | Authority: STIG V-239864 (verified: False) | Confidence: deterministic</div>
+<div style='font-size:13px;margin-top:4px'>Evidence: <i>setting absent</i></div>
+<div style='font-size:13px'><b>Rationale:</b> Scanning threat detection is not enabled; host/port scans against the device are not detected.</div>
+<div style='font-size:13px'><b>Remediation:</b> Configure threat-detection scanning-threat (optionally with shun).</div>
+</div>
+<div class='detail'>
+<h4><span class='pill Low'>Low</span> IF-THREAT-STATS</h4>
+<div style='font-size:12px;color:#555'>Category: access | Authority: CIS 3.6 (verified: False) | Confidence: deterministic</div>
+<div style='font-size:13px;margin-top:4px'>Evidence: <i>setting absent</i></div>
+<div style='font-size:13px'><b>Rationale:</b> Threat-detection statistics are not collected, reducing visibility into attack patterns.</div>
+<div style='font-size:13px'><b>Remediation:</b> Configure threat-detection statistics (e.g., tcp-intercept).</div>
+</div>
+<div class='detail'>
+<h4><span class='pill Low'>Low</span> LOG-BUFFER-SIZE</h4>
+<div style='font-size:12px;color:#555'>Category: logging | Authority: CIS 1.10.9 (verified: False) | Confidence: deterministic</div>
+<div style='font-size:13px;margin-top:4px'>Evidence:</div><ul>
+<li>line 114: <code>logging buffered debugging</code></li>
+</ul>
+<div style='font-size:13px'><b>Rationale:</b> Buffered logging is enabled with a small (or default 4 KB) buffer; CIS recommends at least 512 KB.</div>
+<div style='font-size:13px'><b>Remediation:</b> Set logging buffer-size to 524288 (512 KB) or larger.</div>
+</div>
+<div class='detail'>
+<h4><span class='pill Low'>Low</span> LOG-TIMESTAMP</h4>
+<div style='font-size:12px;color:#555'>Category: logging | Authority: CIS 1.10 (timestamps) (verified: False) | Confidence: deterministic</div>
+<div style='font-size:13px;margin-top:4px'>Evidence: <i>setting absent</i></div>
+<div style='font-size:13px'><b>Rationale:</b> Without logging timestamps, syslog correlation and incident timelines are unreliable.</div>
+<div style='font-size:13px'><b>Remediation:</b> Configure logging timestamp.</div>
+</div>
+<div class='detail'>
+<h4><span class='pill Informational'>Informational</span> HYGIENE-UNUSED-ACL</h4>
+<div style='font-size:12px;color:#555'>Category: hygiene | Authority: tool heuristic (verified: False) | Confidence: heuristic</div>
+<div style='font-size:13px;margin-top:4px'>Evidence:</div><ul>
+<li>line 84: <code>access-list unused_acl extended permit udp any any eq domain</code></li>
+</ul>
+<div style='font-size:13px'><b>Rationale:</b> An access-list defined but not referenced anywhere (access-group, crypto map, NAT, VPN filter) is dead configuration.</div>
+<div style='font-size:13px'><b>Remediation:</b> Review and remove the unused access-list if it is genuinely not needed.</div>
+</div>
+<div class='detail'>
+<h4><span class='pill Informational'>Informational</span> HYGIENE-UNUSED-OBJECT</h4>
+<div style='font-size:12px;color:#555'>Category: hygiene | Authority: tool heuristic (verified: False) | Confidence: heuristic</div>
+<div style='font-size:13px;margin-top:4px'>Evidence:</div><ul>
+<li>line 54: <code>object network partner-fqdn</code></li>
+</ul>
+<div style='font-size:13px'><b>Rationale:</b> An object or object-group defined but never referenced is dead configuration.</div>
+<div style='font-size:13px'><b>Remediation:</b> Review and remove the unused object or object-group if it is genuinely not needed.</div>
+</div>
+<div class='detail'>
+<h4><span class='pill Informational'>Informational</span> HYGIENE-UNUSED-OBJECT</h4>
+<div style='font-size:12px;color:#555'>Category: hygiene | Authority: tool heuristic (verified: False) | Confidence: heuristic</div>
+<div style='font-size:13px;margin-top:4px'>Evidence:</div><ul>
+<li>line 65: <code>object-group network nested-admins</code></li>
+</ul>
+<div style='font-size:13px'><b>Rationale:</b> An object or object-group defined but never referenced is dead configuration.</div>
+<div style='font-size:13px'><b>Remediation:</b> Review and remove the unused object or object-group if it is genuinely not needed.</div>
+</div>
+<div class='detail'>
+<h4><span class='pill Informational'>Informational</span> HYGIENE-UNUSED-OBJECT</h4>
+<div style='font-size:12px;color:#555'>Category: hygiene | Authority: tool heuristic (verified: False) | Confidence: heuristic</div>
+<div style='font-size:13px;margin-top:4px'>Evidence:</div><ul>
+<li>line 72: <code>object-group service legacy-ports tcp</code></li>
+</ul>
+<div style='font-size:13px'><b>Rationale:</b> An object or object-group defined but never referenced is dead configuration.</div>
+<div style='font-size:13px'><b>Remediation:</b> Review and remove the unused object or object-group if it is genuinely not needed.</div>
+</div>
+<div class='detail'>
+<h4><span class='pill Informational'>Informational</span> HYGIENE-UNUSED-OBJECT</h4>
+<div style='font-size:12px;color:#555'>Category: hygiene | Authority: tool heuristic (verified: False) | Confidence: heuristic</div>
+<div style='font-size:13px;margin-top:4px'>Evidence:</div><ul>
+<li>line 75: <code>object-group protocol routing-protos</code></li>
+</ul>
+<div style='font-size:13px'><b>Rationale:</b> An object or object-group defined but never referenced is dead configuration.</div>
+<div style='font-size:13px'><b>Remediation:</b> Review and remove the unused object or object-group if it is genuinely not needed.</div>
+</div>
+</body></html>
+
