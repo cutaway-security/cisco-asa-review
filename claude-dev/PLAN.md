@@ -179,12 +179,15 @@ consolidated, ANY/ANY highlighted, no secret leak, deterministic.
 **Status**: Not Started (planned 2026-06-24)
 
 v0.2 coverage:
-- [~] Remaining CIS/STIG catalog across all seven categories. **Slice 1 done
-      (2026-06-24):** +8 data-driven checks (MGMT-SSH-OUTSIDE, AUTH-AAA-SERIAL,
-      LOG-TIMESTAMP, LOG-TRAP, LOG-CONSOLE, AUTH-PW-LOCKOUT, IF-URPF, SNMP-V3-WEAK)
-      with `asa-5515-coverage.txt` + `Coverage.Tests.ps1` (TP on insecure/coverage,
-      TN on hardened). Catalog now 28 checks (15 MVP + 8 v0.2 + 5 hygiene). More
-      slices to come (AAA complexity, crypto PFS/integrity, mgmt timeouts, etc.).
+- [~] Remaining CIS/STIG catalog across all seven categories. **In progress:**
+      - Slice 1 (data-driven, 8): MGMT-SSH-OUTSIDE, AUTH-AAA-SERIAL, LOG-TIMESTAMP,
+        LOG-TRAP, LOG-CONSOLE, AUTH-PW-LOCKOUT, IF-URPF, SNMP-V3-WEAK.
+      - Slice 2 (numeric/conditional code, 4): MGMT-SSH-TIMEOUT, MGMT-HTTP-TIMEOUT,
+        CRYPTO-PFS, CRYPTO-SA-LIFETIME.
+      Catalog now **32 checks** (15 MVP + 12 v0.2 + 5 hygiene). `Coverage.Tests.ps1`
+      gates TP (insecure/coverage) + TN (hardened). More slices to come (AAA
+      password-complexity, IKE integrity/DH-14, mgmt session quota, threat-detection
+      scanning, etc.).
 - [ ] Deep recursive resolution (FR-05b).
 - [ ] Version/EoL lookup table (FR-15, `asa-eol.psd1`, DR-05).
 - [ ] Second independently authored fixture (TR-05).

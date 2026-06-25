@@ -79,10 +79,10 @@
   - `tests/fixtures/asa-5515-hygiene.txt` + `tests/unit/Hygiene.Tests.ps1`. Suite
     108/108 green; end-to-end + HTML render re-verified; crypto-only ACL not flagged.
 
-- **v0.2 catalog coverage Slice 1 (2026-06-24):** +8 data-driven checks
-  (MGMT-SSH-OUTSIDE, AUTH-AAA-SERIAL, LOG-TIMESTAMP, LOG-TRAP, LOG-CONSOLE,
-  AUTH-PW-LOCKOUT, IF-URPF, SNMP-V3-WEAK). `asa-5515-coverage.txt` +
-  `Coverage.Tests.ps1`. Catalog = 28 checks. Suite 113/113.
+- **v0.2 catalog coverage Slices 1-2 (2026-06-24):** Slice 1 (+8 data-driven),
+  Slice 2 (+4 numeric/conditional code: MGMT-SSH-TIMEOUT, MGMT-HTTP-TIMEOUT,
+  CRYPTO-PFS, CRYPTO-SA-LIFETIME). Catalog = **32 checks**. `asa-5515-coverage.txt`
+  + hardened http idle-timeout; `Coverage.Tests.ps1`. Suite 113/113.
 
 ## In Progress
 

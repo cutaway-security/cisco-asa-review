@@ -63,6 +63,7 @@ password-policy minimum-numeric 1
 password-policy minimum-special 1
 password-policy minimum-changes 8
 http server enable
+http server idle-timeout 5
 http 192.168.1.0 255.255.255.0 mgmt
 ssh 192.168.1.0 255.255.255.0 mgmt
 ssh version 2

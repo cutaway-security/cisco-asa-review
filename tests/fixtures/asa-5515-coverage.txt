@@ -16,4 +16,9 @@ logging host inside 10.40.0.10
 snmp-server host inside 10.40.0.20 version 3 weakuser
 snmp-server group monGrp v3 auth
 snmp-server user weakuser monGrp v3 auth md5 AuthPass priv des PrivPass
+crypto ikev2 policy 10
+ encryption aes-256
+ integrity sha384
+ group 20
+ lifetime seconds 172800
 : end

@@ -23,21 +23,24 @@ BeforeAll {
 Describe 'v0.2 coverage: true positives' {
 
     It 'flags the checks the insecure fixture should trigger' {
-        foreach ($id in 'MGMT-SSH-OUTSIDE','AUTH-AAA-SERIAL','LOG-TIMESTAMP','LOG-TRAP','AUTH-PW-LOCKOUT','IF-URPF') {
+        foreach ($id in 'MGMT-SSH-OUTSIDE','AUTH-AAA-SERIAL','LOG-TIMESTAMP','LOG-TRAP','AUTH-PW-LOCKOUT','IF-URPF',
+                        'MGMT-SSH-TIMEOUT','MGMT-HTTP-TIMEOUT','CRYPTO-PFS') {
             script:Fired $script:InFind $id | Should -BeTrue -Because "$id should fire on the insecure fixture"
         }
     }
 
-    It 'flags console logging and weak SNMPv3 on the coverage fixture' {
-        script:Fired $script:CovFind 'LOG-CONSOLE'  | Should -BeTrue
-        script:Fired $script:CovFind 'SNMP-V3-WEAK' | Should -BeTrue
+    It 'flags console logging, weak SNMPv3, and a long SA lifetime on the coverage fixture' {
+        script:Fired $script:CovFind 'LOG-CONSOLE'        | Should -BeTrue
+        script:Fired $script:CovFind 'SNMP-V3-WEAK'       | Should -BeTrue
+        script:Fired $script:CovFind 'CRYPTO-SA-LIFETIME' | Should -BeTrue
     }
 }
 
 Describe 'v0.2 coverage: true negatives on the hardened fixture' {
 
     It 'fires none of the new checks on the hardened config' {
-        foreach ($id in 'MGMT-SSH-OUTSIDE','AUTH-AAA-SERIAL','LOG-TIMESTAMP','LOG-TRAP','LOG-CONSOLE','AUTH-PW-LOCKOUT','IF-URPF','SNMP-V3-WEAK') {
+        foreach ($id in 'MGMT-SSH-OUTSIDE','AUTH-AAA-SERIAL','LOG-TIMESTAMP','LOG-TRAP','LOG-CONSOLE','AUTH-PW-LOCKOUT','IF-URPF','SNMP-V3-WEAK',
+                        'MGMT-SSH-TIMEOUT','MGMT-HTTP-TIMEOUT','CRYPTO-PFS','CRYPTO-SA-LIFETIME') {
             script:Fired $script:HdFind $id | Should -BeFalse -Because "$id must not fire on the hardened fixture"
         }
     }

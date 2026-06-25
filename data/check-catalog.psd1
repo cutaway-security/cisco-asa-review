@@ -208,6 +208,40 @@
             Remediation = 'Use SNMPv3 with SHA authentication and AES privacy.'
         }
 
+        # --- v0.2 coverage Slice 2: numeric / conditional checks ---
+        @{
+            Id = 'MGMT-SSH-TIMEOUT'; Category = 'management'; Severity = 'High'
+            Profile = @('commercial','dod'); Authority = 'CIS 1.8.2; STIG V-239920'; Verified = $false
+            Confidence = 'deterministic'; Dependency = @('raw'); Kind = 'presence'
+            Detector = @{ Type = 'code'; Function = 'Test-AsaSshTimeout' }
+            Rationale = 'An SSH idle timeout greater than 5 minutes leaves idle management sessions open.'
+            Remediation = 'Set ssh timeout to 5 minutes or less.'
+        }
+        @{
+            Id = 'MGMT-HTTP-TIMEOUT'; Category = 'management'; Severity = 'High'
+            Profile = @('commercial','dod'); Authority = 'CIS 1.8.3; STIG V-239920'; Verified = $false
+            Confidence = 'deterministic'; Dependency = @('raw'); Kind = 'presence'
+            Detector = @{ Type = 'code'; Function = 'Test-AsaHttpTimeout' }
+            Rationale = 'With the HTTP/ASDM server enabled, a missing or >5-minute idle-timeout leaves idle admin sessions open.'
+            Remediation = 'Set http server idle-timeout to 5 minutes or less (or disable the http server if unused).'
+        }
+        @{
+            Id = 'CRYPTO-PFS'; Category = 'crypto'; Severity = 'Medium'
+            Profile = @('commercial','dod'); Authority = 'STIG V-239954'; Verified = $false
+            Confidence = 'heuristic'; Dependency = @('raw'); Kind = 'presence'
+            Detector = @{ Type = 'code'; Function = 'Test-AsaCryptoPfs' }
+            Rationale = 'A crypto map without Perfect Forward Secrecy (set pfs) weakens the protection of session keys.'
+            Remediation = 'Configure set pfs (group 14 or higher) on the crypto map.'
+        }
+        @{
+            Id = 'CRYPTO-SA-LIFETIME'; Category = 'crypto'; Severity = 'Medium'
+            Profile = @('commercial','dod'); Authority = 'STIG V-239964'; Verified = $false
+            Confidence = 'deterministic'; Dependency = @('raw'); Kind = 'presence'
+            Detector = @{ Type = 'code'; Function = 'Test-AsaSaLifetime' }
+            Rationale = 'An IKE/IPsec security-association lifetime greater than 24 hours (86400s) extends key reuse.'
+            Remediation = 'Set the SA lifetime to 86400 seconds (24 hours) or less.'
+        }
+
         # --- Phase 6 / issue #1 hygiene checks (Informational) ---
         @{
             Id = 'HYGIENE-UNUSED-ACL'; Category = 'hygiene'; Severity = 'Informational'

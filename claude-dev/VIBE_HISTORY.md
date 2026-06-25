@@ -7,6 +7,16 @@ project's lifetime.
 
 ---
 
+## 2026-06-24 -- v0.2 catalog coverage, Slice 2 (gate passed)
+
+Slice 2 = 4 numeric/conditional CODE checks (the ones that can't be pure data): MGMT-SSH-TIMEOUT (ssh timeout >5), MGMT-HTTP-TIMEOUT (http server enabled AND idle-timeout missing-or->5), CRYPTO-PFS (crypto map present but no set pfs), CRYPTO-SA-LIFETIME (lifetime seconds >86400). Detectors in checks/structural.ps1; catalog Type='code'. Catalog now 32 checks.
+
+TP: ssh-timeout/http-timeout/pfs already in the insecure fixture; SA-lifetime via a new ikev2 policy (lifetime seconds 172800) appended to asa-5515-coverage.txt. TN: hardened already clean EXCEPT it lacked an http idle-timeout (the conditional HTTP check would have fired) -> appended `http server idle-timeout 5` to hardened. Both fixture appends are safe (no hardened/coverage line-number assertions). Coverage.Tests TP/TN lists extended. Hardened "zero risk findings" gate still holds. Suite 113/113.
+
+Pattern holding well: hardened = clean baseline (append a good line when a new conditional check needs it), insecure = broad TP, coverage = the few cases insecure lacks. On claude-dev; not released.
+
+---
+
 ## 2026-06-24 -- v0.2 catalog coverage, Slice 1 (gate passed)
 
 Started the v0.2 catalog expansion. Slice 1 = 8 data-driven checks added as pure CATALOG DATA (no engine code -- the declarative-catalog payoff, MR-01): MGMT-SSH-OUTSIDE (present), AUTH-AAA-SERIAL/LOG-TIMESTAMP/LOG-TRAP/AUTH-PW-LOCKOUT/IF-URPF (absent), LOG-CONSOLE/SNMP-V3-WEAK (present). Catalog now 28 checks (15 MVP + 8 v0.2 + 5 hygiene).

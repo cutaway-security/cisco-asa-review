@@ -151,6 +151,50 @@ function Test-AsaInterfaceNoIp {
     return @($out)
 }
 
+# --- v0.2 coverage Slice 2: numeric / conditional checks ---
+
+function Test-AsaSshTimeout {
+    [CmdletBinding()] param([Parameter(Mandatory)][pscustomobject]$Model)
+    $line = $Model.Lines | Where-Object { $_.Kind -eq 'line' -and $_.Text -match '^ssh timeout\s+(\d+)\b' } | Select-Object -First 1
+    if ($null -eq $line) { return @() }   # absent -> default 5 (ok)
+    [void]($line.Text -match '^ssh timeout\s+(\d+)\b')
+    if ([int]$Matches[1] -gt 5) { return @(New-AsaDetection -Fired $true -Evidence @($line)) }
+    return @()
+}
+
+function Test-AsaHttpTimeout {
+    [CmdletBinding()] param([Parameter(Mandatory)][pscustomobject]$Model)
+    $httpOn = $Model.Lines | Where-Object { $_.Kind -eq 'line' -and $_.Text -match '^http server enable\b' } | Select-Object -First 1
+    if ($null -eq $httpOn) { return @() }   # ASDM/http server not enabled
+    $idle = $Model.Lines | Where-Object { $_.Kind -eq 'line' -and $_.Text -match '^http server idle-timeout\s+(\d+)\b' } | Select-Object -First 1
+    if ($null -eq $idle) { return @(New-AsaDetection -Fired $true -Evidence @($httpOn)) }   # default longer than 5
+    [void]($idle.Text -match '^http server idle-timeout\s+(\d+)\b')
+    if ([int]$Matches[1] -gt 5) { return @(New-AsaDetection -Fired $true -Evidence @($idle)) }
+    return @()
+}
+
+function Test-AsaCryptoPfs {
+    [CmdletBinding()] param([Parameter(Mandatory)][pscustomobject]$Model)
+    $hasMap = $Model.Lines | Where-Object { $_.Kind -eq 'line' -and $_.Text -match '^crypto map\b' } | Select-Object -First 1
+    if ($null -eq $hasMap) { return @() }   # no VPN crypto map -> not applicable
+    $pfs = $Model.Lines | Where-Object { $_.Kind -eq 'line' -and $_.Text -match '\bset pfs\b' } | Select-Object -First 1
+    if ($null -eq $pfs) { return @(New-AsaDetection -Fired $true -Evidence @($hasMap)) }
+    return @()
+}
+
+function Test-AsaSaLifetime {
+    [CmdletBinding()] param([Parameter(Mandatory)][pscustomobject]$Model)
+    $out = [System.Collections.Generic.List[object]]::new()
+    foreach ($n in $Model.Lines) {
+        if ($n.Kind -ne 'line') { continue }
+        $sec = $null
+        if ($n.Text -match '\blifetime seconds\s+(\d+)\b') { $sec = [int]$Matches[1] }
+        elseif ($n.Text -match '^lifetime\s+(\d+)\b' -and $null -ne $n.Parent -and $n.Parent.Text -match '^crypto ikev1 policy\b') { $sec = [int]$Matches[1] }
+        if ($null -ne $sec -and $sec -gt 86400) { $out.Add((New-AsaDetection -Fired $true -Evidence @($n))) }
+    }
+    return @($out)
+}
+
 function Test-AsaBvi {
     [CmdletBinding()] param([Parameter(Mandatory)][pscustomobject]$Model)
     $usedGroups = [System.Collections.Generic.HashSet[string]]::new()
