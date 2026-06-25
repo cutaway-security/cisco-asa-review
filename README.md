@@ -54,8 +54,8 @@ each with a timestamped name:
 
 Status messages go to stderr so the stdout report stays clean. Secret values are
 masked by default; `-RevealSecrets` opts out (and emits a credential-bearing
-warning) only when you run it on a trusted host. To run the test suite (a
-development-only Pester 5.x dependency): `pwsh -File .\tests\Invoke-Tests.ps1`.
+warning) only when you run it on a trusted host. The Pester 5.x test suite lives in
+the development repository (the `claude-dev` branch) and is not part of a release.
 
 ## At a glance
 
