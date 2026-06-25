@@ -12,8 +12,8 @@ BeforeAll {
     . (Join-Path $src 'Show-AsaModel.ps1')
 
     $script:FixtureDir = Join-Path $PSScriptRoot '..\fixtures'
-    $script:Insecure   = Join-Path $script:FixtureDir 'asa-5515-insecure.txt'
-    $script:Hardened   = Join-Path $script:FixtureDir 'asa-5515-hardened.txt'
+    $script:Insecure   = Join-Path $script:FixtureDir 'asa-9x-insecure.txt'
+    $script:Hardened   = Join-Path $script:FixtureDir 'asa-9x-hardened.txt'
     $script:RealDir    = Join-Path $script:FixtureDir 'real'
 
     # Preorder DFS of the tree; returns the LineNo sequence. For a correctly

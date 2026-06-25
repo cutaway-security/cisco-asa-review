@@ -78,7 +78,7 @@ Business and technical criteria, each measurable. Tied to evidence in §3.
   referenced/active/shutdown counterparts (in particular an ACL used only by a
   crypto map MUST NOT be flagged unused). *Threshold:* exact seeded TP / zero FP
   on the extended fixtures. *Status:* **MET (2026-06-24)** —
-  `tests/unit/Hygiene.Tests.ps1` on `asa-5515-hygiene.txt`; crypto-only ACL not
+  `tests/unit/Hygiene.Tests.ps1` on `asa-9x-hygiene.txt`; crypto-only ACL not
   flagged; 108/108 suite green.
 - **TSC-16 (CSV tracking, issue #1)** The CSV includes Informational rows and the
   `RemediationState` (default Open) and `RemediationNotes` columns; the schema is
@@ -118,7 +118,7 @@ Business and technical criteria, each measurable. Tied to evidence in §3.
 - **TSC-10 (Performance)** A ~5,000-line config completes in < 10s (NFR-03, a
   release gate). The ~20,000-line no-quadratic-blowup target (NFR-04) is a
   **non-blocking v0.2 benchmark**, not a v0.1 gate — the engagement target is a
-  single ASA 5515 config. (AI review 20260624-101250: anthropic+openai — 20k was
+  single ASA 9.x config. (AI review 20260624-101250: anthropic+openai — 20k was
   premature as a gate.) *Met (2026-06-24):* `tests/perf/Measure-AsaPerf.ps1`
   shows the parser linear (251ms at 20k, growth exponent ~0.55) and the full
   pipeline sub-quadratic (5.1s at 20k, top-two doubling factor 1.85x) after

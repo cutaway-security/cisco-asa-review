@@ -15,8 +15,8 @@ BeforeAll {
     . (Join-Path $src 'Resolve-AsaReferences.ps1')
 
     $script:FixtureDir = Join-Path $PSScriptRoot '..\fixtures'
-    $script:Insecure   = Join-Path $script:FixtureDir 'asa-5515-insecure.txt'
-    $script:Hardened   = Join-Path $script:FixtureDir 'asa-5515-hardened.txt'
+    $script:Insecure   = Join-Path $script:FixtureDir 'asa-9x-insecure.txt'
+    $script:Hardened   = Join-Path $script:FixtureDir 'asa-9x-hardened.txt'
     $script:Manifest   = Join-Path $script:FixtureDir 'expected-findings.psd1'
     $script:DefaultsFile = Join-Path $PSScriptRoot '..\..\data\asa-defaults.psd1'
 
@@ -53,7 +53,7 @@ Describe 'Secret scanner: Get-AsaSecrets against the fixture oracle' {
     }
 
     It 'matches every seeded secret in the insecure fixture' {
-        foreach ($exp in $script:Expected.Fixtures['asa-5515-insecure.txt'].Secrets) {
+        foreach ($exp in $script:Expected.Fixtures['asa-9x-insecure.txt'].Secrets) {
             $hit = $script:InsecureSecrets | Where-Object { $_.Node.Text.Contains($exp.Line) } | Select-Object -First 1
             $hit | Should -Not -BeNullOrEmpty -Because "expected to find secret line: $($exp.Line)"
             switch ($exp.Class) {

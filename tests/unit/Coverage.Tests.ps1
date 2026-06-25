@@ -13,9 +13,9 @@ BeforeAll {
     . (Join-Path $src 'checks\structural.ps1')
 
     $fx = Join-Path $PSScriptRoot '..\fixtures'
-    $script:InFind  = @(Invoke-AsaChecks -Model (ConvertTo-AsaModel -Path (Join-Path $fx 'asa-5515-insecure.txt')) -Profile commercial)
-    $script:HdFind  = @(Invoke-AsaChecks -Model (ConvertTo-AsaModel -Path (Join-Path $fx 'asa-5515-hardened.txt')) -Profile commercial)
-    $script:CovFind = @(Invoke-AsaChecks -Model (ConvertTo-AsaModel -Path (Join-Path $fx 'asa-5515-coverage.txt')) -Profile commercial)
+    $script:InFind  = @(Invoke-AsaChecks -Model (ConvertTo-AsaModel -Path (Join-Path $fx 'asa-9x-insecure.txt')) -Profile commercial)
+    $script:HdFind  = @(Invoke-AsaChecks -Model (ConvertTo-AsaModel -Path (Join-Path $fx 'asa-9x-hardened.txt')) -Profile commercial)
+    $script:CovFind = @(Invoke-AsaChecks -Model (ConvertTo-AsaModel -Path (Join-Path $fx 'asa-9x-coverage.txt')) -Profile commercial)
 
     function script:Fired($findings, [string]$id) { [bool](@($findings | Where-Object { $_.CheckId -eq $id -and $_.Status -eq 'finding' }).Count) }
 }

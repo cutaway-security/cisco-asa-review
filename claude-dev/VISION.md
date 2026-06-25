@@ -110,7 +110,7 @@ model, and a shared interface-role model — each gated separately), then the 15
 high-signal MVP checks (RESEARCH §4 shortlist), presence and *context-conditional*
 absence, built on the proven parser. Markdown + CSV output with secret-value
 masking on by default (including a conservative fallback mask and a no-leak gate).
-Proven against a synthesized, syntactically faithful ASA 5515 fixture (exact
+Proven against a synthesized, syntactically faithful ASA 9.x fixture (exact
 expected findings, zero false positives on good instances).
 
 **v0.2 — Coverage (the full catalog).** The remaining CIS + DISA STIG checks
@@ -153,9 +153,12 @@ distinction is data, not hardcoded assumption.
 
 <!-- AI review 20260624-101250: openai+anthropic — efficacy claims weakened to match the fixture-bound validation base; target-device vs product scope separated. -->
 
-*Scope note:* the tool is **initially validated on ASA 5515-X era ASA 9.x
-syntax**. Broader ASA 9.x reuse is the product ambition, earned as independent
-configs are run through it — not claimed up front.
+*Scope note:* the tool targets the **ASA 9.x `show running-config` syntax**, which
+is set by the ASA software version rather than the appliance model — so it applies
+across the ASA family (5500-X series, Firepower in ASA mode, ASAv) running ASA 9.x,
+in **single-context routed mode**. Its validation base is synthesized ASA 9.x
+fixtures plus independent real sanitized configs; broader reuse is earned as more
+real configs are run through it, not claimed up front.
 
 - An analyst runs one PowerShell command against an ASA config and, in under a
   few seconds, receives a Markdown report and CSV with prioritized findings, each

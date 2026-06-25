@@ -12,8 +12,8 @@
 BeforeAll {
     $script:FixtureDir = Join-Path $PSScriptRoot '..\fixtures'
     $script:RealDir    = Join-Path $script:FixtureDir 'real'
-    $script:Insecure   = Join-Path $script:FixtureDir 'asa-5515-insecure.txt'
-    $script:Hardened   = Join-Path $script:FixtureDir 'asa-5515-hardened.txt'
+    $script:Insecure   = Join-Path $script:FixtureDir 'asa-9x-insecure.txt'
+    $script:Hardened   = Join-Path $script:FixtureDir 'asa-9x-hardened.txt'
     $script:Manifest   = Join-Path $script:FixtureDir 'expected-findings.psd1'
 }
 
@@ -72,7 +72,7 @@ Describe 'Phase 1 corpus: expected-findings oracle' {
 
     It 'insecure fixture MustFire covers all 15 checks with valid Ids' {
         $checkIds = $script:Expected.Checks.Id
-        $fire = $script:Expected.Fixtures['asa-5515-insecure.txt'].MustFire
+        $fire = $script:Expected.Fixtures['asa-9x-insecure.txt'].MustFire
         $fire.Count | Should -Be 15
         foreach ($entry in $fire) { $entry.Id | Should -BeIn $checkIds }
         ($fire.Id | Sort-Object -Unique).Count | Should -Be 15
@@ -80,14 +80,14 @@ Describe 'Phase 1 corpus: expected-findings oracle' {
 
     It 'hardened fixture MustNotFire lists all 15 checks' {
         $checkIds = $script:Expected.Checks.Id
-        $clean = $script:Expected.Fixtures['asa-5515-hardened.txt'].MustNotFire
+        $clean = $script:Expected.Fixtures['asa-9x-hardened.txt'].MustNotFire
         $clean.Count | Should -Be 15
         foreach ($id in $clean) { $id | Should -BeIn $checkIds }
     }
 
     It 'every MustFire Id is also in MustNotFire (true-pos/true-neg symmetry)' {
-        $fireIds  = $script:Expected.Fixtures['asa-5515-insecure.txt'].MustFire.Id | Sort-Object
-        $cleanIds = $script:Expected.Fixtures['asa-5515-hardened.txt'].MustNotFire | Sort-Object
+        $fireIds  = $script:Expected.Fixtures['asa-9x-insecure.txt'].MustFire.Id | Sort-Object
+        $cleanIds = $script:Expected.Fixtures['asa-9x-hardened.txt'].MustNotFire | Sort-Object
         ($fireIds -join ',') | Should -Be ($cleanIds -join ',')
     }
 }
@@ -100,7 +100,7 @@ Describe 'Phase 1 corpus: seeded findings actually present in fixture text' {
     }
 
     It 'each presence-based seeded finding has its evidence line in the insecure fixture' {
-        foreach ($entry in $script:Expected.Fixtures['asa-5515-insecure.txt'].MustFire) {
+        foreach ($entry in $script:Expected.Fixtures['asa-9x-insecure.txt'].MustFire) {
             if ($entry.EvidenceKind -eq 'presence') {
                 $script:InsecureText | Should -Match ([regex]::Escape($entry.EvidenceMatch))
             }

@@ -21,12 +21,12 @@ real ASA is ever introduced for end-to-end validation (not currently available).
 | Test host | Windows workstation with Windows PowerShell 5.1 AND PowerShell 7+ |
 | Network / segmentation | None — tool and tests run fully offline (SR-01) |
 | Target devices / services | None — input is a static config text file (IR-01) |
-| Test corpus | Synthesized ASA 5515 fixture + 2 real sanitized configs (local) |
+| Test corpus | Synthesized ASA 9.x fixtures + 2 real sanitized configs (local) |
 | Access path | Local filesystem only |
 
 ## Test corpus
 
-1. **Synthesized fixture** (`tests/fixtures/`): syntactically faithful ASA 5515
+1. **Synthesized fixture** (`tests/fixtures/`): syntactically faithful ASA 9.x
    config covering every CHECK_CATALOG Part B construct (incl. B6 lower-confidence
    branches), with seeded known-good and known-bad instances per MVP-15 check.
    Authored by the team — the primary functional oracle.

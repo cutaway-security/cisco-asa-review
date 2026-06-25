@@ -371,7 +371,7 @@ excluded from the High/Medium/Low risk counts.
 
 ## §10 Testing requirements (TR)
 
-- **TR-01 [MVP]** A synthesized, syntactically faithful ASA 5515 config fixture
+- **TR-01 [MVP]** A synthesized, syntactically faithful ASA 9.x config fixture
   MUST exist, covering every construct in CHECK_CATALOG B, including the
   lower-confidence branches (B6). (OQ-D, OQ-E)
 - **TR-02 [MVP]** The fixture MUST contain known-bad and known-good instances for

@@ -12,8 +12,8 @@ BeforeAll {
     . (Join-Path $src 'checks\structural.ps1')
 
     $script:FixtureDir = Join-Path $PSScriptRoot '..\fixtures'
-    $script:Insecure   = Join-Path $script:FixtureDir 'asa-5515-insecure.txt'
-    $script:Hardened   = Join-Path $script:FixtureDir 'asa-5515-hardened.txt'
+    $script:Insecure   = Join-Path $script:FixtureDir 'asa-9x-insecure.txt'
+    $script:Hardened   = Join-Path $script:FixtureDir 'asa-9x-hardened.txt'
 
     $script:InModel  = ConvertTo-AsaModel -Path $script:Insecure
     $script:InFind   = @(Invoke-AsaChecks -Model $script:InModel -Profile commercial)

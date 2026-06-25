@@ -7,6 +7,18 @@ project's lifetime.
 
 ---
 
+## 2026-06-24 -- generalize to the ASA 9.x family + release v0.2 to main
+
+The user asked whether the tool is 5515-specific or works on other ASA models. The honest answer (verified by grepping the source): it keys on ASA *software* syntax, not the chassis. The parser matches `^interface\s+(\S+)` (any interface token), interface roles derive from `nameif`/`security-level`, and the 58 checks map to CIS/STIG which are written against the software -- nothing in the logic is 5515-specific. The only model-specific datum is the `ASA5515` hardware entry in `data/asa-eol.psd1`, and it's DORMANT: `Test-AsaVersionEol` only evaluates `$eol.Trains` (the software train), never `$eol.Hardware`. The real boundaries are *mode* (single-context routed) and the older switchport platforms (5505 / integrated-switch 5506-X), not the model number.
+
+So the user asked to generalize "5515" -> "ASA 9.x". Done:
+- Renamed the four fixtures `asa-5515-*.txt` -> `asa-9x-*.txt` with `git mv` (content untouched -- critical, because the insecure fixture has line-number assertions; renaming a file doesn't shift line numbers, editing content would). Updated all filename references across 8 test files + `expected-findings.psd1` with sed. Suite stayed 124/1-skipped.
+- README rewrite: moved Quick Start to the top (right after the description, per the ask); added a "Where it works" section enumerating the ASA family (5500-X, Firepower in ASA mode, ASAv) and the scope assumptions (single-context routed mode; switchport-platform and pre-9.0 caveats); refreshed Status (58 checks, 124 tests, perf-verified); dropped the 5515-origin references. Also fixed a STALE section: the README still described a separate Mermaid `.md` segmentation output, but that writer was removed in issue #1 -- the topology now lives only as inline SVG inside the HTML. Generalized scope wording in VISION / REQUIREMENTS / TEST_ENVIRONMENT / SUCCESS_CRITERIA; left the genuine historical record (DISCOVERY_NOTES, RESEARCH, background/goal.md) intact since the engagement really did start as a 5515 review.
+
+Release decision: cut this as **v0.2** (not v0.1d). The body of work since v0.1c -- 15 -> 58 checks, HTML deliverable, EoL, deep resolution, perf -- is the v0.2 milestone the planning docs have been calling it all along, so the tag should match. Released to `main` per RELEASE_TO_MAIN.md (orphan rebuild, no Claude files), superseding v0.1c.
+
+---
+
 ## 2026-06-24 -- v0.2 20k-line perf benchmark (NFR-04) + a real quadratic fix
 
 NFR-04 is scoped to the parser ("no quadratic blowup or unbounded memory at ~20k lines") and is explicitly a NON-BLOCKING benchmark, not a v0.1 gate (TSC-10). Built `tests/perf/New-AsaLargeConfig.ps1` (deterministic large-config generator -- generated in memory, NOT committed as a fixture) and `tests/perf/Measure-AsaPerf.ps1` (times parse + full pipeline at 2.5k/5k/10k/20k, fits a log-log growth exponent AND a top-two-sizes doubling factor).
@@ -109,7 +121,7 @@ Pattern reminder: when a new ABSENT check would otherwise fire on the hardened b
 
 Slice 2 = 4 numeric/conditional CODE checks (the ones that can't be pure data): MGMT-SSH-TIMEOUT (ssh timeout >5), MGMT-HTTP-TIMEOUT (http server enabled AND idle-timeout missing-or->5), CRYPTO-PFS (crypto map present but no set pfs), CRYPTO-SA-LIFETIME (lifetime seconds >86400). Detectors in checks/structural.ps1; catalog Type='code'. Catalog now 32 checks.
 
-TP: ssh-timeout/http-timeout/pfs already in the insecure fixture; SA-lifetime via a new ikev2 policy (lifetime seconds 172800) appended to asa-5515-coverage.txt. TN: hardened already clean EXCEPT it lacked an http idle-timeout (the conditional HTTP check would have fired) -> appended `http server idle-timeout 5` to hardened. Both fixture appends are safe (no hardened/coverage line-number assertions). Coverage.Tests TP/TN lists extended. Hardened "zero risk findings" gate still holds. Suite 113/113.
+TP: ssh-timeout/http-timeout/pfs already in the insecure fixture; SA-lifetime via a new ikev2 policy (lifetime seconds 172800) appended to asa-9x-coverage.txt. TN: hardened already clean EXCEPT it lacked an http idle-timeout (the conditional HTTP check would have fired) -> appended `http server idle-timeout 5` to hardened. Both fixture appends are safe (no hardened/coverage line-number assertions). Coverage.Tests TP/TN lists extended. Hardened "zero risk findings" gate still holds. Suite 113/113.
 
 Pattern holding well: hardened = clean baseline (append a good line when a new conditional check needs it), insecure = broad TP, coverage = the few cases insecure lacks. On claude-dev; not released.
 
@@ -119,7 +131,7 @@ Pattern holding well: hardened = clean baseline (append a good line when a new c
 
 Started the v0.2 catalog expansion. Slice 1 = 8 data-driven checks added as pure CATALOG DATA (no engine code -- the declarative-catalog payoff, MR-01): MGMT-SSH-OUTSIDE (present), AUTH-AAA-SERIAL/LOG-TIMESTAMP/LOG-TRAP/AUTH-PW-LOCKOUT/IF-URPF (absent), LOG-CONSOLE/SNMP-V3-WEAK (present). Catalog now 28 checks (15 MVP + 8 v0.2 + 5 hygiene).
 
-Method that makes catalog growth sustainable: the HARDENED fixture is the clean true-negative baseline -- it already satisfied all 8 (so TN is free); 6 of the 8 true-positives are already present in the INSECURE fixture (it lacks the good lines), and the remaining 2 (console logging, weak SNMPv3) got a small dedicated `asa-5515-coverage.txt`. `Coverage.Tests.ps1` asserts TP on insecure/coverage and TN on hardened, plus catalog integrity (unique ids, known severities). The hardened "zero risk findings" gate still holds.
+Method that makes catalog growth sustainable: the HARDENED fixture is the clean true-negative baseline -- it already satisfied all 8 (so TN is free); 6 of the 8 true-positives are already present in the INSECURE fixture (it lacks the good lines), and the remaining 2 (console logging, weak SNMPv3) got a small dedicated `asa-9x-coverage.txt`. `Coverage.Tests.ps1` asserts TP on insecure/coverage and TN on hardened, plus catalog integrity (unique ids, known severities). The hardened "zero risk findings" gate still holds.
 
 Had to generalize one brittle test: "exactly 15 risk checks fire on insecure" -> "all 15 MVP fire" (subset). The exact count can't hold as the catalog grows; MVP completeness is still asserted, and Coverage.Tests covers the new checks precisely.
 
@@ -141,7 +153,7 @@ All 7 issue-#1 items delivered (108/108 tests; on claude-dev, not yet released).
 
 **Edges found while building**: (1) bridge-group MEMBER interfaces legitimately have no IP -> the no-ip check must skip them (added `bridge-group` exclusion) -- surfaced by authoring the hygiene fixture. (2) The "exactly 15 MVP" test had to become "all 15 MVP fire (15 non-Informational risk checks)" since hygiene checks now also fire; the hardened zero-FP test scoped to RISK severities (an unused object-group on hardened is a legitimate Informational finding).
 
-Fixtures: added `asa-5515-hygiene.txt` (precise TP/TN incl. crypto-only ACL, expired vs active time-range, shutdown/bridge-member/IP-bearing interfaces, BVI with/without member); existing insecure/hardened fixtures left unchanged (the hygiene checks run on them and their incidental unused items are correctly flagged).
+Fixtures: added `asa-9x-hygiene.txt` (precise TP/TN incl. crypto-only ACL, expired vs active time-range, shutdown/bridge-member/IP-bearing interfaces, BVI with/without member); existing insecure/hardened fixtures left unchanged (the hygiene checks run on them and their incidental unused items are correctly flagged).
 
 Verified end-to-end: 3 outputs (md/csv/html, no segmentation .md); CSV carries the tracking columns + Informational rows; HTML rendered via WebKit and visually inspected -- full detail + INFO-styled hygiene findings display well.
 
@@ -368,8 +380,8 @@ Tag v0.1b points at the main release commit.
 
 **What landed**
 
-- `tests/fixtures/asa-5515-insecure.txt` -- known-bad fixture, construct-complete (every CHECK_CATALOG Part B construct incl. B6 legacy `object-group service tcp` + `port-object`, `object-group protocol`, `nt-encrypted`/cleartext/encrypted/pbkdf2 secrets, 3-deep `group-policy attributes` -> `webvpn` -> `anyconnect`, object-NAT + twice-NAT, global webvpn). Triggers all 15 MVP findings.
-- `tests/fixtures/asa-5515-hardened.txt` -- true-negative fixture; triggers none of the 15; multi-line `banner login` for the parser reassembly test; strong ikev2 crypto, SNMPv3, authenticated NTP, uRPF.
+- `tests/fixtures/asa-9x-insecure.txt` -- known-bad fixture, construct-complete (every CHECK_CATALOG Part B construct incl. B6 legacy `object-group service tcp` + `port-object`, `object-group protocol`, `nt-encrypted`/cleartext/encrypted/pbkdf2 secrets, 3-deep `group-policy attributes` -> `webvpn` -> `anyconnect`, object-NAT + twice-NAT, global webvpn). Triggers all 15 MVP findings.
+- `tests/fixtures/asa-9x-hardened.txt` -- true-negative fixture; triggers none of the 15; multi-line `banner login` for the parser reassembly test; strong ikev2 crypto, SNMPv3, authenticated NTP, uRPF.
 - `tests/fixtures/expected-findings.psd1` -- the validation oracle. Fixes the canonical MVP-15 check IDs and, per fixture, MustFire / MustNotFire / Secrets / ConstructsPresent.
 - `tests/fixtures/real/` (gitignored) -- two real sanitized configs fetched once: HQ-FW2 (ASA 9.18, 299 lines) and ASABuzzNick (592 lines, crypto-rich).
 - `tests/Invoke-Tests.ps1` + `tests/unit/Corpus.Tests.ps1` -- Pester 5 harness.

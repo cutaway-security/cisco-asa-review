@@ -3,8 +3,10 @@
 ## Current State
 
 **Last Session**: 2026-06-24
-**Branch**: claude-dev (…, d2ff8a9 Phase 2, 9c3f3c8 Phase 3, Phase 4 pending commit)
-**Status**: Clean — Phase 4 (v0.1b check engine) complete and gated; **v0.1b MVP reached**
+**Branch**: claude-dev
+**Status**: **v0.2 complete and released to `main`.** 58-check catalog, deep
+resolution, version/EoL, perf-verified, generalized to the ASA 9.x family
+(model-agnostic). Default suite 124 passed / 1 skipped (opt-in perf).
 
 ## What Was Accomplished
 
@@ -12,8 +14,8 @@
   requirements, success criteria, two multi-AI passes, architecture, orientation
   files. Committed as 6ae8d26.
 - **Phase 1 (test environment + fixtures), gate PASSED:**
-  - Two synthesized fixtures: `tests/fixtures/asa-5515-insecure.txt`
-    (construct-complete, triggers all 15 MVP findings) and `asa-5515-hardened.txt`
+  - Two synthesized fixtures: `tests/fixtures/asa-9x-insecure.txt`
+    (construct-complete, triggers all 15 MVP findings) and `asa-9x-hardened.txt`
     (true-negative oracle, multi-line banner).
   - `tests/fixtures/expected-findings.psd1` — the oracle fixing the 15 MVP check
     IDs and per-fixture MustFire/MustNotFire/Secrets/ConstructsPresent.
@@ -76,7 +78,7 @@
   - CSV: RemediationState/RemediationNotes + Informational rows. HTML: full
     findings detail (all evidence). Removed `Write-AsaSegmentation.ps1` + the
     segmentation `.md` output.
-  - `tests/fixtures/asa-5515-hygiene.txt` + `tests/unit/Hygiene.Tests.ps1`. Suite
+  - `tests/fixtures/asa-9x-hygiene.txt` + `tests/unit/Hygiene.Tests.ps1`. Suite
     108/108 green; end-to-end + HTML render re-verified; crypto-only ACL not flagged.
 
 - **v0.2 catalog coverage COMPLETE — Slices 1-7 (2026-06-24):** S1 (+8 data),
@@ -122,11 +124,25 @@
     regression guard; skipped in the default suite to avoid timing flakiness.
   - Default suite **124 passed / 1 skipped**; perf test passes when opted in.
 
+- **Generalized to ASA 9.x family + v0.2 release (2026-06-24):**
+  - Repositioned the tool from "ASA 5515" to the **ASA 9.x family** (analysis is
+    set by ASA *software* syntax, not the appliance model). Renamed fixtures
+    `asa-5515-*.txt` -> `asa-9x-*.txt` (git mv; content untouched, so insecure
+    line-number assertions hold) and updated all test references; suite green.
+  - **README rewrite:** moved Quick Start to the top (after the description),
+    added a "Where it works" section (ASA 5500-X / Firepower-in-ASA-mode / ASAv;
+    single-context routed-mode assumption; switchport-platform and pre-9.0
+    caveats), fixed the stale segmentation `.md` description (topology is now
+    inline-SVG in the HTML only), refreshed Status to 58 checks / 124 tests, and
+    dropped the 5515-origin references. Generalized scope wording in VISION /
+    REQUIREMENTS / TEST_ENVIRONMENT / SUCCESS_CRITERIA (history in DISCOVERY /
+    RESEARCH / goal.md left intact).
+  - **Released to `main` as v0.2** per RELEASE_TO_MAIN.md (orphan rebuild, no
+    Claude files), tag `v0.2`.
+
 ## In Progress
 
-**v0.2 infrastructure COMPLETE** (catalog coverage, deep resolution, version/EoL,
-second fixture, 20k perf benchmark). Nothing open in v0.2. On `claude-dev`; not
-released to `main` — next step is the release decision (would be v0.1d).
+**v0.2 COMPLETE and released to `main` as v0.2.** Nothing open in v0.2.
 
 ## Blockers
 
@@ -136,13 +152,12 @@ released to `main` — next step is the release decision (would be v0.1d).
 
 ## Next Steps
 
-1. Decide whether to release the accumulated v0.2 work (issue #1 + catalog
-   coverage + deep resolution + version/EoL + second fixture + perf fix) to `main`
-   as the next release (e.g. v0.1d) per RELEASE_TO_MAIN.md.
-2. Still pending for a full "shipped" claim: run on **Windows PowerShell 5.1**
+1. Still pending for a full "shipped" claim: run on **Windows PowerShell 5.1**
    (TSC-09/NFR-01; PSv7 is now validated), a runtime egress-monitor check (TSC-11),
    and a findings-accuracy review against a real engagement config.
-3. Optional: DoD-profile-specific checks; process items (ADRs, traceability matrix).
+2. Optional next milestone (v0.3): ACL shadowing/redundancy; DoD-profile-specific
+   checks; process items (ADRs, traceability matrix). Wire the dormant hardware-EoL
+   data into a check if per-model hardware EoL findings are wanted.
 
 ## Open Questions
 

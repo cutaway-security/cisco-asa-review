@@ -28,7 +28,7 @@ function New-AsaLargeConfig {
 
     # ---- Prologue (fixed) ----------------------------------------------------
     $L.Add(': Saved')
-    $L.Add(': Hardware:   ASA5515, 8192 MB RAM, CPU Clarkdale 3060 MHz')
+    $L.Add(': Hardware:   ASA, 8192 MB RAM, CPU Clarkdale 3060 MHz')
     $L.Add('ASA Version 9.8(4)')
     $L.Add('hostname perf-asa')
     $L.Add('!')

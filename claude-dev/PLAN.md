@@ -9,14 +9,14 @@ with no network and no device access.
 
 ## Current Phase
 
-**Phase**: Phase 6 — v0.2 coverage + GitHub issue #1
-**Status**: **v0.2 infrastructure COMPLETE** (2026-06-24) — issue #1 + catalog
-coverage (58 checks) + deep resolution + version/EoL (FR-15) + second fixture
-(TR-05) + 20k perf benchmark & quadratic fix (NFR-04). Default suite **124 passed
-/ 1 skipped** (opt-in perf). On `claude-dev`, not yet released. Phases 1–5c
-released to `main` as v0.1c.
-**Focus**: v0.2 done. Next: decide release of accumulated v0.2 work to main
-(v0.1d); Windows PowerShell 5.1 verification (NFR-01).
+**Phase**: Phase 6 — v0.2 (COMPLETE, released)
+**Status**: **v0.2 COMPLETE and released to `main` as v0.2** (2026-06-24) — issue
+#1 + catalog coverage (58 checks) + deep resolution + version/EoL (FR-15) + second
+fixture (TR-05) + 20k perf benchmark & quadratic fix (NFR-04), generalized to the
+ASA 9.x family (model-agnostic; fixtures renamed `asa-9x-*`). Default suite **124
+passed / 1 skipped** (opt-in perf). Supersedes the v0.1c release.
+**Focus**: v0.2 shipped. Next: Windows PowerShell 5.1 verification (NFR-01);
+v0.3 depth (ACL shadowing, DoD-profile checks).
 
 ## Phases
 
@@ -27,10 +27,10 @@ The v0.1a / v0.1b split derisks the load-bearing parser before checks consume it
 
 **Status**: Complete (2026-06-24)
 
-- [x] Author the synthesized ASA 5515 fixtures: `asa-5515-insecure.txt`
+- [x] Author the synthesized ASA 5515 fixtures: `asa-9x-insecure.txt`
       (construct-complete incl. B6 legacy object-group forms, nt-encrypted,
       3-deep group-policy nesting, both NAT shapes; triggers all 15 MVP findings)
-      and `asa-5515-hardened.txt` (true-negative oracle; multi-line banner for
+      and `asa-9x-hardened.txt` (true-negative oracle; multi-line banner for
       parser reassembly).
 - [x] `tests/fixtures/expected-findings.psd1` — the validation oracle; fixes the
       15 MVP check IDs and the MustFire / MustNotFire / Secrets / ConstructsPresent
@@ -236,7 +236,7 @@ GitHub issue #1 (hygiene + tracking + output changes) -- **COMPLETE (2026-06-24)
       summary/visuals; Informational styled; the HTML is the complete report.
 - [x] Removed the segmentation Markdown output and `Write-AsaSegmentation.ps1`
       (FR-38); segmentation lives only in the HTML.
-- [x] Added `tests/fixtures/asa-5515-hygiene.txt` (crypto-only ACL, unused ACL,
+- [x] Added `tests/fixtures/asa-9x-hygiene.txt` (crypto-only ACL, unused ACL,
       used/unused object+group, inactive + expired-/active-time-range ACEs, no-ip
       / shutdown / bridge-member / IP-bearing interfaces, BVI with/without member)
       + `tests/unit/Hygiene.Tests.ps1`.

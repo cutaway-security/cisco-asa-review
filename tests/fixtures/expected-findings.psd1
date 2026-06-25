@@ -38,7 +38,7 @@
 
     Fixtures = @{
 
-        'asa-5515-insecure.txt' = @{
+        'asa-9x-insecure.txt' = @{
             Description = 'Known-bad ASA 5515 config. MUST trigger all 15 MVP findings. Construct-complete for parser tests (incl. B6 legacy object-group forms, nt-encrypted, 3-deep group-policy nesting, both NAT shapes, global webvpn).'
             # Each entry: the check MUST produce a finding. EvidenceMatch is a
             # substring expected in the cited line (presence) or 'absent'.
@@ -88,7 +88,7 @@
             )
         }
 
-        'asa-5515-hardened.txt' = @{
+        'asa-9x-hardened.txt' = @{
             Description = 'Known-good ASA 5515 config. MUST trigger NONE of the 15 MVP findings (true negatives). Includes multi-line banner for parser reassembly test, strong ikev2 crypto, SNMPv3, authenticated NTP, scoped management.'
             MustNotFire = @(
                 'MGMT-TELNET', 'MGMT-SSH-VERSION', 'MGMT-ANY-SOURCE', 'MGMT-CONSOLE-TIMEOUT',

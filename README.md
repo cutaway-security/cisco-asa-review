@@ -10,6 +10,74 @@ to the CIS Cisco ASA Benchmark and DISA Cisco ASA STIG.
 It runs entirely on the analyst's machine. No internet, no device access, no data
 leaves the host. The config is sensitive, and the tool treats it that way.
 
+## Quick start
+
+```powershell
+# one-time, per process
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+
+# run a review (commercial profile is default)
+.\Invoke-AsaReview.ps1 -ConfigPath .\asa-running-config.txt
+
+# DoD/STIG profile; reveal secrets only on a trusted host
+.\Invoke-AsaReview.ps1 -ConfigPath .\cfg.txt -Profile dod -RevealSecrets
+
+# run the tests (Pester 5.x; development-only dependency)
+pwsh -File .\tests\Invoke-Tests.ps1
+```
+
+The full Markdown report is written to stdout. Three artifacts are also written
+**into the same directory as the configuration file** (never overwriting it),
+each with a timestamped name:
+
+- a **Markdown** report (for consolidation with other reports / later review),
+- a **CSV** findings file (machine-readable, with remediation-tracking columns),
+- a self-contained **HTML** report (the client deliverable — see below).
+
+Status messages go to the error/information stream so the stdout report stays
+clean. Secret values are masked by default; `-RevealSecrets` opts out (and emits
+a credential-bearing warning) only when you run it on a trusted host.
+
+## Where it works
+
+The tool analyzes a **Cisco ASA 9.x `show running-config`** text dump. What it
+parses is the ASA *configuration syntax*, which is determined by the ASA software
+version, not the appliance model — so the analysis is the same across the ASA
+family running ASA 9.x:
+
+- the ASA 5500-X series (5506-X, 5508-X, 5512-X, 5515-X, 5516-X, 5525-X, 5545-X,
+  5555-X, 5585-X),
+- Firepower appliances running the ASA image (Firepower 1000 / 2100 / 4100 / 9300
+  in ASA mode),
+- ASAv (virtual ASA).
+
+The checks map to the CIS Cisco ASA Benchmark and the DISA Cisco ASA STIG, which
+are written against the software, so they are not specific to any one model.
+
+**Scope and assumptions:**
+
+- **Single-context, routed mode** is what the tool is tuned for. Transparent
+  (Layer 2) mode parses, but a few interface checks assume routed Layer 3
+  interfaces. **Multiple-context** configurations (a system context plus
+  sub-contexts in one dump) are not specifically modeled.
+- **Routed-interface platforms.** The older switchport-based platforms (ASA 5505,
+  and the integrated-switch 5506-X) express interfaces as VLANs/switchports; those
+  still parse, but the interface-level checks (uRPF, unused-interface, BVI) are
+  written for routed interfaces.
+- **ASA 9.x.** Pre-9.0 (8.x and earlier) configs may parse but are not a target;
+  the end-of-life reference and several checks assume the 9.x command set.
+
+If your config is a single-context, routed-mode ASA 9.x device, the analysis is
+the same regardless of which appliance produced it.
+
+| Element | Requirement |
+|---------|-------------|
+| Shell | Windows PowerShell 5.1 (floor) or PowerShell 7+ |
+| Modules | None — built-in cmdlets only |
+| OS | Windows (analyst workstation) |
+| Network | None — fully offline |
+| Input | One Cisco ASA 9.x `show running-config` text file |
+
 ## Passive and offline by design
 
 This is a static text analyzer. It is the opposite of a scanner. Concretely, the
@@ -27,8 +95,7 @@ The analyst exports the `show running-config` out-of-band through their own
 authorized means and hands the tool a text file; the tool does not perform that
 collection step. A static guard test (`tests/unit/Guard.Tests.ps1`) enforces this
 boundary in code — it fails the build if any tool script introduces a network or
-active-collection primitive. Secret values discovered in the config are masked in
-the output by default.
+active-collection primitive.
 
 ## How it works
 
@@ -42,7 +109,7 @@ ASA running-config (text)
   [ Parser ]  indentation tree + repeated-prefix index   <- the core
         |
         v
-  [ Resolver ]  name map, object/object-group expansion
+  [ Resolver ]  name map, object/object-group expansion (recursive)
         |
         v
   [ Check Engine ]  catalog (data) + structural checks (code)
@@ -50,37 +117,11 @@ ASA running-config (text)
         v
   Findings (id, severity, evidence, authority, remediation)
         |
-        +--> Markdown report (stdout)         [secrets masked by default]
-        +--> CSV findings (timestamped file)
-        +--> Segmentation + data-flow map     [Mermaid topology + zone matrix]
-        +--> HTML report (client deliverable) [findings + inline-SVG topology + matrix]
+        +--> Markdown report (stdout + timestamped file)  [secrets masked by default]
+        +--> CSV findings (timestamped file)              [remediation-tracking columns]
+        +--> HTML report (client deliverable)             [findings + inline-SVG topology + matrix]
         +--> run summary (status stream)
 ```
-
-For a **client deliverable**, the tool also writes a single self-contained
-**HTML report** (`*_asa-report_*.html`) that consolidates the findings and the
-segmentation map. It opens in any web browser with nothing installed and no
-internet: embedded CSS, the topology as inline SVG, the matrix as a colored
-table, and **no JavaScript or external references** (so it survives strict mail/
-secure-transfer gateways). For a PDF, open it in a browser and choose
-**Print -> Save as PDF** — no tools required. The Markdown and CSV remain as
-working/machine-readable artifacts; the Mermaid `.md` is for renderer-equipped
-contexts (VS Code / GitLab / GitHub).
-
-In the topology, a zone whose `permit ip any any` reaches every other zone is
-collapsed by default into a single **ANY/ANY to ALL ZONES** badge (so the diagram
-stays readable); the matrix and risk list remain exhaustive. Pass
-`-ExpandAnyAny` to draw every individual flow instead.
-
-Alongside the findings, the tool also writes a **segmentation + data-flow map**
-(a separate timestamped Markdown file): a zone-level Mermaid topology plus a
-zone-to-zone connectivity matrix, deriving zones from interface `nameif` +
-`security-level` and inter-zone flows from `access-group`-bound ACLs.
-`permit ip any any` exposures (literal or object-group-expressed) are highlighted
-and tied to the offending ACL line. This is a **best-effort, offline stop-gap**
-(not a commercial segmentation tool): it shows *configured/allowed* flows, not
-end-to-end reachability (NAT/routing/shadowing are not modeled). The Mermaid is
-plain text — it renders locally in VS Code / GitLab / GitHub with no online tool.
 
 The design insight is that most real ASA findings are either buried in nested,
 reference-laden structure (object-groups inside object-groups, ACLs referencing
@@ -89,38 +130,25 @@ neither of which flat `grep` can find. So the tool parses the config into a
 queryable hierarchical model and reasons over what is present *and* what is
 missing.
 
-## Runtime
+For a **client deliverable**, the tool writes a single self-contained **HTML
+report** (`*_asa-report_*.html`) that consolidates the full findings detail and a
+segmentation view. It opens in any web browser with nothing installed and no
+internet: embedded CSS, a zone topology rendered as **inline SVG**, a zone-to-zone
+connectivity matrix as a colored table, and **no JavaScript or external
+references** (so it survives strict mail / secure-transfer gateways). For a PDF,
+open it in a browser and choose **Print -> Save as PDF** — no tools required.
 
-| Element | Requirement |
-|---------|-------------|
-| Shell | Windows PowerShell 5.1 (floor) or PowerShell 7+ |
-| Modules | None — built-in cmdlets only |
-| OS | Windows (analyst workstation) |
-| Network | None — fully offline |
-| Input | One Cisco ASA 9.x `show running-config` text file |
+The segmentation view derives zones from interface `nameif` + `security-level`
+and inter-zone flows from `access-group`-bound ACLs; `permit ip any any` exposures
+(literal or object-group-expressed) are highlighted and tied to the offending ACL
+line. A zone whose `permit ip any any` reaches every other zone is collapsed by
+default into a single **ANY/ANY to ALL ZONES** badge (so the diagram stays
+readable); the matrix and risk list remain exhaustive, and `-ExpandAnyAny` draws
+every individual flow. This is a **best-effort, offline view** (not a commercial
+segmentation tool): it shows *configured/allowed* flows, not end-to-end
+reachability (NAT/routing/shadowing are not modeled).
 
-## Quick start
-
-```powershell
-# one-time, per process
-Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
-
-# run a review (commercial profile is default)
-.\Invoke-AsaReview.ps1 -ConfigPath .\asa-running-config.txt
-
-# DoD/STIG profile; reveal secrets only on a trusted host
-.\Invoke-AsaReview.ps1 -ConfigPath .\cfg.txt -Profile dod -RevealSecrets
-
-# run the tests (Pester 5.x; development-only dependency)
-pwsh -File .\tests\Invoke-Tests.ps1
-```
-
-The Markdown report is written to stdout. A timestamped Markdown report and CSV
-findings file are also written **into the same directory as the configuration
-file** (never overwriting the config). Status messages go to the error/information
-stream so the stdout report stays clean. Secret values are masked by default.
-
-### Software version / end-of-life
+## Software version / end-of-life
 
 The review flags the running ASA software train against an end-of-life status,
 reading a **bundled offline reference** (`data/asa-eol.psd1`, a dated snapshot) —
@@ -132,25 +160,26 @@ on it.
 
 ## Status
 
-**Version:** v0.1c (released to `main`).
+**Version:** v0.2.
 **Last updated:** 2026-06-24.
 
-Implemented and gated (103/103 Pester tests green): the hierarchical parser, the
-support models (secret classifier, interface-role model, minimal object-group
-resolution, doc-cited defaults), the check engine running the 15 high-signal MVP
-checks with Markdown + CSV output and default secret masking, and the
-segmentation + data-flow visualization — a Mermaid topology, a zone-to-zone
-matrix, and a single self-contained HTML deliverable (findings + inline-SVG
-topology), with `permit ip any any` exposures highlighted and any-to-all-zones
-collapsed by default. The parser is proven against two real sanitized configs
-(TR-07); the checks produce exact true positives and zero false positives on the
-synthesized fixtures, and the HTML rendering is visually verified.
+Implemented and gated (124 Pester tests green, plus an opt-in performance test):
+the hierarchical parser, the support models (secret classifier, interface-role
+model, recursive object-group resolution with cycle detection, doc-cited
+defaults), a **58-check** catalog (CIS + DISA STIG) with commercial and DoD
+profiles, Markdown + CSV output with default secret masking and remediation
+tracking, and the single self-contained HTML deliverable (full findings +
+inline-SVG topology + zone matrix, any-to-all-zones collapsed by default). The
+parser is proven against two real sanitized configs (TR-07) and runs the full
+pipeline on them as an anti-overfit guard; the checks produce exact true positives
+and zero false positives on the synthesized fixtures; the HTML rendering is
+visually verified; and a 20,000-line benchmark confirms sub-quadratic scaling.
 
-**Validation bound:** no production ASA 5515 device or client config is available
-for development. Validation relies on a synthesized, syntactically faithful ASA
-5515 fixture plus real sanitized configs from public sources. This bound is
-stated in release notes until a real engagement config has been run through the
-tool.
+**Validation bound:** no production ASA device or client configuration was
+available during development. Validation relies on synthesized, syntactically
+faithful ASA 9.x fixtures plus real sanitized configs from public sources. This
+bound is stated in release notes until a real engagement config has been run
+through the tool.
 
 ## Companion docs
 

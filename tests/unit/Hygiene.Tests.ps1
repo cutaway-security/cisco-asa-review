@@ -11,7 +11,7 @@ BeforeAll {
     }
     . (Join-Path $src 'checks\structural.ps1')
 
-    $script:Hyg = Join-Path $PSScriptRoot '..\fixtures\asa-5515-hygiene.txt'
+    $script:Hyg = Join-Path $PSScriptRoot '..\fixtures\asa-9x-hygiene.txt'
     $script:M   = ConvertTo-AsaModel -Path $script:Hyg
     $script:F   = @(Invoke-AsaChecks -Model $script:M -Profile commercial)
 
