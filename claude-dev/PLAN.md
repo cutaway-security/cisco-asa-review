@@ -261,6 +261,34 @@ and the 20k-line perf benchmark + quadratic fix (NFR-04) are all done.
 
 **Acceptance gate**: shadowing TP/FP on fixture; performance target met.
 
+### Phase 8: Documentation finalization (README)
+
+**Status**: In progress. The README is a primary deliverable for two audiences —
+end users (analysts running the tool) and AI researchers/agents reading the repo
+— so it gets a deliberate accuracy + usability pass near the end, once the
+project's results are known and stable.
+
+- [x] Reposition + retitle (2026-06-25): added the "Where this fits — and where it
+      doesn't" lead-in (stopgap framing; NP-View / Titania Nipper as the mature
+      cross-device tools; mapped to SANS Five ICS Critical Controls — Control 2
+      Defensible Architecture and Control 4 Secure Remote Access). Retitled the
+      heading to "Cisco ASA Firewall Review".
+- [ ] **Accuracy + usability review (multi-AI first, then humanizer).** Run the
+      `multi-ai-code-review` skill to evaluate the README for accuracy
+      (claims cross-checked against the code/catalog) and usability for both
+      audiences; synthesize and apply fixes. THEN run the `humanizer` skill on the
+      prose sections to remove AI-writing tells. Order matters: fix substance and
+      structure before polishing voice, so the polish lands on the corrected text.
+      Scope the humanizer pass to prose (description, lead-in, "Where it works",
+      Status) — not code blocks, command examples, tables, or precise claims.
+- [ ] Optimize for AI researchers without hurting human readability (stable
+      headings, explicit/falsifiable claims, consistent terminology, an at-a-glance
+      facts block) — see RESUME/this plan for the recommendation set.
+
+**Acceptance gate**: every factual claim in the README verified against the code
+(check count, flags, outputs, scope); a sample-output example present; multi-AI
+synthesis applied; humanizer pass applied to prose; no regression in scannability.
+
 ## Decision Log
 
 | Date | Decision | Rationale |
@@ -279,6 +307,7 @@ and the 20k-line perf benchmark + quadratic fix (NFR-04) are all done.
 | 2026-06-24 | Add Informational severity tier for hygiene/cleanup findings | Track unused/inactive/tidiness items in CSV without inflating risk counts |
 | 2026-06-24 | "Unused" = unreferenced at ANY site (reference index), not just access-group | Crypto map / NAT / nested-group references would otherwise cause false positives |
 | 2026-06-24 | Artifact roles: HTML = full deliverable, MD = consolidation/AI review, CSV = tracking | CSV gains RemediationState + RemediationNotes + Informational rows; segmentation .md removed |
+| 2026-06-25 | README review = multi-AI accuracy/usability pass BEFORE humanizer prose pass | Fix substance/structure first, then polish voice; humanizing first would waste the polish when content changes. Humanizer scoped to prose, not technical reference. |
 
 ## Open process items (from multi-AI pass 2, P2)
 
