@@ -4,9 +4,10 @@
 
 **Last Session**: 2026-06-24
 **Branch**: claude-dev
-**Status**: **v0.2 complete and released to `main`.** 58-check catalog, deep
+**Status**: **v0.2a released to `main`** (latest). 58-check catalog, deep
 resolution, version/EoL, perf-verified, generalized to the ASA 9.x family
-(model-agnostic). Default suite 124 passed / 1 skipped (opt-in perf).
+(model-agnostic), plus a README Manual review checklist. Default suite 124 passed
+/ 1 skipped (opt-in perf).
 
 ## What Was Accomplished
 
@@ -140,9 +141,19 @@ resolution, version/EoL, perf-verified, generalized to the ASA 9.x family
   - **Released to `main` as v0.2** per RELEASE_TO_MAIN.md (orphan rebuild, no
     Claude files), tag `v0.2`.
 
+- **Manual review checklist + v0.2a release (2026-06-24):**
+  - Added a README **Manual review checklist** (12 items, 3 buckets: risk the tool
+    does not evaluate — NAT exposure, ACL shadowing, over-permissive non-any/any,
+    VPN policy, object-group contents; sanity-checks on its own findings —
+    not-assessed, unused/hygiene, secret completeness, absence findings; and items
+    outside the config snapshot — CVEs beyond EoL train, cert expiry, operational
+    truth). Docs-only; no code change.
+  - **Released to `main` as v0.2a**, tag `v0.2a`. The documented `checkout -f`
+    caveat in RELEASE_TO_MAIN.md made the orphan rebuild clean (no abort).
+
 ## In Progress
 
-**v0.2 COMPLETE and released to `main` as v0.2.** Nothing open in v0.2.
+**v0.2a released to `main`** (docs-only over v0.2). Nothing open in v0.2.
 
 ## Blockers
 

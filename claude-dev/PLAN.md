@@ -10,12 +10,13 @@ with no network and no device access.
 ## Current Phase
 
 **Phase**: Phase 6 — v0.2 (COMPLETE, released)
-**Status**: **v0.2 COMPLETE and released to `main` as v0.2** (2026-06-24) — issue
-#1 + catalog coverage (58 checks) + deep resolution + version/EoL (FR-15) + second
+**Status**: **v0.2a released to `main`** (latest, 2026-06-24). v0.2 = issue #1 +
+catalog coverage (58 checks) + deep resolution + version/EoL (FR-15) + second
 fixture (TR-05) + 20k perf benchmark & quadratic fix (NFR-04), generalized to the
-ASA 9.x family (model-agnostic; fixtures renamed `asa-9x-*`). Default suite **124
-passed / 1 skipped** (opt-in perf). Supersedes the v0.1c release.
-**Focus**: v0.2 shipped. Next: Windows PowerShell 5.1 verification (NFR-01);
+ASA 9.x family (model-agnostic; fixtures renamed `asa-9x-*`). v0.2a adds the README
+Manual review checklist (docs-only, no code change). Default suite **124 passed /
+1 skipped** (opt-in perf). Supersedes the v0.1c release.
+**Focus**: v0.2a shipped. Next: Windows PowerShell 5.1 verification (NFR-01);
 v0.3 depth (ACL shadowing, DoD-profile checks).
 
 ## Phases
