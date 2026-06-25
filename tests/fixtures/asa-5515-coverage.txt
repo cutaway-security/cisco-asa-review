@@ -31,4 +31,5 @@ crypto ikev1 policy 20
  lifetime 28800
 crypto ipsec ikev1 transform-set WEAK-TS esp-aes esp-sha-hmac
 sysopt connection permit-vpn
+same-security-traffic permit inter-interface
 : end

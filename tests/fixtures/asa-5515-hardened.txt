@@ -119,4 +119,7 @@ tunnel-group 198.51.100.10 ipsec-attributes
  ikev2 local-authentication pre-shared-key $sha512$5000$zyxwVUts9876rqpoNMlk==$jihgFEdc5432baZYxwVU==
 threat-detection basic-threat
 threat-detection scanning-threat shun
+threat-detection statistics tcp-intercept rate-interval 30 burst-rate 400 average-rate 200
+dns server-group DefaultDNS
+ name-server 192.168.1.53
 : end

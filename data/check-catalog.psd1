@@ -208,6 +208,40 @@
             Remediation = 'Use SNMPv3 with SHA authentication and AES privacy.'
         }
 
+        # --- v0.2 coverage Slice 7: interface / network hardening ---
+        @{
+            Id = 'IF-SCANNING-THREAT'; Category = 'access'; Severity = 'Low'
+            Profile = @('commercial','dod'); Authority = 'STIG V-239864'; Verified = $false
+            Confidence = 'deterministic'; Dependency = @('raw'); Kind = 'absence'
+            Detector = @{ Type = 'absent'; Pattern = '^threat-detection scanning-threat\b' }
+            Rationale = 'Scanning threat detection is not enabled; host/port scans against the device are not detected.'
+            Remediation = 'Configure threat-detection scanning-threat (optionally with shun).'
+        }
+        @{
+            Id = 'IF-THREAT-STATS'; Category = 'access'; Severity = 'Low'
+            Profile = @('commercial','dod'); Authority = 'CIS 3.6'; Verified = $false
+            Confidence = 'deterministic'; Dependency = @('raw'); Kind = 'absence'
+            Detector = @{ Type = 'absent'; Pattern = '^threat-detection statistics\b' }
+            Rationale = 'Threat-detection statistics are not collected, reducing visibility into attack patterns.'
+            Remediation = 'Configure threat-detection statistics (e.g., tcp-intercept).'
+        }
+        @{
+            Id = 'IF-SAME-SECURITY'; Category = 'access'; Severity = 'Medium'
+            Profile = @('commercial','dod'); Authority = 'Cisco hardening guide (narrative)'; Verified = $false
+            Confidence = 'deterministic'; Dependency = @('raw'); Kind = 'presence'
+            Detector = @{ Type = 'present'; Patterns = @('^same-security-traffic permit\b') }
+            Rationale = 'same-security-traffic permit allows traffic between equal-security interfaces (or hairpinning), weakening segmentation if not required.'
+            Remediation = 'Remove same-security-traffic permit unless explicitly required and justified.'
+        }
+        @{
+            Id = 'DNS-LOOKUP'; Category = 'logging'; Severity = 'Low'
+            Profile = @('commercial','dod'); Authority = 'CIS 3.1'; Verified = $false
+            Confidence = 'heuristic'; Dependency = @('raw'); Kind = 'absence'
+            Detector = @{ Type = 'absent'; Pattern = '^name-server\b' }
+            Rationale = 'No DNS name-server is configured; the device cannot resolve FQDN objects, NTP names, or validate certificates by name.'
+            Remediation = 'Configure a dns server-group with one or more name-server entries.'
+        }
+
         # --- v0.2 coverage Slice 6: access control ---
         @{
             Id = 'ACL-IMPLICIT-DENY-LOG'; Category = 'access'; Severity = 'Low'

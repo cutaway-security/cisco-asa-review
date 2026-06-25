@@ -7,6 +7,18 @@ project's lifetime.
 
 ---
 
+## 2026-06-24 -- v0.2 catalog coverage, Slice 7: interface hardening (COMPLETE)
+
+Slice 7 = 4 checks (3 absent + 1 present): IF-SCANNING-THREAT (absent threat-detection scanning-threat), IF-THREAT-STATS (absent threat-detection statistics), IF-SAME-SECURITY (present same-security-traffic permit), DNS-LOOKUP (absent name-server). Catalog now 56 checks. This COMPLETES the commercial catalog-coverage slices (1-7).
+
+TP: scanning-threat/threat-stats/dns-lookup on insecure (it has basic-threat only, no scanning/statistics; dns server-group with no name-server); same-security on coverage. TN on hardened: it already had scanning-threat; appended `threat-detection statistics tcp-intercept ...` and a `dns server-group / name-server`; no same-security-traffic. Added `same-security-traffic permit inter-interface` to coverage for the TP. Skipped DNS-GUARD (default-on in modern ASA makes absence-detection unreliable) and FAILOVER (design-dependent; would false-positive on single-device configs).
+
+(Note: the user's message said "Slice 6" but Slice 6 was already done; interpreted as Slice 7 and flagged it.)
+
+Catalog coverage summary: 56 checks = 15 MVP + 36 v0.2 (S1-7) + 5 hygiene, across management/auth/logging/crypto/access. Commercial-relevant CIS+STIG coverage done. DoD-profile-specific checks (FIPS, exact DoD banner text, split-tunnel-tunnelall, RSA modulus, account-of-last-resort) remain an optional follow-on under the `dod` profile. Remaining v0.2 infra: deep resolution (FR-05b), version/EoL table, second fixture, 20k perf. Suite 113/113. On claude-dev; not released.
+
+---
+
 ## 2026-06-24 -- v0.2 catalog coverage, Slice 6: access control (gate passed)
 
 Slice 6 = 3 checks: ACL-IMPLICIT-DENY-LOG (code, per bound ACL: no trailing `deny ip any any log` -> silent implicit deny), ICMP-TO-DEVICE (absent: no `icmp permit/deny` control statements), SYSOPT-PERMIT-VPN (present: decrypted VPN bypasses interface ACL). Catalog now 52 checks.

@@ -179,7 +179,8 @@ consolidated, ANY/ANY highlighted, no secret leak, deterministic.
 **Status**: Not Started (planned 2026-06-24)
 
 v0.2 coverage:
-- [~] Remaining CIS/STIG catalog across all seven categories. **In progress:**
+- [x] Remaining CIS/STIG catalog across all seven categories. **Commercial
+      coverage complete (2026-06-24): 56 checks across 7 slices.**
       - Slice 1 (data-driven, 8): MGMT-SSH-OUTSIDE, AUTH-AAA-SERIAL, LOG-TIMESTAMP,
         LOG-TRAP, LOG-CONSOLE, AUTH-PW-LOCKOUT, IF-URPF, SNMP-V3-WEAK.
       - Slice 2 (numeric/conditional code, 4): MGMT-SSH-TIMEOUT, MGMT-HTTP-TIMEOUT,
@@ -193,10 +194,12 @@ v0.2 coverage:
         THREAT-DETECTION-BASIC, SNMP-V3-NOPRIV.
       - Slice 6 (access control, 3): ACL-IMPLICIT-DENY-LOG, ICMP-TO-DEVICE,
         SYSOPT-PERMIT-VPN.
-      Catalog now **52 checks** (15 MVP + 32 v0.2 + 5 hygiene). `Coverage.Tests.ps1`
-      gates TP (insecure/coverage) + TN (hardened). **~1 catalog slice left**:
-      Slice 7 interface-hardening (threat-detection scanning, outside sec-level,
-      same-security-traffic, DNS guard, failover, DNS lookup).
+      - Slice 7 (interface hardening, 4): IF-SCANNING-THREAT, IF-THREAT-STATS,
+        IF-SAME-SECURITY, DNS-LOOKUP.
+      Catalog now **56 checks** (15 MVP + 36 v0.2 + 5 hygiene). `Coverage.Tests.ps1`
+      gates TP (insecure/coverage) + TN (hardened). Commercial catalog coverage
+      complete. (DoD-profile checks — FIPS, exact DoD banner, split-tunnel,
+      RSA modulus, etc. — remain an optional follow-on under the dod profile.)
 - [ ] Deep recursive resolution (FR-05b).
 - [ ] Version/EoL lookup table (FR-15, `asa-eol.psd1`, DR-05).
 - [ ] Second independently authored fixture (TR-05).

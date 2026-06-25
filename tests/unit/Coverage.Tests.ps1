@@ -26,16 +26,17 @@ Describe 'v0.2 coverage: true positives' {
         foreach ($id in 'MGMT-SSH-OUTSIDE','AUTH-AAA-SERIAL','LOG-TIMESTAMP','LOG-TRAP','AUTH-PW-LOCKOUT','IF-URPF',
                         'MGMT-SSH-TIMEOUT','MGMT-HTTP-TIMEOUT','CRYPTO-PFS',
                         'AUTH-CMD-AUTHZ','AUTH-CMD-ACCT','AUTH-PW-COMPLEXITY','AUTH-PW-LIFETIME','AUTH-BANNER-MOTD',
-                        'CRYPTO-SSL-CIPHER','LOG-BUFFER-SIZE','ACL-IMPLICIT-DENY-LOG','ICMP-TO-DEVICE') {
+                        'CRYPTO-SSL-CIPHER','LOG-BUFFER-SIZE','ACL-IMPLICIT-DENY-LOG','ICMP-TO-DEVICE',
+                        'IF-SCANNING-THREAT','IF-THREAT-STATS','DNS-LOOKUP') {
             script:Fired $script:InFind $id | Should -BeTrue -Because "$id should fire on the insecure fixture"
         }
     }
 
-    It 'flags coverage-only cases (logging, SNMPv3, SA lifetime, AAA gaps, weak crypto, monitoring, access)' {
+    It 'flags coverage-only cases (logging, SNMPv3, SA lifetime, AAA gaps, weak crypto, monitoring, access, interface)' {
         foreach ($id in 'LOG-CONSOLE','SNMP-V3-WEAK','CRYPTO-SA-LIFETIME',
                         'AUTH-ENABLE-PW','AUTH-AAA-ENABLE','AUTH-AAA-HTTP',
                         'CRYPTO-IKE-INTEGRITY','CRYPTO-IPSEC-INTEGRITY','CRYPTO-DH-14','CRYPTO-AES128',
-                        'NTP-REDUNDANT','THREAT-DETECTION-BASIC','SNMP-V3-NOPRIV','SYSOPT-PERMIT-VPN') {
+                        'NTP-REDUNDANT','THREAT-DETECTION-BASIC','SNMP-V3-NOPRIV','SYSOPT-PERMIT-VPN','IF-SAME-SECURITY') {
             script:Fired $script:CovFind $id | Should -BeTrue -Because "$id should fire on the coverage fixture"
         }
     }
@@ -49,7 +50,8 @@ Describe 'v0.2 coverage: true negatives on the hardened fixture' {
                         'AUTH-ENABLE-PW','AUTH-AAA-ENABLE','AUTH-AAA-HTTP','AUTH-CMD-AUTHZ','AUTH-CMD-ACCT','AUTH-PW-COMPLEXITY','AUTH-PW-LIFETIME','AUTH-BANNER-MOTD',
                         'CRYPTO-IKE-INTEGRITY','CRYPTO-IPSEC-INTEGRITY','CRYPTO-DH-14','CRYPTO-AES128','CRYPTO-SSL-CIPHER',
                         'LOG-BUFFER-SIZE','NTP-REDUNDANT','THREAT-DETECTION-BASIC','SNMP-V3-NOPRIV',
-                        'ACL-IMPLICIT-DENY-LOG','ICMP-TO-DEVICE','SYSOPT-PERMIT-VPN') {
+                        'ACL-IMPLICIT-DENY-LOG','ICMP-TO-DEVICE','SYSOPT-PERMIT-VPN',
+                        'IF-SCANNING-THREAT','IF-THREAT-STATS','IF-SAME-SECURITY','DNS-LOOKUP') {
             script:Fired $script:HdFind $id | Should -BeFalse -Because "$id must not fire on the hardened fixture"
         }
     }

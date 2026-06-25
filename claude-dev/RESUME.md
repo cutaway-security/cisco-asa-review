@@ -79,16 +79,20 @@
   - `tests/fixtures/asa-5515-hygiene.txt` + `tests/unit/Hygiene.Tests.ps1`. Suite
     108/108 green; end-to-end + HTML render re-verified; crypto-only ACL not flagged.
 
-- **v0.2 catalog coverage Slices 1-6 (2026-06-24):** S1 (+8 data), S2 (+4
-  numeric/conditional), S3 (+8 AAA depth), S4 (+5 crypto strength), S5 (+4
-  logging/monitoring), S6 (+3 access control: ACL-IMPLICIT-DENY-LOG,
-  ICMP-TO-DEVICE, SYSOPT-PERMIT-VPN). Catalog = **52 checks**. Suite 113/113.
+- **v0.2 catalog coverage COMPLETE — Slices 1-7 (2026-06-24):** S1 (+8 data),
+  S2 (+4 numeric/conditional), S3 (+8 AAA depth), S4 (+5 crypto strength), S5 (+4
+  logging/monitoring), S6 (+3 access control), S7 (+4 interface hardening:
+  IF-SCANNING-THREAT, IF-THREAT-STATS, IF-SAME-SECURITY, DNS-LOOKUP). Catalog =
+  **56 checks** (15 MVP + 36 v0.2 + 5 hygiene). Suite 113/113. Commercial catalog
+  coverage done; DoD-profile checks optional follow-on.
 
 ## In Progress
 
-v0.2 catalog coverage, slice by slice (data-driven checks first). Next slices:
-more catalog checks; then deep resolution (FR-05b), version/EoL table, second
-fixture, perf. On `claude-dev` (issue #1 + Slice 1 not yet released).
+v0.2 catalog coverage COMPLETE (56 checks). Remaining v0.2 infrastructure:
+deep recursive resolution (FR-05b) + undefined-ref/unbound-ACL structural
+checks; version/EoL table (needs data-source decision); second independent
+fixture (TR-05); 20k-line perf benchmark (NFR-04). On `claude-dev`; the issue #1
+work and all 7 catalog slices are not yet released to `main`.
 
 ## Blockers
 
