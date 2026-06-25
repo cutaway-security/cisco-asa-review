@@ -4,10 +4,11 @@
 
 **Last Session**: 2026-06-25
 **Branch**: claude-dev
-**Status**: **v0.2c released to `main`** (latest). v0.2b = README finalization
-(multi-AI review applied). v0.2c = committed `examples/` (sample md/csv/html linked
-from the README), a Project-layout tree in the README, and **`tests/` removed from
-`main`** (dev-only). Default suite 124 passed / 1 skipped (opt-in perf).
+**Status**: **v0.2d released to `main`** (latest). v0.2b = README finalization;
+v0.2c = examples/ + project-layout tree + tests off main; v0.2d = removed all
+dev references from the README (Guard.Tests, claude-dev branch/links, Pester,
+requirement IDs, Companion docs section) — the README now ships identically on both
+branches (no trim step). Default suite 124 passed / 1 skipped (opt-in perf).
 
 ## What Was Accomplished
 

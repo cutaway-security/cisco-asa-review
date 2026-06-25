@@ -54,15 +54,14 @@ each with a timestamped name:
 
 Status messages go to stderr so the stdout report stays clean. Secret values are
 masked by default; `-RevealSecrets` opts out (and emits a credential-bearing
-warning) only when you run it on a trusted host. The Pester 5.x test suite lives in
-the development repository (the `claude-dev` branch) and is not part of a release.
+warning) only when you run it on a trusted host.
 
 ## At a glance
 
 | | |
 |---|---|
 | Language | PowerShell (5.1 floor, 7+ compatible) |
-| Dependencies | None at runtime (built-in cmdlets only); Pester 5.x for tests |
+| Dependencies | None — built-in cmdlets only |
 | Input | One Cisco ASA 9.x `show running-config` text file |
 | Scope | Single-context, routed-mode ASA 9.x (best-effort otherwise) |
 | Outputs | Markdown (stdout + file), CSV, self-contained HTML |
@@ -214,12 +213,10 @@ tool:
 
 The analyst exports the `show running-config` out-of-band through their own
 authorized means and hands the tool a text file; the tool does not perform that
-collection step. A static guard test (`tests/unit/Guard.Tests.ps1`) enforces this
-boundary in code — it fails the build if any tool script introduces a network or
-active-collection primitive. The repository does contain one opt-in maintenance
-script, `Update-AsaEolData.ps1`, which refreshes the end-of-life reference over the
-network; it is never part of a review, and the same guard test asserts the review
-never calls it.
+collection step. By design, no script in the review path contains a network or
+active-collection primitive. The one exception is the separate, opt-in
+`Update-AsaEolData.ps1` maintenance script, which refreshes the end-of-life
+reference over the network; it is never part of a review.
 
 ## How it works
 
@@ -359,46 +356,29 @@ on it.
 └── LICENSE
 ```
 
-The development repository also carries `tests/` (the Pester suite and synthesized
-fixtures) and `claude-dev/` (planning and design docs); neither ships in a release.
-
 ## Status
 
-**Version:** v0.2c.
+**Version:** v0.2d.
 **Last updated:** 2026-06-25.
 
-Implemented and gated (the full unit suite passes — 124 tests — plus an opt-in
-performance test): the hierarchical parser, the support models (secret classifier,
-interface-role model, recursive object-group resolution with cycle detection,
-doc-cited defaults), a **58-check** catalog (CIS + DISA STIG, with a few tool
-heuristics) across commercial and DoD profiles, Markdown + CSV output with default
-secret masking and remediation tracking, and the single self-contained HTML
+Implemented and verified: the hierarchical parser, the support models (secret
+classifier, interface-role model, recursive object-group resolution with cycle
+detection, doc-cited defaults), a **58-check** catalog (CIS + DISA STIG, with a few
+tool heuristics) across commercial and DoD profiles, Markdown + CSV output with
+default secret masking and remediation tracking, and the single self-contained HTML
 deliverable (full findings + inline-SVG topology + zone matrix, any-to-all-zones
-collapsed by default). The parser is proven against two real sanitized configs
-(TR-07) and runs the full pipeline on them as an anti-overfit guard; the checks
-produce the expected true positives and zero false positives **on the synthesized
-fixtures** (many checks are heuristic — see `Confidence` in the catalog — and may
-over- or under-flag on real configs); the HTML rendering is visually verified; and
-a standalone 20,000-line benchmark confirms sub-quadratic scaling. ("58 checks" is
-the current catalog; "MVP-15" in the code and tests is the original core set.)
+collapsed by default). The parser is proven against two real sanitized configs and
+the full pipeline runs cleanly on them; the checks produce the expected true
+positives and zero false positives **on the synthesized fixtures** (many checks are
+heuristic — see `Confidence` in the catalog — and may over- or under-flag on real
+configs); the HTML rendering is visually verified; and a 20,000-line benchmark
+confirms sub-quadratic scaling.
 
 **Validation bound:** no production ASA device or client configuration was
 available during development. Validation relies on synthesized, syntactically
 faithful ASA 9.x fixtures plus real sanitized configs from public sources. This
 bound is stated in release notes until a real engagement config has been run
 through the tool.
-
-## Companion docs
-
-Planning and design live in [`claude-dev/`](claude-dev/):
-
-- [VISION.md](claude-dev/VISION.md) — strategic direction and scope
-- [REQUIREMENTS.md](claude-dev/REQUIREMENTS.md) — structured requirements
-- [SUCCESS_CRITERIA.md](claude-dev/SUCCESS_CRITERIA.md) — measurable gates
-- [ARCHITECTURE.md](claude-dev/ARCHITECTURE.md) — design and rationale
-- [CHECK_CATALOG.md](claude-dev/CHECK_CATALOG.md) — security checks + parser grammar
-- [20260624_asa-config-analysis_RESEARCH.md](claude-dev/20260624_asa-config-analysis_RESEARCH.md) — prior-art survey
-- [PLAN.md](claude-dev/PLAN.md) — roadmap and phases
 
 ## License
 

@@ -12,7 +12,7 @@ artifacts (`CLAUDE.md`, `claude-dev/`, `.ai-reviews/`, `background/`). `main` an
 ## What ships on main (release allowlist)
 
 ```
-README.md            (release variant: no claude-dev/ companion links)
+README.md            (ships as-is — no dev references, so no trim needed)
 LICENSE
 .gitignore
 Invoke-AsaReview.ps1
@@ -38,8 +38,7 @@ pwsh -File tests/Invoke-Tests.ps1  # verify GREEN on claude-dev BEFORE cutting m
 git branch -D main 2>/dev/null     # drop local main
 git checkout --orphan main         # new history; index = full claude-dev tree
 git rm -r --cached --quiet CLAUDE.md claude-dev .ai-reviews background tests
-# trim README for release (drop the claude-dev companion-doc links), then:
-git add README.md
+# README ships as-is (no dev references to trim), so just commit the remaining tree:
 git commit -m "Release: cisco-asa-review <version>"
 # verify no claude/dev files:
 git ls-files | grep -E '^(CLAUDE.md|claude-dev/|.ai-reviews/|background/|tests/)' && echo LEAK || echo clean

@@ -7,6 +7,14 @@ project's lifetime.
 
 ---
 
+## 2026-06-25 -- strip all dev references from the README (v0.2d)
+
+Maintainer call: the README should not reference the `claude-dev` branch or any dev-only files/tools, since all dev planning lives in the planning docs and those references aren't needed on either branch. Removed: the `tests/unit/Guard.Tests.ps1` reference in "Passive and offline" (reworded to state the offline boundary as a design property, keeping the `Update-AsaEolData.ps1` exception); the "test suite lives in the claude-dev branch" sentence; "Pester 5.x for tests" in the At-a-glance deps; the test-count / opt-in-perf / `(TR-07)` / "anti-overfit guard" / "MVP-15 in the code and tests" mentions in Status; the layout note about `tests/`+`claude-dev/`; and the entire **Companion docs** section (the claude-dev/ links). Also fixed `examples/README.md`, which linked `../tests/fixtures/...` (a path that doesn't exist on `main` once tests are excluded) and hard-coded the fixture in the regenerate command — both genericized.
+
+Nice side effect: with the Companion-docs section gone, the README is now byte-identical on `claude-dev` and `main`, so the release no longer needs the `sed` companion-link trim. Updated RELEASE_TO_MAIN.md to drop the trim step (and the `git add README.md` it required) and the "release variant" note. Released as v0.2d.
+
+---
+
 ## 2026-06-25 -- examples/ + project-layout tree + tests off main (v0.2c)
 
 Maintainer review of the repo raised three things, all addressed. (1) The README example output was inline-only — no committed artifacts. Added `examples/` with a REAL run of the tool against `tests/fixtures/asa-9x-insecure.txt` (md + csv + the self-contained HTML deliverable), stabilized the filenames (dropped the timestamp for linkability), leak-checked the output (no seeded secret in cleartext; redaction markers present), added an `examples/README.md`, and linked all three from the README. The HTML especially matters — it's the client deliverable and users couldn't see it without running the tool.

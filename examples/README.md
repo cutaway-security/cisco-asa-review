@@ -1,10 +1,10 @@
 # Example output
 
-These are real artifacts produced by running the tool against the synthesized
-test fixture [`tests/fixtures/asa-9x-insecure.txt`](../tests/fixtures/asa-9x-insecure.txt)
-— **not a live device.** No production or client configuration is analyzed here.
-The fixture is deliberately insecure, so it triggers a broad set of findings (39
-risk + 5 informational). Secret values are masked, as in any default run.
+These are real artifacts produced by running the tool against a synthesized,
+deliberately-insecure ASA 9.x configuration — **not a live device.** No production
+or client configuration is analyzed here. The sample triggers a broad set of
+findings (39 risk + 5 informational). Secret values are masked, as in any default
+run.
 
 | File | What it is |
 |------|------------|
@@ -13,8 +13,9 @@ risk + 5 informational). Secret values are masked, as in any default run.
 | [`asa-9x-insecure_asa-report.html`](asa-9x-insecure_asa-report.html) | The self-contained HTML deliverable (open in a browser; Print -> Save as PDF) |
 
 The filenames here are stabilized for linking; a real run names each file with a
-timestamp (`<config>_asa-review_<YYYYMMDD_HHMMSS>.md`, etc.). To regenerate:
+timestamp (`<config>_asa-review_<YYYYMMDD_HHMMSS>.md`, etc.). Regenerate from any
+config with:
 
 ```powershell
-.\Invoke-AsaReview.ps1 -ConfigPath .\tests\fixtures\asa-9x-insecure.txt -OutputDirectory .\examples
+.\Invoke-AsaReview.ps1 -ConfigPath .\your-config.txt -OutputDirectory .\examples
 ```
