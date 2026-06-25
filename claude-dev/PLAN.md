@@ -191,11 +191,12 @@ v0.2 coverage:
         CRYPTO-DH-14, CRYPTO-AES128, CRYPTO-SSL-CIPHER.
       - Slice 5 (logging/monitoring, 4): LOG-BUFFER-SIZE, NTP-REDUNDANT,
         THREAT-DETECTION-BASIC, SNMP-V3-NOPRIV.
-      Catalog now **49 checks** (15 MVP + 29 v0.2 + 5 hygiene). `Coverage.Tests.ps1`
-      gates TP (insecure/coverage) + TN (hardened). **~2 catalog slices left**:
-      Slice 6 access-control (implicit-deny logging, ICMP-to-device, sysopt
-      permit-vpn), Slice 7 interface-hardening (threat-detection scanning, outside
-      sec-level, same-security-traffic, DNS guard, failover, DNS lookup).
+      - Slice 6 (access control, 3): ACL-IMPLICIT-DENY-LOG, ICMP-TO-DEVICE,
+        SYSOPT-PERMIT-VPN.
+      Catalog now **52 checks** (15 MVP + 32 v0.2 + 5 hygiene). `Coverage.Tests.ps1`
+      gates TP (insecure/coverage) + TN (hardened). **~1 catalog slice left**:
+      Slice 7 interface-hardening (threat-detection scanning, outside sec-level,
+      same-security-traffic, DNS guard, failover, DNS lookup).
 - [ ] Deep recursive resolution (FR-05b).
 - [ ] Version/EoL lookup table (FR-15, `asa-eol.psd1`, DR-05).
 - [ ] Second independently authored fixture (TR-05).

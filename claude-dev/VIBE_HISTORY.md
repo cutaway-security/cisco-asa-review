@@ -7,6 +7,16 @@ project's lifetime.
 
 ---
 
+## 2026-06-24 -- v0.2 catalog coverage, Slice 6: access control (gate passed)
+
+Slice 6 = 3 checks: ACL-IMPLICIT-DENY-LOG (code, per bound ACL: no trailing `deny ip any any log` -> silent implicit deny), ICMP-TO-DEVICE (absent: no `icmp permit/deny` control statements), SYSOPT-PERMIT-VPN (present: decrypted VPN bypasses interface ACL). Catalog now 52 checks.
+
+TP: ACL-IMPLICIT-DENY-LOG + ICMP-TO-DEVICE on insecure (its bound ACLs lack a logged deny; no icmp control); SYSOPT-PERMIT-VPN on coverage. TN on hardened: it already had `deny ip any any log` on both bound ACLs; appended `icmp deny any outside` (it had no icmp control, would have fired); no sysopt permit-vpn. Added `sysopt connection permit-vpn` to coverage for the TP. The implicit-deny-log detector emits one finding per bound ACL missing the logged deny (3 on insecure: outside_in/inside_in have no deny, dmz_in has `deny ip any any` without `log`).
+
+Suite 113/113. ~1 catalog slice left (interface-hardening) + 4 infra items. On claude-dev; not released.
+
+---
+
 ## 2026-06-24 -- v0.2 catalog coverage, Slice 5: logging/monitoring (gate passed)
 
 Slice 5 = 4 checks (2 code + 2 data): LOG-BUFFER-SIZE (code: logging buffered on with buffer-size <512KB or absent/default), NTP-REDUNDANT (code: ntp configured with <2 servers), THREAT-DETECTION-BASIC (absent), SNMP-V3-NOPRIV (present: snmp-server group v3 noauth/auth, i.e. not priv). Catalog now 49 checks.

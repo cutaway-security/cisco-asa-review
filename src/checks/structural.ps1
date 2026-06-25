@@ -151,6 +151,25 @@ function Test-AsaInterfaceNoIp {
     return @($out)
 }
 
+# --- v0.2 coverage Slice 6: access control ---
+
+function Test-AsaImplicitDenyLog {
+    # An interface-bound ACL should end its (silent) implicit deny with an
+    # explicit "deny ip any any log" so dropped traffic is recorded.
+    [CmdletBinding()] param([Parameter(Mandatory)][pscustomobject]$Model)
+    $bound = @{}
+    foreach ($ag in $Model.AccessGroups) {
+        if ($ag.Text -match '^access-group\s+(\S+)\b') { $bound[$Matches[1]] = $ag }
+    }
+    $out = [System.Collections.Generic.List[object]]::new()
+    foreach ($acl in $bound.Keys) {
+        if (-not $Model.AccessLists.ContainsKey($acl)) { continue }
+        $hasLoggedDeny = $Model.AccessLists[$acl] | Where-Object { $_.Text -match '\bdeny ip any any\b.*\blog\b' } | Select-Object -First 1
+        if ($null -eq $hasLoggedDeny) { $out.Add((New-AsaDetection -Fired $true -Evidence @($bound[$acl]))) }
+    }
+    return @($out)
+}
+
 # --- v0.2 coverage Slice 5: logging / monitoring ---
 
 function Test-AsaLogBufferSize {

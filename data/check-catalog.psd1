@@ -208,6 +208,32 @@
             Remediation = 'Use SNMPv3 with SHA authentication and AES privacy.'
         }
 
+        # --- v0.2 coverage Slice 6: access control ---
+        @{
+            Id = 'ACL-IMPLICIT-DENY-LOG'; Category = 'access'; Severity = 'Low'
+            Profile = @('commercial','dod'); Authority = 'Cisco hardening guide'; Verified = $false
+            Confidence = 'heuristic'; Dependency = @('raw'); Kind = 'presence'
+            Detector = @{ Type = 'code'; Function = 'Test-AsaImplicitDenyLog' }
+            Rationale = 'An interface-bound ACL has no explicit "deny ip any any log"; traffic dropped by the implicit deny is not logged.'
+            Remediation = 'Append an explicit "deny ip any any log" to the bound access-list.'
+        }
+        @{
+            Id = 'ICMP-TO-DEVICE'; Category = 'access'; Severity = 'Medium'
+            Profile = @('commercial','dod'); Authority = 'CIS 2.5; Cisco hardening guide'; Verified = $false
+            Confidence = 'heuristic'; Dependency = @('raw'); Kind = 'absence'
+            Detector = @{ Type = 'absent'; Pattern = '^icmp (permit|deny)\b' }
+            Rationale = 'No ICMP control (icmp permit/deny) is configured, so ICMP to the device interfaces is allowed.'
+            Remediation = 'Restrict ICMP to the device with icmp deny/permit statements (e.g., icmp deny any outside).'
+        }
+        @{
+            Id = 'SYSOPT-PERMIT-VPN'; Category = 'access'; Severity = 'Medium'
+            Profile = @('commercial','dod'); Authority = 'CIS 3.13'; Verified = $false
+            Confidence = 'deterministic'; Dependency = @('raw'); Kind = 'presence'
+            Detector = @{ Type = 'present'; Patterns = @('^sysopt connection permit-vpn\b') }
+            Rationale = 'sysopt connection permit-vpn lets decrypted VPN traffic bypass the interface access-list.'
+            Remediation = 'Remove sysopt connection permit-vpn so VPN traffic is subject to interface ACLs (or use vpn-filter).'
+        }
+
         # --- v0.2 coverage Slice 5: logging / monitoring ---
         @{
             Id = 'LOG-BUFFER-SIZE'; Category = 'logging'; Severity = 'Low'

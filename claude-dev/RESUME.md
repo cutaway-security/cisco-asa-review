@@ -79,10 +79,10 @@
   - `tests/fixtures/asa-5515-hygiene.txt` + `tests/unit/Hygiene.Tests.ps1`. Suite
     108/108 green; end-to-end + HTML render re-verified; crypto-only ACL not flagged.
 
-- **v0.2 catalog coverage Slices 1-5 (2026-06-24):** S1 (+8 data), S2 (+4
+- **v0.2 catalog coverage Slices 1-6 (2026-06-24):** S1 (+8 data), S2 (+4
   numeric/conditional), S3 (+8 AAA depth), S4 (+5 crypto strength), S5 (+4
-  logging/monitoring: LOG-BUFFER-SIZE, NTP-REDUNDANT, THREAT-DETECTION-BASIC,
-  SNMP-V3-NOPRIV). Catalog = **49 checks**. Suite 113/113.
+  logging/monitoring), S6 (+3 access control: ACL-IMPLICIT-DENY-LOG,
+  ICMP-TO-DEVICE, SYSOPT-PERMIT-VPN). Catalog = **52 checks**. Suite 113/113.
 
 ## In Progress
 
