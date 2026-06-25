@@ -3,12 +3,11 @@
 ## Current State
 
 **Last Session**: 2026-06-25
-**Branch**: claude-dev (ahead of `origin/claude-dev` — README + planning-doc
-commits not yet pushed; last release on `main` is v0.2a)
-**Status**: v0.2a is the latest release. Since then, on `claude-dev` (unpushed):
-README repositioned/retitled, and a multi-AI accuracy+usability review (Phase 8)
-done and its full edit set applied to the README. Default suite 124 passed /
-1 skipped (opt-in perf).
+**Branch**: claude-dev
+**Status**: **v0.2c released to `main`** (latest). v0.2b = README finalization
+(multi-AI review applied). v0.2c = committed `examples/` (sample md/csv/html linked
+from the README), a Project-layout tree in the README, and **`tests/` removed from
+`main`** (dev-only). Default suite 124 passed / 1 skipped (opt-in perf).
 
 ## What Was Accomplished
 
@@ -166,10 +165,20 @@ done and its full edit set applied to the README. Default suite 124 passed /
     "mapped to CIS/STIG" and "analysis is the same" softened; stderr fix; 58-vs-MVP-15
     note. Humanizer pass dropped (maintainer call). No tool-code changes.
 
+- **Examples + project layout + tests off main (2026-06-25, v0.2c):**
+  - Added committed `examples/` (real `asa-9x-insecure_asa-review.md/.csv` +
+    `asa-9x-insecure_asa-report.html` from the synthesized fixture, secrets masked,
+    leak-checked) + `examples/README.md`; linked from the README "Example output".
+  - Added a **Project layout** tree to the README (before Status) documenting every
+    `src/` and `data/` file's purpose; notes `tests/`+`claude-dev/` are dev-only.
+  - **Removed `tests/` from `main`**: updated RELEASE_TO_MAIN.md allowlist/excludes
+    and moved the test-verify step to run on `claude-dev` pre-release (main no longer
+    carries tests). `data/` kept as-is.
+  - Released to `main` as v0.2c.
+
 ## In Progress
 
-**Phase 8 (README) complete and applied; unpushed on `claude-dev`.** Ready to push
-+ release as the next tag (e.g. v0.2b) when the maintainer chooses.
+**v0.2c released.** Nothing open in the README/packaging track.
 
 ## Blockers
 

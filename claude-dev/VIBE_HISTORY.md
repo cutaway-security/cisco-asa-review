@@ -7,6 +7,18 @@ project's lifetime.
 
 ---
 
+## 2026-06-25 -- examples/ + project-layout tree + tests off main (v0.2c)
+
+Maintainer review of the repo raised three things, all addressed. (1) The README example output was inline-only — no committed artifacts. Added `examples/` with a REAL run of the tool against `tests/fixtures/asa-9x-insecure.txt` (md + csv + the self-contained HTML deliverable), stabilized the filenames (dropped the timestamp for linkability), leak-checked the output (no seeded secret in cleartext; redaction markers present), added an `examples/README.md`, and linked all three from the README. The HTML especially matters — it's the client deliverable and users couldn't see it without running the tool.
+
+(2) `tests/` removed from `main`. The maintainer's call: tests are dev-only and an end user running a review doesn't need the Pester suite or fixtures. Updated RELEASE_TO_MAIN.md to exclude `tests` (added it to the `git rm -r --cached` line and the leak-check). Real consequence I had to design around: the release procedure used to run `pwsh -File tests/Invoke-Tests.ps1` on the orphan `main` tree to verify — impossible once tests aren't shipped. Moved that verify step to run on `claude-dev` BEFORE cutting `main`; it's equivalent because the release is a pure subset (src/ + data/ are byte-identical). Noted trade-off: the "clear this tool by running Guard.Tests yourself" assurance is no longer shippable on `main` — but that was my lean, not the decision.
+
+(3) `data/` purpose was opaque. Kept the data/code separation as-is (deliberate: declarative `.psd1` loaded inertly, never moved into `src/`). Documented it instead. While checking, found that `asa-defaults.psd1` is NOT runtime-loaded — only a test audits it and the catalog comments cite it; it's doc-cited reference data, not engine input (same category as the dead EoL `Hardware` data). The README's new **Project layout** tree (placed before Status so readers who don't have questions can skip it) labels each `src/`/`data/` file's purpose and flags `asa-defaults.psd1` as "reference data; not loaded at runtime."
+
+Released as v0.2c.
+
+---
+
 ## 2026-06-25 -- README accuracy+usability review (multi-AI) and improvements
 
 Ran `multi-ai-code-review` on the README (anthropic claude-opus-4-8 + openai gpt-5.4 + mistral-medium) with a custom prompt scoped to README accuracy (claims cross-checked against the code) and usability for two audiences: end users and AI researchers/agents. Key scoping lesson: the default bundle sent the big `claude-dev/` planning docs first and exhausted the 300k-char budget BEFORE the code the reviewers needed to verify claims (check-catalog, src, Invoke-AsaReview) — so I re-ran with `--exclude-glob 'claude-dev/**' 'background/**' 'tests/fixtures/**' 'tests/perf/**'`, which got the bundle to 35 files / ~67k tokens / 0 secrets, all git-tracked (real configs are gitignored and were never in scope). Always dry-run and read the file list; "context budget exhausted" on the files that matter means the review is flying blind.

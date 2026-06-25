@@ -322,6 +322,8 @@ maintainer decision.)
 | 2026-06-24 | "Unused" = unreferenced at ANY site (reference index), not just access-group | Crypto map / NAT / nested-group references would otherwise cause false positives |
 | 2026-06-24 | Artifact roles: HTML = full deliverable, MD = consolidation/AI review, CSV = tracking | CSV gains RemediationState + RemediationNotes + Informational rows; segmentation .md removed |
 | 2026-06-25 | README review = multi-AI accuracy/usability pass BEFORE humanizer prose pass | Fix substance/structure first, then polish voice; humanizing first would waste the polish when content changes. Humanizer scoped to prose, not technical reference. |
+| 2026-06-25 | `tests/` excluded from `main` (dev-only) | End users running a review do not need the Pester suite or fixtures; tests live on `claude-dev` and are verified there before each release (src/+data/ are byte-identical on the release). Trade-off accepted: the Guard-test "verify offline yourself" assurance is no longer shippable on `main`. |
+| 2026-06-25 | Add committed `examples/` (sample md/csv/html from the synthesized insecure fixture) + a Project-layout tree in the README | Users could not see the output (esp. the HTML deliverable) without running the tool; `data/` purposes were opaque. Examples ship on `main`; the tree documents structure without forcing readers to scroll. `data/` kept as-is (deliberate data/code separation). |
 
 ## Open process items (from multi-AI pass 2, P2)
 

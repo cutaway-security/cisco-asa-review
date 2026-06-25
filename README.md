@@ -72,10 +72,13 @@ development-only Pester 5.x dependency): `pwsh -File .\tests\Invoke-Tests.ps1`.
 
 ## Example output
 
-The snippets below come from running the tool against a synthesized test fixture
-(`tests/fixtures/asa-9x-insecure.txt`), **not a live device** — no production or
-client configuration is analyzed here. The fixture is deliberately insecure, so it
-triggers a broad set of findings.
+The snippets below come from running the tool against a synthesized test fixture,
+**not a live device** — no production or client configuration is analyzed here. The
+fixture is deliberately insecure, so it triggers a broad set of findings. The full
+sample artifacts are committed under [`examples/`](examples/): the
+[Markdown report](examples/asa-9x-insecure_asa-review.md), the
+[CSV](examples/asa-9x-insecure_asa-review.csv), and the
+[self-contained HTML deliverable](examples/asa-9x-insecure_asa-report.html).
 
 On a run, the status stream reports where the artifacts were written:
 
@@ -325,9 +328,43 @@ it is the only script that uses the network and is never invoked by a review.
 Always verify EoL status against Cisco's official lifecycle pages before relying
 on it.
 
+## Project layout
+
+```
+.
+├── Invoke-AsaReview.ps1        # entry point — run a review
+├── Update-AsaEolData.ps1       # opt-in online refresh of the EoL reference
+│                               #   (the only networked script; never run by a review)
+├── src/                        # the tool
+│   ├── Read-AsaConfig.ps1          # bounded, encoding-safe file reader
+│   ├── ConvertTo-AsaModel.ps1      # parser: indentation tree + repeated-prefix index
+│   ├── Resolve-AsaReferences.ps1   # object / object-group resolution (recursive)
+│   ├── Get-AsaReferenceIndex.ps1   # which ACLs/objects are referenced (hygiene)
+│   ├── Get-AsaInterfaceRoles.ps1   # nameif + security-level -> zone roles
+│   ├── Get-AsaZoneModel.ps1        # zones + inter-zone flows (segmentation)
+│   ├── Get-AsaSecrets.ps1          # secret / credential classifier
+│   ├── Protect-AsaSecret.ps1       # secret masking
+│   ├── Invoke-AsaChecks.ps1        # check engine — runs the catalog
+│   ├── checks/structural.ps1       # code detectors for non-declarative checks
+│   ├── Write-AsaReport.ps1         # Markdown + CSV writers
+│   ├── Write-AsaHtmlReport.ps1     # self-contained HTML deliverable
+│   └── Show-AsaModel.ps1           # verbose parser dump (troubleshooting)
+├── data/                       # declarative data, loaded inertly (never executed)
+│   ├── check-catalog.psd1          # the 58 check definitions (read at runtime)
+│   ├── asa-eol.psd1                # bundled end-of-life reference (read at runtime)
+│   └── asa-defaults.psd1           # doc-cited ASA 9.x defaults behind the absence
+│                                   #   checks (reference data; not loaded at runtime)
+├── examples/                   # sample output from the synthesized fixture
+├── README.md
+└── LICENSE
+```
+
+The development repository also carries `tests/` (the Pester suite and synthesized
+fixtures) and `claude-dev/` (planning and design docs); neither ships in a release.
+
 ## Status
 
-**Version:** v0.2a.
+**Version:** v0.2c.
 **Last updated:** 2026-06-25.
 
 Implemented and gated (the full unit suite passes — 124 tests — plus an opt-in

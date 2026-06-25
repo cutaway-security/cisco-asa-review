@@ -16,27 +16,33 @@ README.md            (release variant: no claude-dev/ companion links)
 LICENSE
 .gitignore
 Invoke-AsaReview.ps1
+Update-AsaEolData.ps1
 src/                 (all)
 data/                (all)
-tests/               (all; tests/fixtures/real/ stays gitignored)
+examples/            (sample output from the synthesized fixture)
 ```
 
 What is excluded from main: `CLAUDE.md`, `claude-dev/`, `.ai-reviews/`,
-`background/`.
+`background/`, and **`tests/`** (the Pester suite + fixtures are dev-only; an end
+user running a review does not need them). The tests live on `claude-dev` and are
+verified there before each release — see the procedure below.
 
 ## Procedure (rebuild main from current claude-dev HEAD)
 
 ```sh
 git checkout claude-dev            # ensure HEAD is the release-ready commit
+pwsh -File tests/Invoke-Tests.ps1  # verify GREEN on claude-dev BEFORE cutting main
+                                   #   (main no longer ships tests/, so this is the
+                                   #    only place to run them; src/ + data/ are
+                                   #    byte-identical on the release, so it is equivalent)
 git branch -D main 2>/dev/null     # drop local main
 git checkout --orphan main         # new history; index = full claude-dev tree
-git rm -r --cached --quiet CLAUDE.md claude-dev .ai-reviews background
+git rm -r --cached --quiet CLAUDE.md claude-dev .ai-reviews background tests
 # trim README for release (drop the claude-dev companion-doc links), then:
 git add README.md
 git commit -m "Release: cisco-asa-review <version>"
-# verify no claude files:
-git ls-files | grep -E '^(CLAUDE.md|claude-dev/|.ai-reviews/|background/)' && echo LEAK || echo clean
-pwsh -File tests/Invoke-Tests.ps1  # expect green on the release tree
+# verify no claude/dev files:
+git ls-files | grep -E '^(CLAUDE.md|claude-dev/|.ai-reviews/|background/|tests/)' && echo LEAK || echo clean
 git push -f origin main
 git tag -f -a <version> -m "<notes>"; git push -f origin <version>
 git checkout -f claude-dev         # restore the dev working tree (see caveat below)
@@ -47,8 +53,8 @@ single-maintainer. Re-evaluate once there are collaborators or the repo is publi
 
 ### Caveat: the final `checkout claude-dev` needs `-f`
 
-`git rm -r --cached CLAUDE.md claude-dev .ai-reviews background` only *un-tracks*
-those paths on `main` — the files stay on disk as **untracked**. So a plain
+`git rm -r --cached CLAUDE.md claude-dev .ai-reviews background tests` only
+*un-tracks* those paths on `main` — the files stay on disk as **untracked**. So a plain
 `git checkout claude-dev` aborts with "untracked working tree files would be
 overwritten" (claude-dev tracks the very files sitting there untracked). Use
 `git checkout -f claude-dev`. This is safe **provided the release-ready commit was
