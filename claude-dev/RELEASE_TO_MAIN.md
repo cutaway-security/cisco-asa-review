@@ -39,11 +39,33 @@ git ls-files | grep -E '^(CLAUDE.md|claude-dev/|.ai-reviews/|background/)' && ec
 pwsh -File tests/Invoke-Tests.ps1  # expect green on the release tree
 git push -f origin main
 git tag -f -a <version> -m "<notes>"; git push -f origin <version>
-git checkout claude-dev            # restore the dev working tree
+git checkout -f claude-dev         # restore the dev working tree (see caveat below)
 ```
 
 Force-push of `main`/tags is acceptable while the repo is private and
 single-maintainer. Re-evaluate once there are collaborators or the repo is public.
+
+### Caveat: the final `checkout claude-dev` needs `-f`
+
+`git rm -r --cached CLAUDE.md claude-dev .ai-reviews background` only *un-tracks*
+those paths on `main` — the files stay on disk as **untracked**. So a plain
+`git checkout claude-dev` aborts with "untracked working tree files would be
+overwritten" (claude-dev tracks the very files sitting there untracked). Use
+`git checkout -f claude-dev`. This is safe **provided the release-ready commit was
+committed and pushed on `claude-dev` first** (the procedure's first line): the
+on-disk leftovers are identical to claude-dev's tracked versions, so forcing the
+switch overwrites them with the same content and loses nothing. Confirm afterward:
+
+```sh
+git branch --show-current          # claude-dev
+git status --short                 # empty (clean)
+git log --oneline -1               # the release-ready dev commit
+```
+
+If you are unsure whether everything was committed, check `git status` on `main`
+*before* switching: it should show only `??` (untracked) Claude paths and no
+modified tracked files. Anything tracked-and-modified means uncommitted work —
+commit it on `claude-dev` (after switching) rather than forcing past it.
 
 ## Notes
 
