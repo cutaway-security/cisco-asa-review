@@ -25,14 +25,16 @@ Describe 'v0.2 coverage: true positives' {
     It 'flags the checks the insecure fixture should trigger' {
         foreach ($id in 'MGMT-SSH-OUTSIDE','AUTH-AAA-SERIAL','LOG-TIMESTAMP','LOG-TRAP','AUTH-PW-LOCKOUT','IF-URPF',
                         'MGMT-SSH-TIMEOUT','MGMT-HTTP-TIMEOUT','CRYPTO-PFS',
-                        'AUTH-CMD-AUTHZ','AUTH-CMD-ACCT','AUTH-PW-COMPLEXITY','AUTH-PW-LIFETIME','AUTH-BANNER-MOTD') {
+                        'AUTH-CMD-AUTHZ','AUTH-CMD-ACCT','AUTH-PW-COMPLEXITY','AUTH-PW-LIFETIME','AUTH-BANNER-MOTD',
+                        'CRYPTO-SSL-CIPHER') {
             script:Fired $script:InFind $id | Should -BeTrue -Because "$id should fire on the insecure fixture"
         }
     }
 
-    It 'flags coverage-only cases (console logging, weak SNMPv3, long SA lifetime, AAA gaps)' {
+    It 'flags coverage-only cases (logging, SNMPv3, SA lifetime, AAA gaps, weak crypto strength)' {
         foreach ($id in 'LOG-CONSOLE','SNMP-V3-WEAK','CRYPTO-SA-LIFETIME',
-                        'AUTH-ENABLE-PW','AUTH-AAA-ENABLE','AUTH-AAA-HTTP') {
+                        'AUTH-ENABLE-PW','AUTH-AAA-ENABLE','AUTH-AAA-HTTP',
+                        'CRYPTO-IKE-INTEGRITY','CRYPTO-IPSEC-INTEGRITY','CRYPTO-DH-14','CRYPTO-AES128') {
             script:Fired $script:CovFind $id | Should -BeTrue -Because "$id should fire on the coverage fixture"
         }
     }
@@ -43,7 +45,8 @@ Describe 'v0.2 coverage: true negatives on the hardened fixture' {
     It 'fires none of the new checks on the hardened config' {
         foreach ($id in 'MGMT-SSH-OUTSIDE','AUTH-AAA-SERIAL','LOG-TIMESTAMP','LOG-TRAP','LOG-CONSOLE','AUTH-PW-LOCKOUT','IF-URPF','SNMP-V3-WEAK',
                         'MGMT-SSH-TIMEOUT','MGMT-HTTP-TIMEOUT','CRYPTO-PFS','CRYPTO-SA-LIFETIME',
-                        'AUTH-ENABLE-PW','AUTH-AAA-ENABLE','AUTH-AAA-HTTP','AUTH-CMD-AUTHZ','AUTH-CMD-ACCT','AUTH-PW-COMPLEXITY','AUTH-PW-LIFETIME','AUTH-BANNER-MOTD') {
+                        'AUTH-ENABLE-PW','AUTH-AAA-ENABLE','AUTH-AAA-HTTP','AUTH-CMD-AUTHZ','AUTH-CMD-ACCT','AUTH-PW-COMPLEXITY','AUTH-PW-LIFETIME','AUTH-BANNER-MOTD',
+                        'CRYPTO-IKE-INTEGRITY','CRYPTO-IPSEC-INTEGRITY','CRYPTO-DH-14','CRYPTO-AES128','CRYPTO-SSL-CIPHER') {
             script:Fired $script:HdFind $id | Should -BeFalse -Because "$id must not fire on the hardened fixture"
         }
     }

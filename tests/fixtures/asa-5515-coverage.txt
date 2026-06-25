@@ -22,4 +22,11 @@ crypto ikev2 policy 10
  integrity sha384
  group 20
  lifetime seconds 172800
+crypto ikev1 policy 20
+ authentication pre-share
+ encryption aes
+ hash sha
+ group 14
+ lifetime 28800
+crypto ipsec ikev1 transform-set WEAK-TS esp-aes esp-sha-hmac
 : end

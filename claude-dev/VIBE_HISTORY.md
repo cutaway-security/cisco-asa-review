@@ -7,6 +7,18 @@ project's lifetime.
 
 ---
 
+## 2026-06-24 -- v0.2 catalog coverage, Slice 4: crypto strength (gate passed)
+
+Slice 4 = 5 crypto-strength checks, all DATA-DRIVEN (present patterns, no code): CRYPTO-IKE-INTEGRITY (SHA-1 in IKE), CRYPTO-IPSEC-INTEGRITY (esp-sha-hmac), CRYPTO-DH-14 (group 14 < 16), CRYPTO-AES128 (aes/aes-128 instead of aes-256), CRYPTO-SSL-CIPHER (rc4/des/3des/null or low/medium ssl cipher). Catalog now 45 checks.
+
+Scoped to avoid overlap with the existing CRYPTO-WEAK-VPN (which already flags des/3des/md5/group 1-2-5): IKE-INTEGRITY is SHA-1-only (md5 stays with weak-vpn); DH-14 is group-14-only (1/2/5 stay with weak-vpn). Regex care: `^encryption aes(\s|$)` matches plain AES-128 but NOT `aes-256` (the '-' defeats the alternation); `group 14` vs `group 1` handled by `\b`.
+
+TP: CRYPTO-SSL-CIPHER fires on insecure (it has `ssl encryption rc4-sha1 ...`); the other 4 fire on a new weak-crypto block appended to the coverage fixture (ikev1 policy with hash sha / group 14 / encryption aes + transform-set esp-aes esp-sha-hmac). TN: all 5 clean on hardened (aes-256 / sha384 / group 20 / ssl cipher high). No hardened changes needed this slice. Suite 113/113.
+
+~3 catalog slices left (logging/monitoring, access-control, interface-hardening) + 4 infra items. On claude-dev; not released.
+
+---
+
 ## 2026-06-24 -- v0.2 catalog coverage, Slice 3: AAA depth (gate passed)
 
 Slice 3 = 8 AAA checks (6 data-driven absent + 2 code): AUTH-ENABLE-PW, AUTH-AAA-ENABLE, AUTH-AAA-HTTP (code, conditional on http server enable), AUTH-CMD-AUTHZ, AUTH-CMD-ACCT, AUTH-PW-COMPLEXITY (code, fires if any of minimum-upper/lower/numeric/special missing), AUTH-PW-LIFETIME, AUTH-BANNER-MOTD. Catalog now 40 checks (15 MVP + 20 v0.2 + 5 hygiene).

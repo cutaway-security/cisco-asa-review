@@ -187,14 +187,15 @@ v0.2 coverage:
       - Slice 3 (AAA depth, 8): AUTH-ENABLE-PW, AUTH-AAA-ENABLE, AUTH-AAA-HTTP,
         AUTH-CMD-AUTHZ, AUTH-CMD-ACCT, AUTH-PW-COMPLEXITY, AUTH-PW-LIFETIME,
         AUTH-BANNER-MOTD.
-      Catalog now **40 checks** (15 MVP + 20 v0.2 + 5 hygiene). `Coverage.Tests.ps1`
-      gates TP (insecure/coverage) + TN (hardened). **~4 catalog slices left**:
-      Slice 4 crypto-strength (IKE/IPsec integrity SHA-2, DH-14, AES-128, SSL
-      cipher), Slice 5 logging/monitoring (syslog TCP, buffer size, redundant NTP,
-      default community, threat-detection basic), Slice 6 access-control
-      (implicit-deny logging, ICMP-to-device, sysopt permit-vpn), Slice 7
-      interface-hardening (threat-detection scanning, outside sec-level,
-      same-security-traffic, DNS guard, failover, DNS lookup).
+      - Slice 4 (crypto strength, 5): CRYPTO-IKE-INTEGRITY, CRYPTO-IPSEC-INTEGRITY,
+        CRYPTO-DH-14, CRYPTO-AES128, CRYPTO-SSL-CIPHER.
+      Catalog now **45 checks** (15 MVP + 25 v0.2 + 5 hygiene). `Coverage.Tests.ps1`
+      gates TP (insecure/coverage) + TN (hardened). **~3 catalog slices left**:
+      Slice 5 logging/monitoring (syslog TCP, buffer size, redundant NTP, default
+      community, threat-detection basic), Slice 6 access-control (implicit-deny
+      logging, ICMP-to-device, sysopt permit-vpn), Slice 7 interface-hardening
+      (threat-detection scanning, outside sec-level, same-security-traffic, DNS
+      guard, failover, DNS lookup).
 - [ ] Deep recursive resolution (FR-05b).
 - [ ] Version/EoL lookup table (FR-15, `asa-eol.psd1`, DR-05).
 - [ ] Second independently authored fixture (TR-05).

@@ -208,6 +208,48 @@
             Remediation = 'Use SNMPv3 with SHA authentication and AES privacy.'
         }
 
+        # --- v0.2 coverage Slice 4: crypto strength ---
+        @{
+            Id = 'CRYPTO-IKE-INTEGRITY'; Category = 'crypto'; Severity = 'Medium'
+            Profile = @('commercial','dod'); Authority = 'STIG V-239958'; Verified = $false
+            Confidence = 'deterministic'; Dependency = @('raw'); Kind = 'presence'
+            Detector = @{ Type = 'present'; Patterns = @('^hash sha\b', '^integrity sha\b', '^integrity sha1\b') }
+            Rationale = 'IKE policy uses SHA-1 integrity; SHA-2 (sha256/sha384) is required.'
+            Remediation = 'Use IKE integrity sha256 or sha384.'
+        }
+        @{
+            Id = 'CRYPTO-IPSEC-INTEGRITY'; Category = 'crypto'; Severity = 'Medium'
+            Profile = @('commercial','dod'); Authority = 'STIG V-239959'; Verified = $false
+            Confidence = 'deterministic'; Dependency = @('raw'); Kind = 'presence'
+            Detector = @{ Type = 'present'; Patterns = @('esp-sha-hmac\b', '^protocol esp integrity sha-1\b') }
+            Rationale = 'IPsec uses SHA-1 (esp-sha-hmac) for integrity; SHA-2 is required.'
+            Remediation = 'Use an IPsec proposal/transform-set with SHA-2 integrity (e.g., esp-sha256-hmac).'
+        }
+        @{
+            Id = 'CRYPTO-DH-14'; Category = 'crypto'; Severity = 'Medium'
+            Profile = @('commercial','dod'); Authority = 'STIG V-239957'; Verified = $false
+            Confidence = 'deterministic'; Dependency = @('raw'); Kind = 'presence'
+            Detector = @{ Type = 'present'; Patterns = @('^group 14\b') }
+            Rationale = 'Diffie-Hellman group 14 (2048-bit MODP) is below the recommended group 16 or higher.'
+            Remediation = 'Use DH group 16, 19, 20, 21, or 24.'
+        }
+        @{
+            Id = 'CRYPTO-AES128'; Category = 'crypto'; Severity = 'Medium'
+            Profile = @('commercial','dod'); Authority = 'STIG V-239979/980'; Verified = $false
+            Confidence = 'deterministic'; Dependency = @('raw'); Kind = 'presence'
+            Detector = @{ Type = 'present'; Patterns = @('^encryption aes(\s|$)', '^encryption aes-128\b', '\besp-aes(\s|$)', '\besp-aes-128\b') }
+            Rationale = 'IKE/IPsec uses AES-128; AES-256 is recommended for VPN encryption.'
+            Remediation = 'Use aes-256 for IKE encryption and ESP.'
+        }
+        @{
+            Id = 'CRYPTO-SSL-CIPHER'; Category = 'crypto'; Severity = 'Medium'
+            Profile = @('commercial','dod'); Authority = 'CIS 1.7.3'; Verified = $false
+            Confidence = 'deterministic'; Dependency = @('raw'); Kind = 'presence'
+            Detector = @{ Type = 'present'; Patterns = @('^ssl encryption\b.*\b(rc4|des|3des|null)\b', '^ssl cipher\b.*\b(low|medium)\b') }
+            Rationale = 'Weak SSL/TLS ciphers (RC4, DES/3DES, NULL, or a low/medium cipher level) are configured for management/WebVPN TLS.'
+            Remediation = 'Set ssl cipher to a high/strong cipher set (e.g., ssl cipher tlsv1.2 high).'
+        }
+
         # --- v0.2 coverage Slice 3: AAA depth ---
         @{
             Id = 'AUTH-ENABLE-PW'; Category = 'auth'; Severity = 'Medium'
