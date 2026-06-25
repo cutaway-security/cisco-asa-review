@@ -142,6 +142,72 @@
             Remediation = 'Configure a banner login with the organization-approved notice text.'
         }
 
+        # --- v0.2 coverage: additional CIS/STIG checks (data-driven) ---
+        @{
+            Id = 'MGMT-SSH-OUTSIDE'; Category = 'management'; Severity = 'High'
+            Profile = @('commercial','dod'); Authority = 'CIS 1.6.1 (narrative)'; Verified = $false
+            Confidence = 'deterministic'; Dependency = @('raw'); Kind = 'presence'
+            Detector = @{ Type = 'present'; Patterns = @('^ssh\s+\S+\s+\S+\s+outside\b') }
+            Rationale = 'SSH management permitted on the outside (untrusted) interface exposes the control plane to the Internet.'
+            Remediation = 'Remove ssh access on the outside interface; restrict SSH to an internal management interface.'
+        }
+        @{
+            Id = 'AUTH-AAA-SERIAL'; Category = 'auth'; Severity = 'Medium'
+            Profile = @('commercial','dod'); Authority = 'CIS 1.4.3.4; STIG V-239940'; Verified = $true
+            Confidence = 'deterministic'; Dependency = @('raw'); Kind = 'absence'
+            Detector = @{ Type = 'absent'; Pattern = '^aaa authentication serial console\b' }
+            Rationale = 'Without AAA on the serial console, console access is not centrally authenticated.'
+            Remediation = 'Configure aaa authentication serial console <server-group> LOCAL.'
+        }
+        @{
+            Id = 'LOG-TIMESTAMP'; Category = 'logging'; Severity = 'Low'
+            Profile = @('commercial','dod'); Authority = 'CIS 1.10 (timestamps)'; Verified = $false
+            Confidence = 'deterministic'; Dependency = @('raw'); Kind = 'absence'
+            Detector = @{ Type = 'absent'; Pattern = '^logging timestamp\b' }
+            Rationale = 'Without logging timestamps, syslog correlation and incident timelines are unreliable.'
+            Remediation = 'Configure logging timestamp.'
+        }
+        @{
+            Id = 'LOG-TRAP'; Category = 'logging'; Severity = 'Medium'
+            Profile = @('commercial','dod'); Authority = 'CIS 1.10 (trap level)'; Verified = $false
+            Confidence = 'deterministic'; Dependency = @('raw'); Kind = 'absence'
+            Detector = @{ Type = 'absent'; Pattern = '^logging trap\b' }
+            Rationale = 'Without a logging trap level set, syslog severity sent to hosts is not controlled.'
+            Remediation = 'Configure logging trap (e.g., notifications or informational).'
+        }
+        @{
+            Id = 'LOG-CONSOLE'; Category = 'logging'; Severity = 'Low'
+            Profile = @('commercial','dod'); Authority = 'CIS 1.10.2'; Verified = $false
+            Confidence = 'deterministic'; Dependency = @('raw'); Kind = 'presence'
+            Detector = @{ Type = 'present'; Patterns = @('^logging console\b') }
+            Rationale = 'Console logging can hang the device under high message volume and is discouraged.'
+            Remediation = 'Disable console logging (no logging console).'
+        }
+        @{
+            Id = 'AUTH-PW-LOCKOUT'; Category = 'auth'; Severity = 'Medium'
+            Profile = @('commercial','dod'); Authority = 'CIS 1.4.1.1'; Verified = $false
+            Confidence = 'deterministic'; Dependency = @('raw'); Kind = 'absence'
+            Detector = @{ Type = 'absent'; Pattern = '^aaa local authentication attempts max-fail\b' }
+            Rationale = 'No local lockout policy allows unlimited password-guessing against local accounts.'
+            Remediation = 'Configure aaa local authentication attempts max-fail 3 (or per policy).'
+        }
+        @{
+            Id = 'IF-URPF'; Category = 'access'; Severity = 'Medium'
+            Profile = @('commercial','dod'); Authority = 'CIS 3.7; Cisco hardening guide'; Verified = $false
+            Confidence = 'heuristic'; Dependency = @('raw'); Kind = 'absence'
+            Detector = @{ Type = 'absent'; Pattern = '^ip verify reverse-path\b' }
+            Rationale = 'Without uRPF (ip verify reverse-path), the device does not drop spoofed source addresses.'
+            Remediation = 'Enable ip verify reverse-path interface <untrusted-interface>.'
+        }
+        @{
+            Id = 'SNMP-V3-WEAK'; Category = 'logging'; Severity = 'Medium'
+            Profile = @('commercial','dod'); Authority = 'CIS 1.11.2; STIG V-239927'; Verified = $false
+            Confidence = 'deterministic'; Dependency = @('raw'); Kind = 'presence'
+            Detector = @{ Type = 'present'; Patterns = @('^snmp-server user\b.*\bauth md5\b', '^snmp-server user\b.*\bpriv (des|3des)\b') }
+            Rationale = 'SNMPv3 with MD5 auth or DES/3DES privacy uses weak cryptography.'
+            Remediation = 'Use SNMPv3 with SHA authentication and AES privacy.'
+        }
+
         # --- Phase 6 / issue #1 hygiene checks (Informational) ---
         @{
             Id = 'HYGIENE-UNUSED-ACL'; Category = 'hygiene'; Severity = 'Informational'

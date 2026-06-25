@@ -79,10 +79,16 @@
   - `tests/fixtures/asa-5515-hygiene.txt` + `tests/unit/Hygiene.Tests.ps1`. Suite
     108/108 green; end-to-end + HTML render re-verified; crypto-only ACL not flagged.
 
+- **v0.2 catalog coverage Slice 1 (2026-06-24):** +8 data-driven checks
+  (MGMT-SSH-OUTSIDE, AUTH-AAA-SERIAL, LOG-TIMESTAMP, LOG-TRAP, LOG-CONSOLE,
+  AUTH-PW-LOCKOUT, IF-URPF, SNMP-V3-WEAK). `asa-5515-coverage.txt` +
+  `Coverage.Tests.ps1`. Catalog = 28 checks. Suite 113/113.
+
 ## In Progress
 
-Nothing being coded. Issue #1 complete on `claude-dev` (not yet released). v0.2
-catalog coverage remains in Phase 6.
+v0.2 catalog coverage, slice by slice (data-driven checks first). Next slices:
+more catalog checks; then deep resolution (FR-05b), version/EoL table, second
+fixture, perf. On `claude-dev` (issue #1 + Slice 1 not yet released).
 
 ## Blockers
 

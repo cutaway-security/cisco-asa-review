@@ -179,7 +179,12 @@ consolidated, ANY/ANY highlighted, no secret leak, deterministic.
 **Status**: Not Started (planned 2026-06-24)
 
 v0.2 coverage:
-- [ ] Remaining CIS/STIG catalog across all seven categories.
+- [~] Remaining CIS/STIG catalog across all seven categories. **Slice 1 done
+      (2026-06-24):** +8 data-driven checks (MGMT-SSH-OUTSIDE, AUTH-AAA-SERIAL,
+      LOG-TIMESTAMP, LOG-TRAP, LOG-CONSOLE, AUTH-PW-LOCKOUT, IF-URPF, SNMP-V3-WEAK)
+      with `asa-5515-coverage.txt` + `Coverage.Tests.ps1` (TP on insecure/coverage,
+      TN on hardened). Catalog now 28 checks (15 MVP + 8 v0.2 + 5 hygiene). More
+      slices to come (AAA complexity, crypto PFS/integrity, mgmt timeouts, etc.).
 - [ ] Deep recursive resolution (FR-05b).
 - [ ] Version/EoL lookup table (FR-15, `asa-eol.psd1`, DR-05).
 - [ ] Second independently authored fixture (TR-05).

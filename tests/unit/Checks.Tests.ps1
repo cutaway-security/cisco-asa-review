@@ -27,11 +27,10 @@ BeforeAll {
 
 Describe 'Check engine: true positives on the insecure fixture' {
 
-    It 'fires all 15 MVP checks (exactly 15 risk checks; hygiene is Informational)' {
+    It 'fires all 15 MVP checks (the catalog may also fire additional v0.2 checks)' {
         $fired = @($script:InsecureFindings | Where-Object { $_.Status -eq 'finding' })
         $firedIds = $fired.CheckId | Sort-Object -Unique
         foreach ($id in $script:Expected.Checks.Id) { $firedIds | Should -Contain $id }
-        @($fired | Where-Object { $_.Severity -ne 'Informational' } | ForEach-Object CheckId | Sort-Object -Unique).Count | Should -Be 15
     }
 
     It 'every seeded MustFire check fires with the expected evidence' {

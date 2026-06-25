@@ -7,6 +7,18 @@ project's lifetime.
 
 ---
 
+## 2026-06-24 -- v0.2 catalog coverage, Slice 1 (gate passed)
+
+Started the v0.2 catalog expansion. Slice 1 = 8 data-driven checks added as pure CATALOG DATA (no engine code -- the declarative-catalog payoff, MR-01): MGMT-SSH-OUTSIDE (present), AUTH-AAA-SERIAL/LOG-TIMESTAMP/LOG-TRAP/AUTH-PW-LOCKOUT/IF-URPF (absent), LOG-CONSOLE/SNMP-V3-WEAK (present). Catalog now 28 checks (15 MVP + 8 v0.2 + 5 hygiene).
+
+Method that makes catalog growth sustainable: the HARDENED fixture is the clean true-negative baseline -- it already satisfied all 8 (so TN is free); 6 of the 8 true-positives are already present in the INSECURE fixture (it lacks the good lines), and the remaining 2 (console logging, weak SNMPv3) got a small dedicated `asa-5515-coverage.txt`. `Coverage.Tests.ps1` asserts TP on insecure/coverage and TN on hardened, plus catalog integrity (unique ids, known severities). The hardened "zero risk findings" gate still holds.
+
+Had to generalize one brittle test: "exactly 15 risk checks fire on insecure" -> "all 15 MVP fire" (subset). The exact count can't hold as the catalog grows; MVP completeness is still asserted, and Coverage.Tests covers the new checks precisely.
+
+Suite 113/113. On claude-dev; not released. Next slices: more catalog checks (AAA complexity, crypto PFS/integrity, mgmt timeouts -- some need numeric/code detectors), then deep resolution, version/EoL, second fixture, perf.
+
+---
+
 ## 2026-06-24 -- Phase 6 / GitHub issue #1 BUILT (gate passed)
 
 All 7 issue-#1 items delivered (108/108 tests; on claude-dev, not yet released).

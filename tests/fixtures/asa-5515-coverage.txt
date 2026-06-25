@@ -1,0 +1,19 @@
+: Saved
+: Hardware:   ASA5515
+!
+ASA Version 9.8(4)
+!
+hostname lab-asa-coverage
+!
+interface GigabitEthernet0/0
+ nameif inside
+ security-level 100
+ ip address 10.40.0.1 255.255.255.0
+!
+logging enable
+logging console debugging
+logging host inside 10.40.0.10
+snmp-server host inside 10.40.0.20 version 3 weakuser
+snmp-server group monGrp v3 auth
+snmp-server user weakuser monGrp v3 auth md5 AuthPass priv des PrivPass
+: end
