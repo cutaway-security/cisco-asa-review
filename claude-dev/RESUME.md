@@ -2,12 +2,13 @@
 
 ## Current State
 
-**Last Session**: 2026-06-24
-**Branch**: claude-dev
-**Status**: **v0.2a released to `main`** (latest). 58-check catalog, deep
-resolution, version/EoL, perf-verified, generalized to the ASA 9.x family
-(model-agnostic), plus a README Manual review checklist. Default suite 124 passed
-/ 1 skipped (opt-in perf).
+**Last Session**: 2026-06-25
+**Branch**: claude-dev (ahead of `origin/claude-dev` — README + planning-doc
+commits not yet pushed; last release on `main` is v0.2a)
+**Status**: v0.2a is the latest release. Since then, on `claude-dev` (unpushed):
+README repositioned/retitled, and a multi-AI accuracy+usability review (Phase 8)
+done and its full edit set applied to the README. Default suite 124 passed /
+1 skipped (opt-in perf).
 
 ## What Was Accomplished
 
@@ -151,9 +152,24 @@ resolution, version/EoL, perf-verified, generalized to the ASA 9.x family
   - **Released to `main` as v0.2a**, tag `v0.2a`. The documented `checkout -f`
     caveat in RELEASE_TO_MAIN.md made the orphan rebuild clean (no abort).
 
+- **README repositioning + multi-AI review/improvements (2026-06-25, unpushed):**
+  - Retitled to "Cisco ASA Firewall Review"; added the "Where this fits" stopgap
+    lead-in (NP-View / Titania Nipper; SANS Five ICS Controls 2 + 4).
+  - Phase 8 multi-AI accuracy+usability review (`multi-ai-code-review`, 3 reviewers)
+    → `.ai-reviews/20260625-082215/` + consolidated synthesis. Verified 58-check
+    accuracy; refereed out 3 reviewer errors (mistral "68 checks", openai "missing
+    docs/fixtures" bundle artifacts, mistral SVG-xmlns pedantry).
+  - Applied the full edit set (README only): "At a glance" facts table; "Example
+    output" from a **real** run on `asa-9x-insecure.txt` (noted as not a live
+    config); "How to read the report" (severity tiers / Informational-excluded /
+    `not-assessed`); "Troubleshooting"; offline claim scoped to the review path;
+    "mapped to CIS/STIG" and "analysis is the same" softened; stderr fix; 58-vs-MVP-15
+    note. Humanizer pass dropped (maintainer call). No tool-code changes.
+
 ## In Progress
 
-**v0.2a released to `main`** (docs-only over v0.2). Nothing open in v0.2.
+**Phase 8 (README) complete and applied; unpushed on `claude-dev`.** Ready to push
++ release as the next tag (e.g. v0.2b) when the maintainer chooses.
 
 ## Blockers
 
@@ -163,12 +179,18 @@ resolution, version/EoL, perf-verified, generalized to the ASA 9.x family
 
 ## Next Steps
 
-1. Still pending for a full "shipped" claim: run on **Windows PowerShell 5.1**
+1. Push the README + planning-doc commits and release them to `main` (next tag,
+   e.g. v0.2b) when ready.
+2. **Tool-code follow-ups from the multi-AI review** (each needs its own
+   test+verify; NOT README): stale Guard-test description ("only Write-AsaReport");
+   dead EoL `Hardware` data in `asa-eol.psd1`; the status-line "N (High/Med/Low)"
+   label that also counts Informational; `Protect-AsaLine` broad `key` over-masking;
+   `-Profile` shadowing the `$Profile` auto-variable.
+3. Still pending for a full "shipped" claim: run on **Windows PowerShell 5.1**
    (TSC-09/NFR-01; PSv7 is now validated), a runtime egress-monitor check (TSC-11),
    and a findings-accuracy review against a real engagement config.
-2. Optional next milestone (v0.3): ACL shadowing/redundancy; DoD-profile-specific
-   checks; process items (ADRs, traceability matrix). Wire the dormant hardware-EoL
-   data into a check if per-model hardware EoL findings are wanted.
+4. Optional next milestone (v0.3): ACL shadowing/redundancy; DoD-profile-specific
+   checks; process items (ADRs, traceability matrix).
 
 ## Open Questions
 

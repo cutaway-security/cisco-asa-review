@@ -263,7 +263,9 @@ and the 20k-line perf benchmark + quadratic fix (NFR-04) are all done.
 
 ### Phase 8: Documentation finalization (README)
 
-**Status**: In progress. The README is a primary deliverable for two audiences —
+**Status**: Lead-in/retitle done; multi-AI accuracy+usability review done and
+applied (2026-06-25); humanizer pass dropped by maintainer decision. The README is
+a primary deliverable for two audiences —
 end users (analysts running the tool) and AI researchers/agents reading the repo
 — so it gets a deliberate accuracy + usability pass near the end, once the
 project's results are known and stable.
@@ -273,21 +275,33 @@ project's results are known and stable.
       cross-device tools; mapped to SANS Five ICS Critical Controls — Control 2
       Defensible Architecture and Control 4 Secure Remote Access). Retitled the
       heading to "Cisco ASA Firewall Review".
-- [ ] **Accuracy + usability review (multi-AI first, then humanizer).** Run the
-      `multi-ai-code-review` skill to evaluate the README for accuracy
-      (claims cross-checked against the code/catalog) and usability for both
-      audiences; synthesize and apply fixes. THEN run the `humanizer` skill on the
-      prose sections to remove AI-writing tells. Order matters: fix substance and
-      structure before polishing voice, so the polish lands on the corrected text.
-      Scope the humanizer pass to prose (description, lead-in, "Where it works",
-      Status) — not code blocks, command examples, tables, or precise claims.
-- [ ] Optimize for AI researchers without hurting human readability (stable
-      headings, explicit/falsifiable claims, consistent terminology, an at-a-glance
-      facts block) — see RESUME/this plan for the recommendation set.
+- [x] **Accuracy + usability review (multi-AI), applied (2026-06-25).** Ran
+      `multi-ai-code-review` (anthropic + openai + mistral) with a custom README
+      accuracy/usability prompt, bundling README + `src/` + `data/` + `tests/unit`
+      (planning docs/fixtures excluded so the char budget reached the code). Output:
+      `.ai-reviews/20260625-082215/` + consolidated synthesis. Refereed out three
+      reviewer errors (mistral's "68 checks" — verified 58; openai's "missing
+      companion docs/fixtures" — bundle artifacts; mistral's SVG-xmlns pedantry).
+      Applied the full consensus + precision edit set to README (see VIBE_HISTORY).
+      **Humanizer pass intentionally skipped** (maintainer call: overcomplicates a
+      simple, mostly-additive edit set; the changes are precision/structure, not voice).
+- [x] Optimize for AI researchers + end users (2026-06-25): added an "At a glance"
+      facts table, an "Example output" section generated from a real run against the
+      synthesized `asa-9x-insecure.txt` fixture (noted as not a live config), a "How
+      to read the report" section (severity tiers + Informational-excluded +
+      `not-assessed`), a "Troubleshooting" section, scoped the offline claim to the
+      review path, softened "mapped to CIS/STIG" and "analysis is the same",
+      corrected stderr, and reconciled the 58-vs-MVP-15 terminology.
+- [ ] Tool-code follow-ups surfaced by the review (need separate test+verify, NOT
+      done here): stale Guard-test description ("only Write-AsaReport"); dead EoL
+      `Hardware` data in `asa-eol.psd1`; status-line label "N (High/Med/Low)" counts
+      Informational too; `Protect-AsaLine` broad `key` over-masking; `-Profile`
+      shadows the `$Profile` auto-variable.
 
 **Acceptance gate**: every factual claim in the README verified against the code
-(check count, flags, outputs, scope); a sample-output example present; multi-AI
-synthesis applied; humanizer pass applied to prose; no regression in scannability.
+(check count = 58, flags, outputs, scope) — DONE; a real sample-output example
+present — DONE; multi-AI synthesis applied — DONE. (Humanizer pass dropped by
+maintainer decision.)
 
 ## Decision Log
 

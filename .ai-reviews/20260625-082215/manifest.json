@@ -1,0 +1,248 @@
+{
+  "generated": "2026-06-25T08:23:46.841042",
+  "project_root": "/home/cutaway/Projects/cisco-asa-review",
+  "mode": "custom:/tmp/claude-1000/-home-cutaway-Projects/6658e529-1f90-438b-959c-f5ee6f56a0a9/scratchpad/readme-review-prompt.md",
+  "review_type": "independent",
+  "artifacts": [],
+  "has_code": true,
+  "code_files": [
+    "Invoke-AsaReview.ps1",
+    "Update-AsaEolData.ps1",
+    "src/ConvertTo-AsaModel.ps1",
+    "src/Get-AsaInterfaceRoles.ps1",
+    "src/Get-AsaReferenceIndex.ps1",
+    "src/Get-AsaSecrets.ps1",
+    "src/Get-AsaZoneModel.ps1",
+    "src/Invoke-AsaChecks.ps1",
+    "src/Protect-AsaSecret.ps1",
+    "src/Read-AsaConfig.ps1",
+    "src/Resolve-AsaReferences.ps1",
+    "src/Show-AsaModel.ps1",
+    "src/Write-AsaHtmlReport.ps1",
+    "src/Write-AsaReport.ps1",
+    "src/checks/structural.ps1",
+    "tests/Invoke-Tests.ps1",
+    "tests/unit/Checks.Tests.ps1",
+    "tests/unit/Corpus.Tests.ps1",
+    "tests/unit/Coverage.Tests.ps1",
+    "tests/unit/EolData.Tests.ps1",
+    "tests/unit/Guard.Tests.ps1",
+    "tests/unit/HtmlReport.Tests.ps1",
+    "tests/unit/Hygiene.Tests.ps1",
+    "tests/unit/Parser.Tests.ps1",
+    "tests/unit/Performance.Tests.ps1",
+    "tests/unit/Robustness.Tests.ps1",
+    "tests/unit/Segmentation.Tests.ps1",
+    "tests/unit/SupportModels.Tests.ps1"
+  ],
+  "context_chars": 269740,
+  "files_sent": [
+    "README.md",
+    ".gitignore",
+    "CLAUDE.md",
+    "Invoke-AsaReview.ps1",
+    "LICENSE",
+    "Update-AsaEolData.ps1",
+    "data/asa-defaults.psd1",
+    "data/asa-eol.psd1",
+    "data/check-catalog.psd1",
+    "src/ConvertTo-AsaModel.ps1",
+    "src/Get-AsaInterfaceRoles.ps1",
+    "src/Get-AsaReferenceIndex.ps1",
+    "src/Get-AsaSecrets.ps1",
+    "src/Get-AsaZoneModel.ps1",
+    "src/Invoke-AsaChecks.ps1",
+    "src/Protect-AsaSecret.ps1",
+    "src/Read-AsaConfig.ps1",
+    "src/Resolve-AsaReferences.ps1",
+    "src/Show-AsaModel.ps1",
+    "src/Write-AsaHtmlReport.ps1",
+    "src/Write-AsaReport.ps1",
+    "src/checks/structural.ps1",
+    "tests/Invoke-Tests.ps1",
+    "tests/unit/Checks.Tests.ps1",
+    "tests/unit/Corpus.Tests.ps1",
+    "tests/unit/Coverage.Tests.ps1",
+    "tests/unit/EolData.Tests.ps1",
+    "tests/unit/Guard.Tests.ps1",
+    "tests/unit/HtmlReport.Tests.ps1",
+    "tests/unit/Hygiene.Tests.ps1",
+    "tests/unit/Parser.Tests.ps1",
+    "tests/unit/Performance.Tests.ps1",
+    "tests/unit/Robustness.Tests.ps1",
+    "tests/unit/Segmentation.Tests.ps1",
+    "tests/unit/SupportModels.Tests.ps1"
+  ],
+  "files_skipped": [
+    {
+      "file": ".ai-reviews/20260624-094932/2026-06-24_0949_anthropic_review.md",
+      "reason": "vendored/generated dir"
+    },
+    {
+      "file": ".ai-reviews/20260624-094932/2026-06-24_0949_consolidated_review.md",
+      "reason": "vendored/generated dir"
+    },
+    {
+      "file": ".ai-reviews/20260624-094932/2026-06-24_0949_mistral_review.md",
+      "reason": "vendored/generated dir"
+    },
+    {
+      "file": ".ai-reviews/20260624-094932/2026-06-24_0949_openai_review.md",
+      "reason": "vendored/generated dir"
+    },
+    {
+      "file": ".ai-reviews/20260624-094932/manifest.json",
+      "reason": "vendored/generated dir"
+    },
+    {
+      "file": ".ai-reviews/20260624-095835/2026-06-24_0958_mistral_review.md",
+      "reason": "vendored/generated dir"
+    },
+    {
+      "file": ".ai-reviews/20260624-095835/2026-06-24_0958_openai_review.md",
+      "reason": "vendored/generated dir"
+    },
+    {
+      "file": ".ai-reviews/20260624-095835/manifest.json",
+      "reason": "vendored/generated dir"
+    },
+    {
+      "file": ".ai-reviews/20260624-101250/2026-06-24_1012_anthropic_review.md",
+      "reason": "vendored/generated dir"
+    },
+    {
+      "file": ".ai-reviews/20260624-101250/2026-06-24_1012_consolidated_review.md",
+      "reason": "vendored/generated dir"
+    },
+    {
+      "file": ".ai-reviews/20260624-101250/2026-06-24_1012_mistral_review.md",
+      "reason": "vendored/generated dir"
+    },
+    {
+      "file": ".ai-reviews/20260624-101250/2026-06-24_1012_openai_review.md",
+      "reason": "vendored/generated dir"
+    },
+    {
+      "file": ".ai-reviews/20260624-101250/manifest.json",
+      "reason": "vendored/generated dir"
+    },
+    {
+      "file": "background/goal.md",
+      "reason": "matched --exclude-glob"
+    },
+    {
+      "file": "claude-dev/20260624_asa-config-analysis_RESEARCH.md",
+      "reason": "matched --exclude-glob"
+    },
+    {
+      "file": "claude-dev/20260624_segmentation-visualization_RESEARCH.md",
+      "reason": "matched --exclude-glob"
+    },
+    {
+      "file": "claude-dev/ARCHITECTURE.md",
+      "reason": "matched --exclude-glob"
+    },
+    {
+      "file": "claude-dev/CHECK_CATALOG.md",
+      "reason": "matched --exclude-glob"
+    },
+    {
+      "file": "claude-dev/DISCOVERY_NOTES.md",
+      "reason": "matched --exclude-glob"
+    },
+    {
+      "file": "claude-dev/PLAN.md",
+      "reason": "matched --exclude-glob"
+    },
+    {
+      "file": "claude-dev/RELEASE_TO_MAIN.md",
+      "reason": "matched --exclude-glob"
+    },
+    {
+      "file": "claude-dev/REQUIREMENTS.md",
+      "reason": "matched --exclude-glob"
+    },
+    {
+      "file": "claude-dev/RESUME.md",
+      "reason": "matched --exclude-glob"
+    },
+    {
+      "file": "claude-dev/SUCCESS_CRITERIA.md",
+      "reason": "matched --exclude-glob"
+    },
+    {
+      "file": "claude-dev/TEST_ENVIRONMENT.md",
+      "reason": "matched --exclude-glob"
+    },
+    {
+      "file": "claude-dev/VIBE_HISTORY.md",
+      "reason": "matched --exclude-glob"
+    },
+    {
+      "file": "claude-dev/VISION.md",
+      "reason": "matched --exclude-glob"
+    },
+    {
+      "file": "claude-dev/code-standards/powershell.md",
+      "reason": "matched --exclude-glob"
+    },
+    {
+      "file": "tests/fixtures/asa-9x-coverage.txt",
+      "reason": "matched --exclude-glob"
+    },
+    {
+      "file": "tests/fixtures/asa-9x-hardened.txt",
+      "reason": "matched --exclude-glob"
+    },
+    {
+      "file": "tests/fixtures/asa-9x-hygiene.txt",
+      "reason": "matched --exclude-glob"
+    },
+    {
+      "file": "tests/fixtures/asa-9x-insecure.txt",
+      "reason": "matched --exclude-glob"
+    },
+    {
+      "file": "tests/fixtures/expected-findings.psd1",
+      "reason": "matched --exclude-glob"
+    },
+    {
+      "file": "tests/perf/Measure-AsaPerf.ps1",
+      "reason": "matched --exclude-glob"
+    },
+    {
+      "file": "tests/perf/New-AsaLargeConfig.ps1",
+      "reason": "matched --exclude-glob"
+    }
+  ],
+  "secrets_redacted": 0,
+  "truncated_files": [],
+  "redaction_enabled": true,
+  "operator_note": "",
+  "reviewers": [
+    {
+      "prefix": "anthropic",
+      "adapter": "anthropic",
+      "model": "claude-opus-4-8",
+      "ok": true,
+      "error": null,
+      "output": "2026-06-25_0822_anthropic_review.md"
+    },
+    {
+      "prefix": "mistral",
+      "adapter": "openai",
+      "model": "mistral-medium-latest",
+      "ok": true,
+      "error": null,
+      "output": "2026-06-25_0822_mistral_review.md"
+    },
+    {
+      "prefix": "openai",
+      "adapter": "openai",
+      "model": "gpt-5.4",
+      "ok": true,
+      "error": null,
+      "output": "2026-06-25_0822_openai_review.md"
+    }
+  ]
+}
